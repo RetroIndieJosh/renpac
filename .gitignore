@@ -2,3 +2,4 @@
 **/*.rpa
 **/*.rpymc
 **/cache/
+**/saves/
