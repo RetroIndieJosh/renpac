@@ -1,0 +1,4 @@
+**/*.rpyc
+**/*.rpa
+**/*.rpymc
+**/cache/
