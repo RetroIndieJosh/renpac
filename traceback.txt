@@ -1,50 +1,34 @@
 ﻿I'm sorry, but an uncaught exception occurred.
 
 While running game code:
-  File "game/script.rpy", line 54, in script
-    $ current_room.show_items()
-  File "game/script.rpy", line 54, in <module>
-    $ current_room.show_items()
-  File "game/script.rpy", line 40, in show_items
-    clear_items()
-  File "game/script.rpy", line 13, in clear_items
-    renpy.hide_screen(f"ShowItem{i}")
-TypeError: Missing required positional arguments: 'x', 'y'
+  File "game/script.rpy", line 88, in script call
+    "[current_room.desc]"
+  File "game/script.rpy", line 94, in script call
+    call item.take()
+  File "game/script.rpy", line 88, in script call
+    "[current_room.desc]"
+  File "game/script.rpy", line 94, in script call
+    call item.take()
+ScriptError: could not find label 'item.take'.
 
 -- Full Traceback ------------------------------------------------------------
 
 Full traceback:
-  File "game/script.rpy", line 54, in script
-    $ current_room.show_items()
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 1131, in execute
-    renpy.python.py_exec_bytecode(self.code.bytecode, self.hide, store=self.store)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\python.py", line 1061, in py_exec_bytecode
-    exec(bytecode, globals, locals)
-  File "game/script.rpy", line 54, in <module>
-    $ current_room.show_items()
-  File "game/script.rpy", line 40, in show_items
-    clear_items()
-  File "game/script.rpy", line 13, in clear_items
-    renpy.hide_screen(f"ShowItem{i}")
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\screen.py", line 1307, in hide_screen
-    renpy.exports.hide(screen.tag, layer=layer)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\exports.py", line 741, in hide
-    sls.remove(layer, key)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\core.py", line 1282, in remove
-    self.hide_or_replace(layer, remove_index, prefix)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\core.py", line 1191, in hide_or_replace
-    if not oldsle.displayable._handles_event(prefix):
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\screen.py", line 500, in _handles_event
-    self.update()
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\screen.py", line 653, in update
-    self.screen.function(**self.scope)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 294, in apply_arguments
-    return parameters.apply(args, kwargs, ignore_errors)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 230, in apply
-    raise TypeError(
-TypeError: Missing required positional arguments: 'x', 'y'
+  File "game/script.rpy", line 88, in script call
+    "[current_room.desc]"
+  File "game/script.rpy", line 94, in script call
+    call item.take()
+  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 1705, in execute
+    rv = renpy.game.context().call(label, return_site=self.next.name)
+  File "game/script.rpy", line 88, in script call
+    "[current_room.desc]"
+  File "game/script.rpy", line 94, in script call
+    call item.take()
+  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\script.py", line 927, in lookup
+    raise ScriptError("could not find label '%s'." % str(original))
+ScriptError: could not find label 'item.take'.
 
 Windows-10-10.0.19045 AMD64
 Ren'Py 8.0.3.22090809
 bardolf 1.0
-Fri Feb 24 17:31:31 2023
+Fri Feb 24 18:06:17 2023

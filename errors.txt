@@ -2,10 +2,9 @@
 errors listed below, and try again.
 
 
-File "game/script.rpy", line 36: invalid syntax
-        def __init__(self,.description):
-                           ^
-    
+File "game/script.rpy", line 94: expected statement.
+    item.take()
+               ^
 
 Ren'Py Version: Ren'Py 8.0.3.22090809
-Fri Feb 24 17:32:50 2023
+Fri Feb 24 18:05:52 2023

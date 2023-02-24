@@ -1510,36 +1510,36 @@ style slider_slider:
 
 # TODO can we just pass item and do item.name etc?
 # TODO take_item needs to remove from room as well
-screen ShowItem(name, img_path, x, y):
-    vbox xalign x yalign y:
-        imagebutton auto img_path action [Hide(), Call("take_item", name)]
+screen ShowItem(item):
+    vbox xalign item.x yalign item.y:
+        imagebutton auto item.img_path action [Hide(), Call("take_item", item)]
 
-screen ShowItem0(name, img_path, x, y):
-    use ShowItem(name, img_path, x, y)
+screen ShowItem0(item):
+    use ShowItem(item)
     
-screen ShowItem1(name, img_path, x, y):
-    use ShowItem(name, img_path, x, y)
+screen ShowItem1(item):
+    use ShowItem(item)
 
-screen ShowItem2(name, img_path, x, y):
-    use ShowItem(name, img_path, x, y)
+screen ShowItem2(item):
+    use ShowItem(item)
 
-screen ShowItem3(name, img_path, x, y):
-    use ShowItem(name, img_path, x, y)
+screen ShowItem3(item):
+    use ShowItem(item)
 
-screen ShowItem4(name, img_path, x, y):
-    use ShowItem(name, img_path, x, y)
+screen ShowItem4(item):
+    use ShowItem(item)
 
-screen ShowItem5(name, img_path, x, y):
-    use ShowItem(name, img_path, x, y)
+screen ShowItem5(item):
+    use ShowItem(item)
 
-screen ShowItem6(name, img_path, x, y):
-    use ShowItem(name, img_path, x, y)
+screen ShowItem6(item):
+    use ShowItem(item)
 
-screen ShowItem7(name, img_path, x, y):
-    use ShowItem(name, img_path, x, y)
+screen ShowItem7(item):
+    use ShowItem(item)
 
-screen ShowItem8(name, img_path, x, y):
-    use ShowItem(name, img_path, x, y)
+screen ShowItem8(item):
+    use ShowItem(item)
 
-screen ShowItem9(name, img_path, x, y):
-    use ShowItem(name, img_path, x, y)
+screen ShowItem9(item):
+    use ShowItem(item)
