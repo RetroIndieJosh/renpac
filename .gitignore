@@ -3,3 +3,4 @@
 **/*.rpymc
 **/cache/
 **/saves/
+**/*.gen.rpy

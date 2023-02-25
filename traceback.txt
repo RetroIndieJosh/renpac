@@ -1,34 +1,26 @@
 ﻿I'm sorry, but an uncaught exception occurred.
 
 While running game code:
-  File "game/script.rpy", line 88, in script call
-    "[current_room.desc]"
-  File "game/script.rpy", line 94, in script call
-    call item.take()
-  File "game/script.rpy", line 88, in script call
-    "[current_room.desc]"
-  File "game/script.rpy", line 94, in script call
-    call item.take()
-ScriptError: could not find label 'item.take'.
+  File "game/script.rpy", line 14, in script
+    $ current_room.show_items()
+  File "game/script.rpy", line 14, in <module>
+    $ current_room.show_items()
+NameError: name 'current_room' is not defined
 
 -- Full Traceback ------------------------------------------------------------
 
 Full traceback:
-  File "game/script.rpy", line 88, in script call
-    "[current_room.desc]"
-  File "game/script.rpy", line 94, in script call
-    call item.take()
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 1705, in execute
-    rv = renpy.game.context().call(label, return_site=self.next.name)
-  File "game/script.rpy", line 88, in script call
-    "[current_room.desc]"
-  File "game/script.rpy", line 94, in script call
-    call item.take()
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\script.py", line 927, in lookup
-    raise ScriptError("could not find label '%s'." % str(original))
-ScriptError: could not find label 'item.take'.
+  File "game/script.rpy", line 14, in script
+    $ current_room.show_items()
+  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 1131, in execute
+    renpy.python.py_exec_bytecode(self.code.bytecode, self.hide, store=self.store)
+  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\python.py", line 1061, in py_exec_bytecode
+    exec(bytecode, globals, locals)
+  File "game/script.rpy", line 14, in <module>
+    $ current_room.show_items()
+NameError: name 'current_room' is not defined
 
 Windows-10-10.0.19045 AMD64
 Ren'Py 8.0.3.22090809
 bardolf 1.0
-Fri Feb 24 18:06:17 2023
+Sat Feb 25 09:11:02 2023
