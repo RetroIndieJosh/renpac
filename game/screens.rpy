@@ -1508,15 +1508,18 @@ style slider_slider:
 ## Items in Rooms
 ################################################################################
 
-# TODO can we just pass item and do item.name etc?
-# TODO take_item needs to remove from room as well
+# TODO some kind of lint to check for overlapping hotspots (warn)
 screen ShowItem(item):
     vbox xalign item.x yalign item.y:
-        imagebutton auto item.img_path action [Hide(), Call("take_item", item)]
+        if item.img_path is None:
+            # TODO how to handle width, height? (should be defined in Hotspot)
+            button action [Hide(), Call("take_item", item)]
+        else:
+            imagebutton auto item.img_path action [Hide(), Call("take_item", item)]
 
 screen ShowItem0(item):
     use ShowItem(item)
-    
+
 screen ShowItem1(item):
     use ShowItem(item)
 

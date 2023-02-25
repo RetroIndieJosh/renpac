@@ -1,26 +1,35 @@
 ﻿I'm sorry, but an uncaught exception occurred.
 
 While running game code:
-  File "game/script.rpy", line 14, in script
-    $ current_room.show_items()
-  File "game/script.rpy", line 14, in <module>
-    $ current_room.show_items()
-NameError: name 'current_room' is not defined
+  File "game/Hotspot.rpy", line 1, in script
+    init python:
+  File "game/Hotspot.rpy", line 1, in script
+    init python:
+  File "game/Hotspot.rpy", line 4, in <module>
+    class Item(Hotspot):
+NameError: name 'Hotspot' is not defined
 
 -- Full Traceback ------------------------------------------------------------
 
 Full traceback:
-  File "game/script.rpy", line 14, in script
-    $ current_room.show_items()
+  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\bootstrap.py", line 277, in bootstrap
+    renpy.main.main()
+  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\main.py", line 558, in main
+    renpy.game.context().run(node)
+  File "game/Hotspot.rpy", line 1, in script
+    init python:
+  File "/home/tom/ab/renpy-build/tmp/install.linux-x86_64/lib/python3.9/site-packages/future/utils/__init__.py", line 441, in raise_
+  File "game/Hotspot.rpy", line 1, in script
+    init python:
   File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 1131, in execute
     renpy.python.py_exec_bytecode(self.code.bytecode, self.hide, store=self.store)
   File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\python.py", line 1061, in py_exec_bytecode
     exec(bytecode, globals, locals)
-  File "game/script.rpy", line 14, in <module>
-    $ current_room.show_items()
-NameError: name 'current_room' is not defined
+  File "game/Hotspot.rpy", line 4, in <module>
+    class Item(Hotspot):
+NameError: name 'Hotspot' is not defined
 
 Windows-10-10.0.19045 AMD64
 Ren'Py 8.0.3.22090809
 bardolf 1.0
-Sat Feb 25 09:11:02 2023
+Sat Feb 25 11:23:53 2023
