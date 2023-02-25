@@ -6,13 +6,11 @@
 #define e = Character("Eileen")
 
 label start:
-    scene bg cell
-
     $ init_game()
 
     while True:
-        $ current_room.show_items()
-        "[current_room.desc]"
+        window hide
+        pause
 
     return
 

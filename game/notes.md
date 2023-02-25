@@ -11,9 +11,10 @@
 
 ## Ideas
 
-- is there a way to create py files and build them into renpy? (for better autocomplete and checking)
 - generate game for InventoryItem1, 2, etc. from a config file (InventoryMax = 10, RoomMaxItems = 10, etc.)
 - generate game from special script defining rooms and items like a text adventure
 - randomize game using randomizer script on generation
 - should it also support drag + drop for items? can it do both?
 - can we make a script to handle generation of invert-color for hover images? (maybe use image-magick?)
+
+- instead of items, create hotspots with events: get item, change room, etc.
