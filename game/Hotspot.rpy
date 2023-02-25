@@ -6,30 +6,40 @@ init python:
             self.name = name
             self.img_path = None
     
-            # TODO come up with a less silly way to set these
-            global item_count
-            self.x = item_count * 0.2
-            self.y = 0.4
+            self.x = 0
+            self.y = 0
+            self.width = 256
+            self.height = 256
     
             self.room = None
-            self.in_room_id = -1
 
-            self.on_click = None
+        def on_click(self):
+            raise NotImplementedError()
+
+    class Exit(Hotspot):
+        def __init__(self, name, target_room, width, height):
+            super().__init__(name)
+            self.target_room = target_room
+            self.width = width
+            self.height = height
+
+        def on_click(self):
+            self.target_room.enter()
     
-    # TODO move to Item.rpy
     class Item(Hotspot):
         def __init__(self, name):
-            super(name)
+            super().__init__(name)
             self.img_path = f"{self.name}_%s.png"
-            # TODO update Item things to call Hotspot::on_click instead of Item::take
-            self.on_click = self.take
 
-        def take(self):
-            self.room.remove_item(self)
+        def on_click(self):
+            renpy.say(None, f"You take {self.name}.")
+
+            self.room.remove_hotspot(self)
             self.room = None
    
-            self.in_room_id = -1
-    
             global inventory
             inventory.append(self)
   
+label click(hs):
+    $ hs.on_click()
+    return

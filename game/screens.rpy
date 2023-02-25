@@ -1509,40 +1509,48 @@ style slider_slider:
 ################################################################################
 
 # TODO some kind of lint to check for overlapping hotspots (warn)
-screen ShowItem(item):
-    vbox xalign item.x yalign item.y:
-        if item.img_path is None:
-            # TODO how to handle width, height? (should be defined in Hotspot)
-            button action [Hide(), Call("take_item", item)]
+screen ShowHotspot(hs):
+    vbox area (hs.x, hs.y, hs.width, hs.height):
+        if hs.img_path is None:
+            button:
+                if DEBUG_SHOW_HOTSPOTS:
+                    background "#F0F9"
+                #xysize (hs.width, hs.height)
+                area (hs.x, hs.y, hs.width, hs.height)
+                action [
+                    If(DEBUG_NOTIFY_HOTSPOTS, Notify(f"clicked '{hs.name}'"), None),
+                    Hide(), 
+                    Call("click", hs)
+                ]
         else:
-            imagebutton auto item.img_path action [Hide(), Call("take_item", item)]
+            imagebutton auto hs.img_path action [Hide(), Call("click", hs)]
 
-screen ShowItem0(item):
-    use ShowItem(item)
+screen ShowHotspot0(hs):
+    use ShowHotspot(hs)
 
-screen ShowItem1(item):
-    use ShowItem(item)
+screen ShowHotspot1(hs):
+    use ShowHotspot(hs)
 
-screen ShowItem2(item):
-    use ShowItem(item)
+screen ShowHotspot2(hs):
+    use ShowHotspot(hs)
 
-screen ShowItem3(item):
-    use ShowItem(item)
+screen ShowHotspot3(hs):
+    use ShowHotspot(hs)
 
-screen ShowItem4(item):
-    use ShowItem(item)
+screen ShowHotspot4(hs):
+    use ShowHotspot(hs)
 
-screen ShowItem5(item):
-    use ShowItem(item)
+screen ShowHotspot5(hs):
+    use ShowHotspot(hs)
 
-screen ShowItem6(item):
-    use ShowItem(item)
+screen ShowHotspot6(hs):
+    use ShowHotspot(hs)
 
-screen ShowItem7(item):
-    use ShowItem(item)
+screen ShowHotspot7(hs):
+    use ShowHotspot(hs)
 
-screen ShowItem8(item):
-    use ShowItem(item)
+screen ShowHotspot8(hs):
+    use ShowHotspot(hs)
 
-screen ShowItem9(item):
-    use ShowItem(item)
+screen ShowHotspot9(hs):
+    use ShowHotspot(hs)

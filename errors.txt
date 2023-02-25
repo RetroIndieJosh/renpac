@@ -2,9 +2,9 @@
 errors listed below, and try again.
 
 
-File "game/script.rpy", line 94: expected statement.
-    item.take()
+File "game/screens.rpy", line 1514: expected statement.
+    Notify(msg)
                ^
 
 Ren'Py Version: Ren'Py 8.0.3.22090809
-Fri Feb 24 18:05:52 2023
+Sat Feb 25 16:42:35 2023

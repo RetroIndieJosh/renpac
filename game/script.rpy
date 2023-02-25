@@ -5,6 +5,9 @@
 
 #define e = Character("Eileen")
 
+define DEBUG_SHOW_HOTSPOTS = True
+define DEBUG_NOTIFY_HOTSPOTS = True
+
 label start:
     $ init_game()
 
@@ -12,9 +15,4 @@ label start:
         window hide
         pause
 
-    return
-
-label take_item(item):
-    "You take [item.name]."
-    $ item.take()
     return
