@@ -13,6 +13,8 @@ label start:
 
     while True:
         window hide
+        $ renpy.show_screen("InventoryShower", inventory)
+        #show screen InventoryShower(inventory)
         pause
 
     return

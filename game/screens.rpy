@@ -1509,7 +1509,7 @@ style slider_slider:
 ################################################################################
 
 # TODO some kind of lint to check for overlapping hotspots (warn)
-screen ShowHotspot(hs):
+screen Hotspot(hs):
     vbox area (hs.x, hs.y, hs.width, hs.height):
         if hs.img_path is None:
             button:
@@ -1528,32 +1528,82 @@ screen ShowHotspot(hs):
                     Call("click", hs)
                 ]
 
-screen ShowHotspot0(hs):
-    use ShowHotspot(hs)
+screen Hotspot0(hs):
+    use Hotspot(hs)
 
-screen ShowHotspot1(hs):
-    use ShowHotspot(hs)
+screen Hotspot1(hs):
+    use Hotspot(hs)
 
-screen ShowHotspot2(hs):
-    use ShowHotspot(hs)
+screen Hotspot2(hs):
+    use Hotspot(hs)
 
-screen ShowHotspot3(hs):
-    use ShowHotspot(hs)
+screen Hotspot3(hs):
+    use Hotspot(hs)
 
-screen ShowHotspot4(hs):
-    use ShowHotspot(hs)
+screen Hotspot4(hs):
+    use Hotspot(hs)
 
-screen ShowHotspot5(hs):
-    use ShowHotspot(hs)
+screen Hotspot5(hs):
+    use Hotspot(hs)
 
-screen ShowHotspot6(hs):
-    use ShowHotspot(hs)
+screen Hotspot6(hs):
+    use Hotspot(hs)
 
-screen ShowHotspot7(hs):
-    use ShowHotspot(hs)
+screen Hotspot7(hs):
+    use Hotspot(hs)
 
-screen ShowHotspot8(hs):
-    use ShowHotspot(hs)
+screen Hotspot8(hs):
+    use Hotspot(hs)
 
-screen ShowHotspot9(hs):
-    use ShowHotspot(hs)
+screen Hotspot9(hs):
+    use Hotspot(hs)
+
+################################################################################
+## Inventory
+################################################################################
+
+label use_item(item_index):
+    $ inventory_use(item_index)
+    return
+
+# TODO the only way to update this would be to pass the inventory from
+# InventoryShower, which would require recreating InventoryShower whenever the
+# inventory changes
+screen Inventory(inventory):
+    frame:
+        area(0, 0.6, 1.0, 0.4)
+        background "#0009"
+        mousearea:
+            unhovered [Notify("hide inventory"), Hide(transition=move), Show("InventoryShower", move, inventory)]
+        vbox:
+            hbox:
+                if(len(inventory) > 0):
+                    textbutton f"{inventory[0].name}":
+                        action Call("use_item", 0)
+                if(len(inventory) > 1):
+                    textbutton f"{inventory[1].name}":
+                        action Call("use_item", 1)
+                if(len(inventory) > 2):
+                    textbutton f"{inventory[2].name}":
+                        action Call("use_item", 2)
+                if(len(inventory) > 3):
+                    textbutton f"{inventory[3].name}":
+                        action Call("use_item", 3)
+            if(len(inventory) > 4):
+                hbox:
+                    textbutton f"{inventory[4].name}":
+                        action Call("use_item", 4)
+                    if(len(inventory) > 5):
+                        textbutton f"{inventory[5].name}":
+                            action Call("use_item", 5)
+                    if(len(inventory) > 6):
+                        textbutton f"{inventory[6].name}":
+                            action Call("use_item", 6)
+                    if(len(inventory) > 7):
+                        textbutton f"{inventory[7].name}":
+                            action Call("use_item", 7)
+
+screen InventoryShower(inventory):
+    mousearea:
+        area(0, 0.95, 1.0, 0.05)
+        hovered [Notify("show inventory"), Hide(), Show("Inventory", move, inventory)]

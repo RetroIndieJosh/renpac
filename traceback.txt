@@ -1,36 +1,16 @@
 ﻿I'm sorry, but an uncaught exception occurred.
 
 While running game code:
-  File "game/script.rpy", line 13, in script
+  File "game/script.rpy", line 18, in script
     pause
   File "renpy/common/000statements.rpy", line 455, in execute_pause
     renpy.pause()
-  File "game/screens.rpy", line 1537, in execute
-    screen ShowHotspot2(hs):
-  File "game/screens.rpy", line 1537, in execute
-    screen ShowHotspot2(hs):
-  File "game/screens.rpy", line 1538, in execute
-    use ShowHotspot(hs)
-  File "game/screens.rpy", line 1513, in execute
-    screen ShowHotspot(hs):
-  File "game/screens.rpy", line 1513, in execute
-    screen ShowHotspot(hs):
-  File "game/screens.rpy", line 1514, in execute
-    vbox area (hs.x, hs.y, hs.width, hs.height):
-  File "game/screens.rpy", line 1515, in execute
-    if hs.img_path is None:
-  File "game/screens.rpy", line 1516, in execute
-    button:
-  File "game/screens.rpy", line 1516, in keywords
-    button:
-  File "game/screens.rpy", line 1524, in <module>
-    If("DEBUG", Notify(f"clicked '{hs.name}'", None)),
-TypeError: __init__() takes 2 positional arguments but 3 were given
+TypeError: Missing required positional arguments: 'inventory'
 
 -- Full Traceback ------------------------------------------------------------
 
 Full traceback:
-  File "game/script.rpy", line 13, in script
+  File "game/script.rpy", line 18, in script
     pause
   File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 2232, in execute
     self.call("execute")
@@ -62,29 +42,13 @@ Full traceback:
     self.update()
   File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\screen.py", line 653, in update
     self.screen.function(**self.scope)
-  File "game/screens.rpy", line 1537, in execute
-    screen ShowHotspot2(hs):
-  File "game/screens.rpy", line 1537, in execute
-    screen ShowHotspot2(hs):
-  File "game/screens.rpy", line 1538, in execute
-    use ShowHotspot(hs)
-  File "game/screens.rpy", line 1513, in execute
-    screen ShowHotspot(hs):
-  File "game/screens.rpy", line 1513, in execute
-    screen ShowHotspot(hs):
-  File "game/screens.rpy", line 1514, in execute
-    vbox area (hs.x, hs.y, hs.width, hs.height):
-  File "game/screens.rpy", line 1515, in execute
-    if hs.img_path is None:
-  File "game/screens.rpy", line 1516, in execute
-    button:
-  File "game/screens.rpy", line 1516, in keywords
-    button:
-  File "game/screens.rpy", line 1524, in <module>
-    If("DEBUG", Notify(f"clicked '{hs.name}'", None)),
-TypeError: __init__() takes 2 positional arguments but 3 were given
+  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 294, in apply_arguments
+    return parameters.apply(args, kwargs, ignore_errors)
+  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 230, in apply
+    raise TypeError(
+TypeError: Missing required positional arguments: 'inventory'
 
 Windows-10-10.0.19045 AMD64
 Ren'Py 8.0.3.22090809
 bardolf 1.0
-Sat Feb 25 16:45:42 2023
+Sat Feb 25 18:16:52 2023

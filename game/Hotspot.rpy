@@ -32,13 +32,9 @@ init python:
             self.img_path = f"{self.name}_%s.png"
 
         def on_click(self):
-            renpy.say(None, f"You take {self.name}.")
-
             self.room.remove_hotspot(self)
             self.room = None
-   
-            global inventory
-            inventory.append(self)
+            inventory_add(self)
   
 label click(hs):
     $ hs.on_click()

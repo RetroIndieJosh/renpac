@@ -3,20 +3,19 @@ init python:
 
     current_room = None
     hs_count = 0
-    inventory = []
 
     def clear_hotspots():
         global hs_count
         hs_count = 0
 
         for i in range(0, HOTSPOT_MAX):
-            renpy.hide_screen(f"ShowHotspot{i}")
+            renpy.hide_screen(f"Hotspot{i}")
 
     def show_hotspot(hs):
         if(hs_count >= HOTSPOT_MAX):
             raise Exception("Item count exceeded maximum of 10 for room")
 
-        renpy.show_screen(f"ShowHotspot{hs_count}", hs)
+        renpy.show_screen(f"Hotspot{hs_count}", hs)
 
         global hs_count
         hs_count += 1
@@ -30,7 +29,7 @@ init python:
 
         guardhouse = Room("guardhouse", "")
         dungeon_cell.add_hotspot(Exit("stairs down", guardhouse, 467, 307), 0, 782)
-        # TODO add hotspots for exits
+        guardhouse.add_hotspot(Exit("stairs up", dungeon_cell, 345, 166), 1575, 0)
     
         # set start room
         global current_room
