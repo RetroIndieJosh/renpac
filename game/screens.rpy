@@ -1514,16 +1514,19 @@ screen ShowHotspot(hs):
         if hs.img_path is None:
             button:
                 if DEBUG_SHOW_HOTSPOTS:
-                    background "#F0F9"
-                #xysize (hs.width, hs.height)
-                area (hs.x, hs.y, hs.width, hs.height)
+                    background "#F0F3"
                 action [
                     If(DEBUG_NOTIFY_HOTSPOTS, Notify(f"clicked '{hs.name}'"), None),
                     Hide(), 
                     Call("click", hs)
                 ]
         else:
-            imagebutton auto hs.img_path action [Hide(), Call("click", hs)]
+            imagebutton:
+                auto hs.img_path 
+                action [
+                    Hide(), 
+                    Call("click", hs)
+                ]
 
 screen ShowHotspot0(hs):
     use ShowHotspot(hs)
