@@ -26,7 +26,8 @@ init python:
 
         show_hotspots()
 
-        current_room.on_enter
+        current_room.on_enter()
+        renpy.notify(f"{room.name}")
 
     def show_hotspots():
         clear_hotspots()

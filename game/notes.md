@@ -1,5 +1,11 @@
 # Notes
 
+## Standards
+
+- keep rpy as rpy and py as py
+    - if a large chunk of python is necessary (such as a class), write it in pure python (do not call renpy methods)
+    - if renpy methods are required from python, call the python from renpy and react accordingly with renpy in renpy
+
 ## To Do
 
 ### Main Iteration

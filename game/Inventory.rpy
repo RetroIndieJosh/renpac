@@ -2,7 +2,7 @@ init python:
     inventory = []
 
     def inventory_add(item):
-        renpy.say(None, f"You take {item.name}.")
+        renpy.notify(f"You take {item.name}.")
         inventory.append(item)
 
     def inventory_use(item_index):
