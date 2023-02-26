@@ -30,7 +30,6 @@ label start:
 
     while True:
         $ show_hotspots()
-        window hide
         pause
 
     return
