@@ -1,0 +1,25 @@
+# lines starting with # are ignored
+# positions are interpreted as percent of screen if <= 1, otherwise interpreted as pixels
+# sizes are always interpreted as pixels (though may be ignored in some contexts)
+# room [name] - starts a room block ending at next line at same indentation level
+    # printed [text] - the printed name of the room (no need for quotes)
+    # desc [text] - the description of the room (no need for quotes; converts all whitespace to single space)
+    # item [name] [x] [y] - add item identified by name at position (x, y)
+# item [name] - starts an item block ending at next line at same indentation level
+
+room cell
+    printed Tower Cell
+    desc A foul stench assaults you from all around. In one wall a slit serves as a window, letting in just enough 
+        light to see. Someone was kind enough to leave you a bowl of gruel.
+    item gruel 0.6 0.6
+    item shackles 0.8 0.8
+
+room guardhouse
+    printed Guardhouse
+    desc This guardhouse has seen better days. Was it attacked recently? Stairs lead back up to the cell.
+    exit stairs_down guardhouse 0 782 467 307
+    exit stairs_up cell 1575 0 345 166
+
+item gruel
+
+item shackles
