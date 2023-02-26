@@ -4,8 +4,8 @@
 
 init offset = -1
 
-define ZORDER_HOTSPOTS = 500
-define ZORDER_INVENTORY = 1000
+define ZORDER_HOTSPOTS = -500
+define ZORDER_INVENTORY = 0
 
 
 ################################################################################
@@ -1554,8 +1554,8 @@ label clear_equipped:
     return
 
 label equip_item(item):
+    call hide_inventory()
     python:
-        hide_inventory()
         active_item = item
         renpy.notify(f"equipped {item.name}")
     return
@@ -1587,7 +1587,7 @@ define INVENTORY_ITEMS_PER_ROW = 4
 screen Inventory():
     zorder ZORDER_INVENTORY
     frame:
-        area(0, 0.8, 1.0, 0.2)
+        area(0.2, 0.8, 0.6, 0.2)
         background "#0009"
         mousearea:
             unhovered Call("hide_inventory")
