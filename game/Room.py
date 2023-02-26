@@ -19,6 +19,9 @@ class Room:
         hs.y = y
 
     def remove_hotspot(self, hs: object) -> None:
+        if(hs not in self.hotspots):
+            raise Exception("Tried to remove hs to room but it's not there! ({hs.name} in {room.name})")
+
         self.hotspots.remove(hs)
 
     def enter(self) -> None:

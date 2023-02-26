@@ -1,10 +1,16 @@
-# if this shows up then the auto generate worked yay
+class Combination:
+    def __init__(self) -> None:
+        self.func = None
+        self.delete_self = False
+        self.delete_target = False
 
 class Hotspot:
     def __init__(self, name: str) -> None:
         # TODO name must be unique since we're using it as key, probably best to
         # have all hotspots use unique names so these can identify them
         # (would it be better to store in a game dict instead of name being part of hotspot?)
+        # (or use a unique ID that increments instead? it's silly to have name
+        # clashes, but what if there's something in multiplicity like coins?)
 
         self.name = name
         self.desc = name
@@ -16,24 +22,21 @@ class Hotspot:
         self.height = 256
 
         # a mapping of item names to funcs to trigger when item is used on this hotspot
-        self.on_use = dict()
+        self.combinations = dict()
 
         self.room = None
 
-    def add_usable(self, item, func):
-        self.on_use[item.name] = func
+    def add_combination(self, item: object, combination: Combination):
+        if item.name in self.combinations:
+            raise Exception(f"{item.name} is already a key in combinations for {self.name}!")
+        self.combinations[item.name] = combination
 
     def on_click(self) -> None:
         raise NotImplementedError()
 
     # combine item with this hotspot
-    # returns True if the combination succeeded
-    def combine(self, item) -> bool:
-        if(item.name not in self.on_use):
-            return False
-
-        self.on_use[item.name]()
-        return True
+    def combine(self, item: object) -> Combination:
+        return self.combinations[item.name] if item.name in self.combinations else None
 
 class Exit(Hotspot):
     def __init__(self, name: str, target_room: object, width: int, height: int) -> None:

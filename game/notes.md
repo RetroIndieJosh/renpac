@@ -23,6 +23,10 @@
 - disable interaction with hotspots while the (dialog) window is visible (since inventory doesn't refresh properly until it's gone)
     - alternatively, disallow showing of inventory while window is visible
 
+- custom notify that allows multiple stacking messages 
+- update text display in upper left for hovered item 
+    (i.e. "use gruel on..." becomes "use gruel on shackles" or "use gruel on stairs down")
+
 ### Cool Ideas
 
 - create generator for room hotspots so we can set the number in a config? or is there a way to make this unlimited?

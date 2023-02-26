@@ -7,6 +7,41 @@ init python:
                 return False
         return True
 
+init python:
+    def hotspot_delete(hs):
+        if hs in inventory:
+            inventory.remove(hs)
+        elif hs.room is not None:
+            hs.room.remove_hotspot(hs)
+        else:
+            raise Exception(f"Tried to delete hotspot '{hs.name}' but it doesn't exist in inventory or room!")
+
+    def hotspot_click(hs):
+        global active_item
+
+        if active_item is None:
+            hs.on_click()
+            return
+
+        combo = hs.combine(active_item)
+        if combo is None:
+            renpy.say(None, f"You can't use {active_item.name} on {hs.name}!")
+            return
+
+        renpy.say(None, f"You use {active_item.name} on {hs.name}")
+        # TODO is it not calling this?
+        combo.func()
+        if(combo.remove_self):
+            hotspot_delete(active_item)
+            active_item = None
+        else:
+            hotspot_delete(hs)
+        active_item = None
+
+label click(hs):
+    $ hotspot_click(hs)
+    return
+
 label describe_hotspot(hs):
     "[hs.desc]"
     return
