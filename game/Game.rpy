@@ -49,5 +49,5 @@ init python:
         # set start room
         set_room(dungeon_cell)
     
-    config.keymap['game_menu'].remove('K_ESCAPE')
+    #config.keymap['game_menu'].remove('K_ESCAPE')
     config.keymap['game_menu'].remove('mouseup_3')

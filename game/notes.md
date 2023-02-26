@@ -1,4 +1,4 @@
-# Notes
+# Ren'PaC: Ren'Py Point and Click System
 
 ## Standards
 
@@ -10,9 +10,6 @@
 
 ### Main Iteration
 
-- hide inventory after selecting an item to use (will need to re-show inventory shower)
-- instead of Room setting up the hotspots, have only the DATA for the hotspots contained therein
-    - and have Game do the actual creation of hotspots (can we do this in rpy instead of py?)
 - visual display of selected inventory item (for now just a text box with name, but later make cursors?)
 - visual display for items in inventory (use imagebuttons instead of buttons, how to resize? seems they ignore sizing)
 - left click on screen where there's no item to see description of room
@@ -34,3 +31,4 @@
 - randomize game using randomizer script on generation
 - support drag and drop (either simultaneously, as a user option, or as a developer option)
 - can we handle invert color for hover images with a script? (at the very least, generate with image-magick)
+- visual editor to place items which generates a renpac script file
