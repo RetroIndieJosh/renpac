@@ -1,16 +1,9 @@
 init python:
-    HOTSPOT_MAX = 10
-
     current_room = None
     active_item = None
-    hs_count = 0
 
     def clear_hotspots():
-        global hs_count
-        hs_count = 0
-
-        for i in range(0, HOTSPOT_MAX):
-            renpy.hide_screen(f"Hotspot{i}")
+        renpy.hide_screen("Hotspots")
 
     def set_room(room):
         if current_room is not None:
@@ -23,7 +16,6 @@ init python:
 
         renpy.scene()
         renpy.show(f"bg {room.name}")
-
         show_hotspots()
 
         current_room.on_enter()
@@ -35,17 +27,7 @@ init python:
 
     def show_hotspots():
         clear_hotspots()
-        for hs in current_room.hotspots:
-            show_hotspot(hs)
-
-    def show_hotspot(hs):
-        if(hs_count >= HOTSPOT_MAX):
-            raise Exception("Item count exceeded maximum of 10 for room")
-
-        renpy.show_screen(f"Hotspot{hs_count}", hs)
-
-        global hs_count
-        hs_count += 1
+        renpy.show_screen("Hotspots", current_room.hotspots)
 
     def init_game():
         # define rooms and items in them

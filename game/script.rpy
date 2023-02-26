@@ -14,6 +14,7 @@ label start:
     while True:
         show screen Debug
         $ renpy.show_screen("InventoryShower", inventory)
+        $ show_hotspots()
         #show screen InventoryShower(inventory)
         show screen Unequip
         window hide

@@ -1509,25 +1509,27 @@ style slider_slider:
 ################################################################################
 
 # TODO some kind of lint to check for overlapping hotspots (warn)
-screen Hotspot(hs):
-    vbox area (hs.x, hs.y, hs.width, hs.height):
-        if hs.img_path is None:
-            button:
-                if DEBUG_SHOW_HOTSPOTS:
-                    background "#F0F3"
-                action If(renpy.get_screen("say"), None, [
-                    If(DEBUG_NOTIFY_HOTSPOTS, Notify(f"clicked '{hs.name}'"), None),
+screen Hotspots(hotspots):
+    for hs in hotspots:
+        vbox area (hs.x, hs.y, hs.width, hs.height):
+            if hs.img_path is None:
+                button:
+                    if DEBUG_SHOW_HOTSPOTS:
+                        background "#F0F3"
+                    action If(renpy.get_screen("say"), None, [
+                        If(DEBUG_NOTIFY_HOTSPOTS, Notify(f"clicked '{hs.name}'"), None),
+                            Hide(), 
+                            Call("click", hs)
+                    ])
+            else:
+                imagebutton:
+                    auto hs.img_path 
+                    action If(renpy.get_screen("say"), None, [
                         Hide(), 
                         Call("click", hs)
-                ])
-        else:
-            imagebutton:
-                auto hs.img_path 
-                action If(renpy.get_screen("say"), None, [
-                    Hide(), 
-                    Call("click", hs)
-                ])
+                    ])
 
+"""
 screen Hotspot0(hs):
     use Hotspot(hs)
 
@@ -1557,6 +1559,7 @@ screen Hotspot8(hs):
 
 screen Hotspot9(hs):
     use Hotspot(hs)
+"""
 
 ################################################################################
 ## Inventory
