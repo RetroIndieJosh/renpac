@@ -1,7 +1,12 @@
 class Room:
-    def __init__(self, name, desc):
-        self.name = name
-        self.desc = desc
+    def __init__(self):
+        self.name = "room"
+        self.printed_name = "Room"
+        self.desc = "An unknown place."
+
+        self.visited = False
+        self.first_time_desc = None
+
         self.hotspots = []
 
     def add_hotspot(self, hs, x, y):
