@@ -2,10 +2,14 @@ init python:
     def can_click():
         # TODO some way to set up a list of these for customization
         no_click_screens = [ "say", "Inventory" ]
-        for screen in no_click_screens:
-            if renpy.get_screen(no_click_screens):
+        for screen_name in no_click_screens:
+            if renpy.get_screen(screen_name):
                 return False
         return True
+
+label describe_hotspot(hs):
+    "[hs.desc]"
+    return
 
 # TODO some kind of lint to check for overlapping hotspots (warn)
 screen Hotspots(hotspots):
@@ -21,6 +25,7 @@ screen Hotspots(hotspots):
                             Hide(), 
                             Call("click", hs)
                     ], None)
+                    alternate If(active_item is None, Call("describe_hotspot", hs), None)
             else:
                 imagebutton:
                     auto hs.img_path 
@@ -28,3 +33,4 @@ screen Hotspots(hotspots):
                         Hide(), 
                         Call("click", hs)
                     ], None)
+                    alternate If(active_item is None, Call("describe_hotspot", hs), None)

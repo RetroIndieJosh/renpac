@@ -1,6 +1,5 @@
 init python:
     current_room = None
-    active_item = None
 
     def clear_hotspots():
         renpy.hide_screen("Hotspots")
@@ -51,3 +50,4 @@ init python:
     
     #config.keymap['game_menu'].remove('K_ESCAPE')
     config.keymap['game_menu'].remove('mouseup_3')
+    config.keymap['hide_windows'].clear()

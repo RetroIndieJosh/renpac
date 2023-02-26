@@ -11,6 +11,7 @@
 ### Main Iteration
 
 - visual display of selected inventory item (for now just a text box with name, but later make cursors?)
+- instead of show/hide on inventory / show inventory, would it be better to use an if? can put both in one screen
 - visual display for items in inventory (use imagebuttons instead of buttons, how to resize? seems they ignore sizing)
 - left click on screen where there's no item to see description of room
 - right click on item to get description? or "use" on a specific place, like a corner icon?

@@ -2,7 +2,7 @@ init python:
     inventory = []
 
     def inventory_add(item):
-        renpy.notify(f"You take {item.name}.")
+        #renpy.notify(f"You take {item.name}.")
         inventory.append(item)
 
     def inventory_use(item_index):
@@ -15,12 +15,14 @@ label click(hs):
     $ hs.on_click()
     return
 
+# TODO refactor => inventory_hide
 label hide_inventory():
     $ renpy.notify("Hide inventory")
     hide screen Inventory
     show screen InventoryShower
     return
 
+# TODO refactor => inventory_show
 label show_inventory():
     $ renpy.notify("Show inventory")
     hide screen InventoryShower
@@ -60,7 +62,23 @@ screen InventoryShower():
                     Call("show_inventory")
                 ])
 
-screen Unequip():
+label describe_room:
+    call hide_inventory
+    "[current_room.desc]"
+    return
+
+label describe_equipped:
+    call hide_inventory
+    "[active_item.name]"
+    return
+
+screen Fullscreen():
     fixed:
+        # left click - hide the invnetory, in addition to reacting to a hotspot
         key "mousedown_1" action Call("hide_inventory")
-        key "mousedown_3" action Call("clear_equipped")
+
+        # middle click - describe the equipped item, or the room if there is nont
+        key "mousedown_2" action If(active_item is None, Call("describe_room"), Call("describe_equipped"))
+
+        # right click - clear equipped if there is one, otherwise allow pass-through for describing hotspot
+        key "mousedown_3" action If(active_item is None, None, Call("clear_equipped"))

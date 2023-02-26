@@ -29,7 +29,8 @@ label start:
 
     #show screen Debug
     show screen InventoryShower
-    show screen Unequip
+    show screen Equipped
+    show screen Fullscreen
 
     while True:
         $ show_hotspots()
