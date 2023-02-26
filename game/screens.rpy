@@ -1515,18 +1515,18 @@ screen Hotspot(hs):
             button:
                 if DEBUG_SHOW_HOTSPOTS:
                     background "#F0F3"
-                action [
+                action If(renpy.get_screen("say"), None, [
                     If(DEBUG_NOTIFY_HOTSPOTS, Notify(f"clicked '{hs.name}'"), None),
-                    Hide(), 
-                    Call("click", hs)
-                ]
+                        Hide(), 
+                        Call("click", hs)
+                ])
         else:
             imagebutton:
                 auto hs.img_path 
-                action [
+                action If(renpy.get_screen("say"), None, [
                     Hide(), 
                     Call("click", hs)
-                ]
+                ])
 
 screen Hotspot0(hs):
     use Hotspot(hs)
@@ -1572,6 +1572,10 @@ label equip_item(item):
     $ renpy.notify(f"equipped {item.name}")
     return
 
+label click(hs):
+    $ hs.on_click()
+    return
+
 init python:
     from math import ceil
 
@@ -1584,8 +1588,13 @@ screen Inventory(inventory):
         area(0, 0.6, 1.0, 0.4)
         background "#0009"
         mousearea:
-            unhovered [Notify("hide inventory"), Hide(transition=move), Show("InventoryShower", move, inventory)]
+            unhovered [
+                Notify("hide inventory"), 
+                Hide(transition=move), 
+                Show("InventoryShower", move, inventory)
+            ]
         vbox:
+            # TODO JM can we use global inventory here?
             for i in range(0, ceil(len(inventory) / INVENTORY_ITEMS_PER_ROW)):
                 hbox:
                     for k in range(i * INVENTORY_ITEMS_PER_ROW, min(len(inventory), INVENTORY_ITEMS_PER_ROW * (i + 1))):
@@ -1595,8 +1604,19 @@ screen Inventory(inventory):
 screen InventoryShower(inventory):
     mousearea:
         area(0, 0.95, 1.0, 0.05)
-        hovered [Notify("show inventory"), Hide(), Show("Inventory", move, inventory)]
-
+        # don't show inventory if the dialogue window is showing
+        hovered If(renpy.get_screen("say"), None, [
+                Notify("show inventory"), 
+                Hide(), 
+                Show("Inventory", move, inventory)
+            ])
 screen Unequip:
     fixed:
         key "mousedown_3" action Call("clear_equipped")
+
+screen Debug:
+    fixed:
+        if renpy.get_screen("say"):
+            text "The say screen is showing."
+        else:
+            text "The say screen is hidden."
