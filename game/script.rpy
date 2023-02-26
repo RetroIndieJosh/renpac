@@ -7,6 +7,7 @@
 
 define DEBUG_SHOW_HOTSPOTS = True
 define DEBUG_NOTIFY_HOTSPOTS = True
+define DEBUG_ROOM_CHANGE = True
 
 label start:
     $ init_game()

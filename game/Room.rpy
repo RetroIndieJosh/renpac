@@ -13,24 +13,14 @@ init python:
             hs.room = self
             hs.x = x
             hs.y = y
-
-            # refresh hotspots if we added to the current room
-            global current_room
-            if current_room == self:
-                self.show_hotspots()
-
-        def enter(self):
-            global current_room
-            current_room = self
-        
-            renpy.scene()
-            renpy.show(f"bg {self.name}")
-            self.show_hotspots()
     
         def remove_hotspot(self, hs):
             self.hotspots.remove(hs)
-    
-        def show_hotspots(self):
-            clear_hotspots()
-            for hs in self.hotspots:
-                show_hotspot(hs)
+
+        def on_enter(self):
+            if DEBUG_ROOM_CHANGE:
+                renpy.notify(f"entered {self.name}")
+
+        def on_exit(self):
+            if DEBUG_ROOM_CHANGE:
+                renpy.notify(f"exited {self.name}")

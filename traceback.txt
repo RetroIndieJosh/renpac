@@ -1,32 +1,38 @@
 ﻿I'm sorry, but an uncaught exception occurred.
 
 While running game code:
-  File "game/script.rpy", line 17, in script
-    show screen Unequp
-  File "renpy/common/000statements.rpy", line 588, in execute_show_screen
-    renpy.show_screen(name, *args, **kwargs)
-Exception: Screen Unequp is not known.
-
+  File "game/script.rpy", line 20, in script call
+    pause
+  File "game/Hotspot.rpy", line 40, in script
+    $ hs.on_click()
+  File "game/Hotspot.rpy", line 40, in <module>
+    $ hs.on_click()
+  File "game/Hotspot.rpy", line 27, in on_click
+    set_room(self.target_room)
+  File "game/Game.rpy", line 17, in set_room
+    current_room.on_exit()
+TypeError: on_exit() takes 0 positional arguments but 1 was given
 
 -- Full Traceback ------------------------------------------------------------
 
 Full traceback:
-  File "game/script.rpy", line 17, in script
-    show screen Unequp
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 2232, in execute
-    self.call("execute")
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 2220, in call
-    return renpy.statements.call(method, parsed, *args, **kwargs)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\statements.py", line 281, in call
-    return method(parsed, *args, **kwargs)
-  File "renpy/common/000statements.rpy", line 588, in execute_show_screen
-    renpy.show_screen(name, *args, **kwargs)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\screen.py", line 1185, in show_screen
-    raise Exception("Screen %s is not known.\n" % (name[0],))
-Exception: Screen Unequp is not known.
-
+  File "game/script.rpy", line 20, in script call
+    pause
+  File "game/Hotspot.rpy", line 40, in script
+    $ hs.on_click()
+  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 1131, in execute
+    renpy.python.py_exec_bytecode(self.code.bytecode, self.hide, store=self.store)
+  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\python.py", line 1061, in py_exec_bytecode
+    exec(bytecode, globals, locals)
+  File "game/Hotspot.rpy", line 40, in <module>
+    $ hs.on_click()
+  File "game/Hotspot.rpy", line 27, in on_click
+    set_room(self.target_room)
+  File "game/Game.rpy", line 17, in set_room
+    current_room.on_exit()
+TypeError: on_exit() takes 0 positional arguments but 1 was given
 
 Windows-10-10.0.19045 AMD64
 Ren'Py 8.0.3.22090809
 bardolf 1.0
-Sat Feb 25 19:53:23 2023
+Sun Feb 26 09:21:50 2023

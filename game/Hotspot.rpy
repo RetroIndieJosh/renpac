@@ -24,7 +24,7 @@ init python:
             self.height = height
 
         def on_click(self):
-            self.target_room.enter()
+            set_room(self.target_room)
     
     class Item(Hotspot):
         def __init__(self, name):
