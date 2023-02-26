@@ -10,6 +10,7 @@
 
 ### Main Iteration
 
+- hide inventory after selecting an item to use (will need to re-show inventory shower)
 - instead of Room setting up the hotspots, have only the DATA for the hotspots contained therein
     - and have Game do the actual creation of hotspots (can we do this in rpy instead of py?)
 - visual display of selected inventory item (for now just a text box with name, but later make cursors?)

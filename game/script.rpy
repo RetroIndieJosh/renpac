@@ -11,12 +11,12 @@ define DEBUG_NOTIFY_HOTSPOTS = True
 label start:
     $ init_game()
 
+    show screen Debug
+    show screen InventoryShower
+    show screen Unequip
+
     while True:
-        show screen Debug
-        $ renpy.show_screen("InventoryShower", inventory)
         $ show_hotspots()
-        #show screen InventoryShower(inventory)
-        show screen Unequip
         window hide
         pause
 

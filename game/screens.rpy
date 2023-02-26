@@ -1529,38 +1529,6 @@ screen Hotspots(hotspots):
                         Call("click", hs)
                     ])
 
-"""
-screen Hotspot0(hs):
-    use Hotspot(hs)
-
-screen Hotspot1(hs):
-    use Hotspot(hs)
-
-screen Hotspot2(hs):
-    use Hotspot(hs)
-
-screen Hotspot3(hs):
-    use Hotspot(hs)
-
-screen Hotspot4(hs):
-    use Hotspot(hs)
-
-screen Hotspot5(hs):
-    use Hotspot(hs)
-
-screen Hotspot6(hs):
-    use Hotspot(hs)
-
-screen Hotspot7(hs):
-    use Hotspot(hs)
-
-screen Hotspot8(hs):
-    use Hotspot(hs)
-
-screen Hotspot9(hs):
-    use Hotspot(hs)
-"""
-
 ################################################################################
 ## Inventory
 ################################################################################
@@ -1583,10 +1551,7 @@ init python:
     from math import ceil
 
 define INVENTORY_ITEMS_PER_ROW = 4
-# TODO the only way to update this would be to pass the inventory from
-# InventoryShower, which would require recreating InventoryShower whenever the
-# inventory changes
-screen Inventory(inventory):
+screen Inventory():
     frame:
         area(0, 0.6, 1.0, 0.4)
         background "#0009"
@@ -1594,24 +1559,26 @@ screen Inventory(inventory):
             unhovered [
                 Notify("hide inventory"), 
                 Hide(transition=move), 
-                Show("InventoryShower", move, inventory)
+                Show("InventoryShower", move)
             ]
         vbox:
             # TODO JM can we use global inventory here?
+            $ global inventory
             for i in range(0, ceil(len(inventory) / INVENTORY_ITEMS_PER_ROW)):
                 hbox:
                     for k in range(i * INVENTORY_ITEMS_PER_ROW, min(len(inventory), INVENTORY_ITEMS_PER_ROW * (i + 1))):
                         textbutton f"{inventory[k].name}":
                             action Call("equip_item", inventory[k])
 
-screen InventoryShower(inventory):
+screen InventoryShower():
     mousearea:
         area(0, 0.95, 1.0, 0.05)
         # don't show inventory if the dialogue window is showing
         hovered If(renpy.get_screen("say"), None, [
                 Notify("show inventory"), 
                 Hide(), 
-                Show("Inventory", move, inventory)
+                # TODO how to get this to animate sliding out like a drawer?
+                Show("Inventory", move)
             ])
 screen Unequip:
     fixed:
