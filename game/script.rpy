@@ -11,7 +11,7 @@ define DEBUG_NOTIFY_HOTSPOTS = True
 label start:
     $ init_game()
 
-    show screen Debug
+    #show screen Debug
     show screen InventoryShower
     show screen Unequip
 

@@ -4,6 +4,9 @@
 
 init offset = -1
 
+define ZORDER_HOTSPOTS = 500
+define ZORDER_INVENTORY = 1000
+
 
 ################################################################################
 ## Styles
@@ -1508,43 +1511,73 @@ style slider_slider:
 ## Items in Rooms
 ################################################################################
 
+init python:
+    def can_click():
+        # TODO some way to set up a list of these for customization
+        no_click_screens = [ "say", "Inventory" ]
+        for screen in no_click_screens:
+            if renpy.get_screen(no_click_screens):
+                return False
+        return True
+
 # TODO some kind of lint to check for overlapping hotspots (warn)
 screen Hotspots(hotspots):
+    zorder ZORDER_HOTSPOTS
     for hs in hotspots:
         vbox area (hs.x, hs.y, hs.width, hs.height):
             if hs.img_path is None:
                 button:
                     if DEBUG_SHOW_HOTSPOTS:
                         background "#F0F3"
-                    action If(renpy.get_screen("say"), None, [
+                    action If(can_click(), [
                         If(DEBUG_NOTIFY_HOTSPOTS, Notify(f"clicked '{hs.name}'"), None),
                             Hide(), 
                             Call("click", hs)
-                    ])
+                    ], None)
             else:
                 imagebutton:
                     auto hs.img_path 
-                    action If(renpy.get_screen("say"), None, [
+                    action If(can_click(), [
                         Hide(), 
                         Call("click", hs)
-                    ])
+                    ], None)
+
+################################################################################
+## Equip / Use
+################################################################################
+
+label clear_equipped:
+    python:
+        global active_item
+        active_item = None
+        renpy.notify("equipped item cleared")
+    return
+
+label equip_item(item):
+    python:
+        hide_inventory()
+        active_item = item
+        renpy.notify(f"equipped {item.name}")
+    return
 
 ################################################################################
 ## Inventory
 ################################################################################
 
-label clear_equipped:
-    $ active_item = None
-    $ renpy.notify("equipped item cleared")
-    return
-
-label equip_item(item):
-    $ active_item = item
-    $ renpy.notify(f"equipped {item.name}")
-    return
-
 label click(hs):
     $ hs.on_click()
+    return
+
+label hide_inventory():
+    $ renpy.notify("Hide inventory")
+    hide screen Inventory
+    show screen InventoryShower
+    return
+
+label show_inventory():
+    $ renpy.notify("Show inventory")
+    hide screen InventoryShower
+    show screen Inventory
     return
 
 init python:
@@ -1552,15 +1585,12 @@ init python:
 
 define INVENTORY_ITEMS_PER_ROW = 4
 screen Inventory():
+    zorder ZORDER_INVENTORY
     frame:
-        area(0, 0.6, 1.0, 0.4)
+        area(0, 0.8, 1.0, 0.2)
         background "#0009"
         mousearea:
-            unhovered [
-                Notify("hide inventory"), 
-                Hide(transition=move), 
-                Show("InventoryShower", move)
-            ]
+            unhovered Call("hide_inventory")
         vbox:
             # TODO JM can we use global inventory here?
             $ global inventory
@@ -1575,13 +1605,13 @@ screen InventoryShower():
         area(0, 0.95, 1.0, 0.05)
         # don't show inventory if the dialogue window is showing
         hovered If(renpy.get_screen("say"), None, [
-                Notify("show inventory"), 
-                Hide(), 
                 # TODO how to get this to animate sliding out like a drawer?
-                Show("Inventory", move)
+                Call("show_inventory")
             ])
+
 screen Unequip:
     fixed:
+        key "mousedown_1" action Call("hide_inventory")
         key "mousedown_3" action Call("clear_equipped")
 
 screen Debug:
