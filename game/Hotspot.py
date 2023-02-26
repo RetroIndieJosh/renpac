@@ -1,8 +1,11 @@
+# if this shows up then the auto generate worked yay
+
 class Hotspot:
     def __init__(self, name: str) -> None:
         # TODO name must be unique since we're using it as key, probably best to
         # have all hotspots use unique names so these can identify them
         # (would it be better to store in a game dict instead of name being part of hotspot?)
+
         self.name = name
         self.desc = name
         self.img_path = None

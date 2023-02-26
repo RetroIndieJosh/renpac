@@ -1,10 +1,19 @@
 {
-        "files.exclude": {
-            "**/*.rpyc": true,
-            "**/*.rpa": true,
-            "**/*.rpymc": true,
-            "**/cache/": true
-        },
-        "editor.tabSize": 4,
-        "explorer.sortOrder": "type"
+    "files.exclude": {
+        "**/*.rpyc": true,
+        "**/*.rpa": true,
+        "**/*.rpymc": true,
+        "**/cache/": true
+    },
+    "editor.tabSize": 4,
+    "explorer.sortOrder": "type",
+
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "\\.py$",
+                "cmd": "generate"
+            }
+        ]
+    }
 }
