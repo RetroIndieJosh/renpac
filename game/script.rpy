@@ -9,9 +9,7 @@ define DEBUG_SHOW_HOTSPOTS = True
 define DEBUG_NOTIFY_HOTSPOTS = True
 define DEBUG_INVENTORY_SHOWER = True
 
-label start:
-    $ init_game()
-
+label ask_inventory_pos:
     menu:
         "Where should the inventory be anchored?"
 
@@ -23,6 +21,11 @@ label start:
             $ set_inventory_mode(INVENTORY_LEFT, 0.6, 0.1)
         "Right":
             $ set_inventory_mode(INVENTORY_RIGHT, 0.6, 0.1)
+
+label start:
+    python:
+        init_game()
+        set_inventory_mode(INVENTORY_TOP, 0.6, 0.2)
 
     #show screen Debug
     show screen InventoryShower
