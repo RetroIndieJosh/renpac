@@ -1562,10 +1562,20 @@ screen Hotspot9(hs):
 ## Inventory
 ################################################################################
 
-label use_item(item_index):
-    $ inventory_use(item_index)
+label clear_equipped:
+    $ active_item = None
+    $ renpy.notify("equipped item cleared")
     return
 
+label equip_item(item):
+    $ active_item = item
+    $ renpy.notify(f"equipped {item.name}")
+    return
+
+init python:
+    from math import ceil
+
+define INVENTORY_ITEMS_PER_ROW = 4
 # TODO the only way to update this would be to pass the inventory from
 # InventoryShower, which would require recreating InventoryShower whenever the
 # inventory changes
@@ -1576,34 +1586,17 @@ screen Inventory(inventory):
         mousearea:
             unhovered [Notify("hide inventory"), Hide(transition=move), Show("InventoryShower", move, inventory)]
         vbox:
-            hbox:
-                if(len(inventory) > 0):
-                    textbutton f"{inventory[0].name}":
-                        action Call("use_item", 0)
-                if(len(inventory) > 1):
-                    textbutton f"{inventory[1].name}":
-                        action Call("use_item", 1)
-                if(len(inventory) > 2):
-                    textbutton f"{inventory[2].name}":
-                        action Call("use_item", 2)
-                if(len(inventory) > 3):
-                    textbutton f"{inventory[3].name}":
-                        action Call("use_item", 3)
-            if(len(inventory) > 4):
+            for i in range(0, ceil(len(inventory) / INVENTORY_ITEMS_PER_ROW)):
                 hbox:
-                    textbutton f"{inventory[4].name}":
-                        action Call("use_item", 4)
-                    if(len(inventory) > 5):
-                        textbutton f"{inventory[5].name}":
-                            action Call("use_item", 5)
-                    if(len(inventory) > 6):
-                        textbutton f"{inventory[6].name}":
-                            action Call("use_item", 6)
-                    if(len(inventory) > 7):
-                        textbutton f"{inventory[7].name}":
-                            action Call("use_item", 7)
+                    for k in range(i * INVENTORY_ITEMS_PER_ROW, min(len(inventory), INVENTORY_ITEMS_PER_ROW * (i + 1))):
+                        textbutton f"{inventory[k].name}":
+                            action Call("equip_item", inventory[k])
 
 screen InventoryShower(inventory):
     mousearea:
         area(0, 0.95, 1.0, 0.05)
         hovered [Notify("show inventory"), Hide(), Show("Inventory", move, inventory)]
+
+screen Unequip:
+    fixed:
+        key "mousedown_3" action Call("clear_equipped")

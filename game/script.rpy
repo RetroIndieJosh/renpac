@@ -12,9 +12,10 @@ label start:
     $ init_game()
 
     while True:
-        window hide
         $ renpy.show_screen("InventoryShower", inventory)
         #show screen InventoryShower(inventory)
+        show screen Unequip
+        window hide
         pause
 
     return

@@ -1,54 +1,32 @@
 ﻿I'm sorry, but an uncaught exception occurred.
 
 While running game code:
-  File "game/script.rpy", line 18, in script
-    pause
-  File "renpy/common/000statements.rpy", line 455, in execute_pause
-    renpy.pause()
-TypeError: Missing required positional arguments: 'inventory'
+  File "game/script.rpy", line 17, in script
+    show screen Unequp
+  File "renpy/common/000statements.rpy", line 588, in execute_show_screen
+    renpy.show_screen(name, *args, **kwargs)
+Exception: Screen Unequp is not known.
+
 
 -- Full Traceback ------------------------------------------------------------
 
 Full traceback:
-  File "game/script.rpy", line 18, in script
-    pause
+  File "game/script.rpy", line 17, in script
+    show screen Unequp
   File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 2232, in execute
     self.call("execute")
   File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 2220, in call
     return renpy.statements.call(method, parsed, *args, **kwargs)
   File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\statements.py", line 281, in call
     return method(parsed, *args, **kwargs)
-  File "renpy/common/000statements.rpy", line 455, in execute_pause
-    renpy.pause()
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\exports.py", line 1537, in pause
-    rv = renpy.ui.interact(mouse='pause', type='pause', roll_forward=roll_forward, pause=delay, pause_modal=modal)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ui.py", line 299, in interact
-    rv = renpy.game.interface.interact(roll_forward=roll_forward, **kwargs)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\core.py", line 3377, in interact
-    repeat, rv = self.interact_core(preloads=preloads, trans_pause=trans_pause, pause=pause, pause_start=pause_start, pause_modal=pause_modal, **kwargs) # type: ignore
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\core.py", line 3810, in interact_core
-    root_widget.visit_all(lambda i : i.per_interact())
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\core.py", line 582, in visit_all
-    d.visit_all(callback, seen)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\core.py", line 582, in visit_all
-    d.visit_all(callback, seen)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\core.py", line 582, in visit_all
-    d.visit_all(callback, seen)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\screen.py", line 451, in visit_all
-    callback(self)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\core.py", line 3810, in <lambda>
-    root_widget.visit_all(lambda i : i.per_interact())
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\screen.py", line 462, in per_interact
-    self.update()
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\screen.py", line 653, in update
-    self.screen.function(**self.scope)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 294, in apply_arguments
-    return parameters.apply(args, kwargs, ignore_errors)
-  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\ast.py", line 230, in apply
-    raise TypeError(
-TypeError: Missing required positional arguments: 'inventory'
+  File "renpy/common/000statements.rpy", line 588, in execute_show_screen
+    renpy.show_screen(name, *args, **kwargs)
+  File "M:\gamedev\tools\renpy-8.0.3-sdk\renpy\display\screen.py", line 1185, in show_screen
+    raise Exception("Screen %s is not known.\n" % (name[0],))
+Exception: Screen Unequp is not known.
+
 
 Windows-10-10.0.19045 AMD64
 Ren'Py 8.0.3.22090809
 bardolf 1.0
-Sat Feb 25 18:16:52 2023
+Sat Feb 25 19:53:23 2023

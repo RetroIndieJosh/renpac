@@ -2,6 +2,7 @@ init python:
     HOTSPOT_MAX = 10
 
     current_room = None
+    active_item = None
     hs_count = 0
 
     def clear_hotspots():
@@ -24,13 +25,18 @@ init python:
         # define rooms and items in them
         dungeon_cell = Room("cell",
             "This dilapidated cell assaults you with a foul stench. A slit in the wall serves as a window, letting in a tiny beam of light.")
-        dungeon_cell.add_hotspot(Item("gruel"), 0.6, 0.6)
-        dungeon_cell.add_hotspot(Item("shackles"), 0.8, 0.9)
+        #dungeon_cell.add_hotspot(Item("gruel"), 0.6, 0.6)
+        for i in range(9):
+            dungeon_cell.add_hotspot(Item(f"gruel"), i / 18, 0.6)
+        dungeon_cell.add_hotspot(Item("shackles"), 0.8, 0.8)
 
         guardhouse = Room("guardhouse", "")
-        dungeon_cell.add_hotspot(Exit("stairs down", guardhouse, 467, 307), 0, 782)
+        #dungeon_cell.add_hotspot(Exit("stairs down", guardhouse, 467, 307), 0, 782)
         guardhouse.add_hotspot(Exit("stairs up", dungeon_cell, 345, 166), 1575, 0)
     
         # set start room
         global current_room
         dungeon_cell.enter()
+    
+    config.keymap['game_menu'].remove('K_ESCAPE')
+    config.keymap['game_menu'].remove('mouseup_3')
