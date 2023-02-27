@@ -8,3 +8,4 @@ traceback.txt
 **/saves/
 **/*.gen.rpy
 **/*.bak
+**/.vscode
