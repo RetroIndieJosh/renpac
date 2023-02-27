@@ -2,7 +2,7 @@ init python:
     active_item = None
 
 label clear_equipped:
-    call hide_inventory
+    call inventory_hide
     python:
         global active_item
         active_item = None
@@ -10,7 +10,7 @@ label clear_equipped:
     return
 
 label equip_item(item):
-    call hide_inventory()
+    call inventory_hide
     python:
         active_item = item
         renpy.notify(f"equipped {item.name}")

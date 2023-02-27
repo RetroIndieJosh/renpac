@@ -1,6 +1,5 @@
 init python:
     def can_click():
-        # TODO some way to set up a list of these for customization
         no_click_screens = [ "say", "Inventory" ]
         for screen_name in no_click_screens:
             if renpy.get_screen(screen_name):
