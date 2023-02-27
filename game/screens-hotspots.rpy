@@ -9,11 +9,10 @@ init python:
 
 init python:
     def hotspot_delete(hs):
+        logging.info(f"delete hotspot {hs.name}")
         if hs in inventory:
-            print(f"remove {hs.name} from inventory")
             inventory.remove(hs)
         elif hs.room is not None:
-            print(f"remove {hs.name} from room {hs.room.name}")
             hs.room.remove_hotspot(hs)
         else:
             raise Exception(f"Tried to delete hotspot '{hs.name}' but it doesn't exist in inventory or room!")
@@ -22,32 +21,28 @@ init python:
         global active_item
 
         if active_item is None:
-            print(f"no active item, do regular click on hotspot {hs.name}")
+            logging.debug(f"no active item, do regular click on hotspot {hs.name}")
             hs.on_click()
             return
 
-        print(f"active item is {active_item.name}, try {hs.name}.combine({active_item.name})")
+        logging.debug(f"active item is {active_item.name}, try {hs.name}.combine({active_item.name})")
         combo = hs.combine(active_item)
         if combo is None:
-            print("no matching combo, abort")
+            logging.info(f"cannot combine {active_item.name} on {hs.name}")
             renpy.say(None, f"You can't use {active_item.name} on {hs.name}!")
             return
 
-        print(f"check removal")
         if combo.delete_self:
-            print(f"remove self ({active_item.name})")
+            logging.debug(f"remove self ({active_item.name})")
             hotspot_delete(active_item)
         if combo.delete_target:
-            print(f"remove target ({hs.name})")
+            logging.debug(f"remove target ({hs.name})")
             hotspot_delete(hs)
 
-        print("clear active item")
         active_item = None
 
         # do func last in case it includes an execution-ender such as renpy.say()
-        print(f"combo matches")
         if combo.func is not None:
-            print("has function, call it")
             combo.func()
 
 label click(hs):
