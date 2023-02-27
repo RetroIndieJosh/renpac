@@ -93,7 +93,7 @@ class Exit(Hotspot):
 
     def on_click(self) -> None:
         if self.room is not None:
-            set_room(self.target) # type: ignore
+            renpy.call("set_room", self.target) # type: ignore
 
 class Item(Hotspot):
     def __init__(self, name: str) -> None:

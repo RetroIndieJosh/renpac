@@ -14,6 +14,8 @@ class Room:
         if(hs in self.hotspots):
             raise Exception("Tried to add hs to room but it's already there! ({hs.name} in {room.name})")
 
+        # TODO warn if hotspot overlaps any existing hotspot
+
         self.hotspots.append(hs)
         hs.room = self
         hs.x = x

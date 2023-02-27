@@ -1,5 +1,4 @@
 init python:
-    # TODO is there a way to move this to Hotspot.py?
     def can_click():
         no_click_screens = [ "say", "Inventory" ]
         for screen_name in no_click_screens:
@@ -7,17 +6,14 @@ init python:
                 return False
         return True
 
-# TODO refactor => hotspot_click
-label click(hs):
+label hotspot_click(hs):
     $ hs.click()
     return
 
-# TODO move to Hotspot.describe()
-label describe_hotspot(hs):
+label hotspot_describe(hs):
     "[hs.desc]"
     return
 
-# TODO some kind of lint to check for overlapping hotspots (warn)
 screen Hotspots(hotspots):
     zorder ZORDER_HOTSPOTS
     for hs in hotspots:
@@ -29,14 +25,14 @@ screen Hotspots(hotspots):
                     action If(can_click(), [
                         If(DEBUG_NOTIFY_HOTSPOTS, Notify(f"clicked '{hs.name}'"), None),
                             Hide(), 
-                            Call("click", hs)
+                            Call("hotspot_click", hs)
                     ], None)
-                    alternate If(active_item is None, Call("describe_hotspot", hs), None)
+                    alternate If(active_item is None, Call("hotspot_describe", hs), None)
             else:
                 imagebutton:
                     auto hs.img_path 
                     action If(can_click(), [
                         Hide(), 
-                        Call("click", hs)
+                        Call("hotspot_click", hs)
                     ], None)
-                    alternate If(active_item is None, Call("describe_hotspot", hs), None)
+                    alternate If(active_item is None, Call("hotspot_describe", hs), None)

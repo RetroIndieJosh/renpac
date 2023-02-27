@@ -24,19 +24,5 @@ label ask_inventory_pos:
             $ set_inventory_mode(INVENTORY_RIGHT, 0.6, 0.1)
 
 label start:
-    python:
-        game_init("bardolf")
-        set_inventory_mode(INVENTORY_TOP, 0.6, 0.2)
-
-    #show screen Debug
-    # TODO move these to game_init (this is the client-side script and shouldn't have any RenPaC stuff)
-    show screen InventoryShower
-    show screen Equipped
-    show screen Fullscreen
-
-    # TODO this loop should be in the game as well, maybe started with a game_run()
-    while True:
-        $ current_room.hotspots_show()
-        pause
-
+    call renpac("bardolf")
     return
