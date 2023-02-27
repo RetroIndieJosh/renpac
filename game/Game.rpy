@@ -34,6 +34,7 @@ init python:
         dungeon_cell.name = "cell"
         dungeon_cell.printed_name = "Tower Cell"
         dungeon_cell.desc = "A foul stench assaults you from all around. In one wall a slit serves as a window, letting in just enough light to see. Someone was kind enough to leave you a bowl of gruel."
+        # TODO refactor to first_desc
         dungeon_cell.first_time_desc = "You wake with a vicious pounding in your head and find yourself on the upper floor of a tower. Looks like a cell."
 
         gruel = Item("gruel")

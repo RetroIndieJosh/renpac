@@ -14,6 +14,9 @@
     - inventory changes
     - hotspot activation
     - room change
+- items in items (containers, like bags and chests etc.)
+    - how to handle open?
+- how to distinguish between "use item" and "equip item for use on a hotspot" ?
 - visual display of selected inventory item (for now just a text box with name, but later make cursors?)
 - instead of show/hide on inventory / show inventory, would it be better to use an if? can put both in one screen
 - visual display for items in inventory (use imagebuttons instead of buttons, how to resize? seems they ignore sizing)
