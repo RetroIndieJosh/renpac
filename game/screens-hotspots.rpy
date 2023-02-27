@@ -1,4 +1,5 @@
 init python:
+    # TODO is there a way to move this to Hotspot.py?
     def can_click():
         no_click_screens = [ "say", "Inventory" ]
         for screen_name in no_click_screens:
@@ -6,48 +7,12 @@ init python:
                 return False
         return True
 
-init python:
-    def hotspot_delete(hs):
-        logging.info(f"delete hotspot {hs.name}")
-        if hs in inventory:
-            inventory.remove(hs)
-        elif hs.room is not None:
-            hs.room.remove_hotspot(hs)
-        else:
-            raise Exception(f"Tried to delete hotspot '{hs.name}' but it doesn't exist in inventory or room!")
-
-    def hotspot_click(hs):
-        global active_item
-
-        if active_item is None:
-            logging.debug(f"no active item, do regular click on hotspot {hs.name}")
-            hs.on_click()
-            return
-
-        logging.debug(f"active item is {active_item.name}, try {hs.name}.combine({active_item.name})")
-        combo = hs.combine(active_item)
-        if combo is None:
-            logging.info(f"cannot combine {active_item.name} on {hs.name}")
-            renpy.say(None, f"You can't use {active_item.name} on {hs.name}!")
-            return
-
-        if combo.delete_self:
-            logging.debug(f"remove self ({active_item.name})")
-            hotspot_delete(active_item)
-        if combo.delete_target:
-            logging.debug(f"remove target ({hs.name})")
-            hotspot_delete(hs)
-
-        active_item = None
-
-        # do func last in case it includes an execution-ender such as renpy.say()
-        if combo.func is not None:
-            combo.func()
-
+# TODO refactor => hotspot_click
 label click(hs):
-    $ hotspot_click(hs)
+    $ hs.click()
     return
 
+# TODO move to Hotspot.describe()
 label describe_hotspot(hs):
     "[hs.desc]"
     return

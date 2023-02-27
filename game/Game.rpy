@@ -1,12 +1,14 @@
 init python:
     current_room = None
 
-    def clear_hotspots():
-        renpy.hide_screen("Hotspots")
-
+    # TODO make this a renpy label
     def set_room(room):
+        # can't move from a room to itself
+        if current_room is room:
+            return
+
         if current_room is not None:
-            current_room.on_exit()
+            current_room.exit()
 
         global current_room
         current_room = room
@@ -15,20 +17,16 @@ init python:
 
         renpy.scene()
         renpy.show(f"bg {room.name}")
-        show_hotspots()
 
-        current_room.on_enter()
+        current_room.enter()
         renpy.notify(f"You are now in {room.name}")
         if(not room.visited and room.first_desc is not None):
             renpy.say(None, room.first_desc) 
         renpy.say(None, room.desc)
         room.visited = True
 
-    def show_hotspots():
-        clear_hotspots()
-        renpy.show_screen("Hotspots", current_room.hotspots)
-
-    def init_game():
+    # TODO replace with loading from file
+    def game_load_bardolf():
         # define rooms and items in them
         dungeon_cell = Room("cell")
         dungeon_cell.printed_name = "Tower Cell"
@@ -66,10 +64,15 @@ init python:
         stairs_up.width = 345
         stairs_up.height = 166
         guardhouse.add_hotspot(stairs_up, 1575, 0)
-    
+
         # set start room
         set_room(dungeon_cell)
-    
-    #config.keymap['game_menu'].remove('K_ESCAPE')
-    config.keymap['game_menu'].remove('mouseup_3')
-    config.keymap['hide_windows'].clear()
+
+    def game_init(name):
+        config.keymap['game_menu'].remove('mouseup_3')
+        config.keymap['hide_windows'].clear()
+
+        log_init()
+        logging.info(f"game '{name}' started")
+
+        game_load_bardolf()

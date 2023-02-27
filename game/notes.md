@@ -5,6 +5,9 @@
 - keep rpy as rpy and py as py
     - if a large chunk of python is necessary (such as a class), write it in pure python (do not call renpy methods)
     - if renpy methods are required from python, call the python from renpy and react accordingly with renpy in renpy
+    - only use renpy labels if needed in screen actions etc. or run through pure renpy
+        - call from renpy or call() from python ends the current instruction in renpy, skipping any further code!
+        - also you MUST `return` from a called label, otherwise it continues on to the next! (python has no such issue)
 
 ## To Do
 
