@@ -39,15 +39,15 @@ class Hotspot:
         return self.combinations[item.name] if item.name in self.combinations else None
 
 class Exit(Hotspot):
-    def __init__(self, name: str, target_room: object, width: int, height: int) -> None:
+    def __init__(self, name: str) -> None:
         super().__init__(name)
-        self.target_room = target_room
-        self.width = width
-        self.height = height
+        self.target = None
+        self.width = 0
+        self.height = 0
 
     def on_click(self) -> None:
-        global set_room
-        set_room(self.target_room)
+        if self.room is not None:
+            set_room(self.target) # type: ignore
 
 class Item(Hotspot):
     def __init__(self, name: str) -> None:

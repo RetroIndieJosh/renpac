@@ -1,11 +1,11 @@
 class Room:
-    def __init__(self) -> None:
-        self.name = "room"
-        self.printed_name = "Room"
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.printed_name = name
         self.desc = "An unknown place."
 
         self.visited = False
-        self.first_time_desc = None
+        self.first_desc = None
 
         self.hotspots = []
 

@@ -44,3 +44,5 @@
 - support drag and drop (either simultaneously, as a user option, or as a developer option)
 - can we handle invert color for hover images with a script? (at the very least, generate with image-magick)
 - visual editor to place items which generates a renpac script file
+- a custom list of commands that can be used like a combine, but they're permanent items in the interface
+    - so they could be set up e.g. "glass_window.combine(hit)" => break the glass window
