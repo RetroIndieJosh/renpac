@@ -10,8 +10,10 @@ init python:
 init python:
     def hotspot_delete(hs):
         if hs in inventory:
+            print(f"remove {hs.name} from inventory")
             inventory.remove(hs)
         elif hs.room is not None:
+            print(f"remove {hs.name} from room {hs.room.name}")
             hs.room.remove_hotspot(hs)
         else:
             raise Exception(f"Tried to delete hotspot '{hs.name}' but it doesn't exist in inventory or room!")
@@ -20,23 +22,33 @@ init python:
         global active_item
 
         if active_item is None:
+            print(f"no active item, do regular click on hotspot {hs.name}")
             hs.on_click()
             return
 
+        print(f"active item is {active_item.name}, try {hs.name}.combine({active_item.name})")
         combo = hs.combine(active_item)
         if combo is None:
+            print("no matching combo, abort")
             renpy.say(None, f"You can't use {active_item.name} on {hs.name}!")
             return
 
-        renpy.say(None, f"You use {active_item.name} on {hs.name}")
-        # TODO is it not calling this?
-        combo.func()
-        if(combo.remove_self):
+        print(f"check removal")
+        if combo.delete_self:
+            print(f"remove self ({active_item.name})")
             hotspot_delete(active_item)
-            active_item = None
-        else:
+        if combo.delete_target:
+            print(f"remove target ({hs.name})")
             hotspot_delete(hs)
+
+        print("clear active item")
         active_item = None
+
+        # do func last in case it includes an execution-ender such as renpy.say()
+        print(f"combo matches")
+        if combo.func is not None:
+            print("has function, call it")
+            combo.func()
 
 label click(hs):
     $ hotspot_click(hs)

@@ -58,7 +58,7 @@ init python:
 
         gruel_stairs = Combination()
         gruel_stairs.delete_self = True
-        gruel_stairs.func = lambda: renpy.say(None, "You dump the gruel down the stairs. Your stomach growls in protest.")
+        gruel_stairs.func = lambda: renpy.say(None, "You dump the gruel down the stairs. And now you're gonna stay hungry.")
         stairs_down.add_combination(gruel, gruel_stairs)
 
         guardhouse.add_hotspot(Exit("stairs up", dungeon_cell, 345, 166), 1575, 0)
