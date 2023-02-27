@@ -10,6 +10,8 @@
 
 ### Main Iteration
 
+- print more information to log (have a custom function for it so it also prints to file and is easy to disable)
+    - include criticality levels: verbose, log, warn, error, etc.
 - visual display of selected inventory item (for now just a text box with name, but later make cursors?)
 - instead of show/hide on inventory / show inventory, would it be better to use an if? can put both in one screen
 - visual display for items in inventory (use imagebuttons instead of buttons, how to resize? seems they ignore sizing)
