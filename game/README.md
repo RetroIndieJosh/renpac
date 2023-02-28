@@ -21,6 +21,9 @@
 
 ### Main Iteration
 
+- FIX INVENTORY NOT SHOWING!
+- add a symlink to this on linux from ../README.md so github can find it (or not, this isn't really a readme, but there should be one there)
+
 - left, middle, and right click each have an assigned action
 - by default this is take/equip (world/inventory), examine, and use (target if
   nothing equipped, otherwise equipped on target)
