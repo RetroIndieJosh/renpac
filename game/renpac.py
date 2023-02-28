@@ -1,8 +1,6 @@
 import logging
-from . import Room, Item, Combination, Exit, Action
+from . import Room, Item, Combination, Exit, Action, Log
 
-# TODO move to Action.py
-current_action: Action = None
 current_room: Room = None
 
 # TODO replace with loading from file
@@ -49,14 +47,19 @@ def game_load_bardolf():
     renpy.call("set_room", dungeon_cell) # type: ignore
 
 def renpac_init():
+    config.keymap['game_menu'].remove('mouseup_3') #type: ignore
+    config.keymap['hide_windows'].clear() #type: ignore
+
+    Action.current = Action.get("take")
+    if Action.current is None:
+        raise Exception("Missing default action 'take'! Cannot proceed with initialization")
+
+    Log.init()
+    logging.info(f"initialized RenPaC")
+
+def renpac_load(game_name):
     if(game_name is None):
         raise Exception("RenPaC error: no game specified.")
 
-    config.keymap['game_menu'].remove('mouseup_3')
-    config.keymap['hide_windows'].clear()
-
-    log_init()
-    logging.info(f"game '{game_name}' started")
-
-def renpac_load(game_name):
     game_load_bardolf()
+    logging.info(f"game '{game_name}' loaded")

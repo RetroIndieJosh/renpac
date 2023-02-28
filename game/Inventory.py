@@ -1,4 +1,4 @@
-from . import Area
+from . import Action, Area, Hotspot
 
 INVENTORY_ITEMS_PER_ROW = 4
 
@@ -9,6 +9,14 @@ INVENTORY_TOP = 4
 
 inventory_area = Area() # type: ignore
 inventory_show_area = Area() # type: ignore
+
+def take(item: Hotspot):
+    item.room.remove_hotspot(item)
+    item.room = None
+    global inventory_add
+    inventory_add(item)
+
+Action.register("take", take)
 
 # width is how much space is available for the inventory (horizontal on top/bottom, vertical on left/right)
 # height is how far the inventory widthes out of the attached side of the screen

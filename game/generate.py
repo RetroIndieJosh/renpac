@@ -1,5 +1,11 @@
 import os
 
+# TODO clean option to clear all gen.rpy files
+# TODO rebuild option for current behavior (clean + build) and default to normal build
+# TODO proper circular dependency checking (instead of maximum nesting)
+
+DEPENDENCY_DEPTH_MAX = 10
+
 priority = 0
 generated = []
 
@@ -31,6 +37,10 @@ def write_file(name):
     global generated
     if name in generated:
         return
+
+    if -priority >= DEPENDENCY_DEPTH_MAX:
+        print("ERROR: maximum dependency depth reached, is there a circular dependency?")
+        exit(1)
 
     with open(f"{name}.py") as file:
         file_data = file.read()

@@ -7,7 +7,10 @@ init python:
         return True
 
 label hotspot_click(hs):
-    $ hs.click()
+    $ logging.info(f"clicked hotspot '{hs.name}'")
+    if Action.current is None:
+        $ raise Exception("Current action is none! This should never happen")
+    $ Action.current.execute(hs)
     return
 
 label hotspot_describe(hs):

@@ -1,4 +1,4 @@
-# Ren'PaC: Ren'Py Point and Click System
+# RenPaC: Ren'Py Point and Click System by Joshua McLean
 
 ## Standards
 
@@ -8,12 +8,16 @@
     - only use renpy labels if needed in screen actions etc. or run through pure renpy
         - call from renpy or call() from python ends the current instruction in renpy, skipping any further code!
         - also you MUST `return` from a called label, otherwise it continues on to the next! (python has no such issue)
+- for pure python, put EVERYTHING in classes even if it's static
+    - simplifies dependencies and helps the editor recognize symbols 
+        - importing global vars or funcs from . will break generator
 
 ## To Do
 
 - really only using Ren'py as a dialogue system, input detector, and renderer
     - could write the whole thing in Pygame... or convert to something like SDL2
     - will be better to make this decision sooner rather than later!
+- make this readme more usable and separate sections into standards (contributing?), todo, etc.
 
 ### Main Iteration
 
