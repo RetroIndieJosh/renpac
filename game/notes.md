@@ -13,6 +13,16 @@
 
 ### Main Iteration
 
+- left, middle, and right click each have an assigned action
+- by default this is take/equip (world/inventory), examine, and use (target if
+  nothing equipped, otherwise equipped on target)
+- additional actions can be defined and set by activating Action hotspots with the relevant button
+    - how / when to reset to default? maybe middle click can be "reset" ? or always reset after action?
+- action can be an item (the "use on" action)
+    - for instance, a room with an item `key`: the `take` action to get it into
+      the inventory, the `use` action in the inventory item, then the action
+      becomes `key` and causes `other_item`.combine(`key`)
+
 - add logging to all normal actions
     - inventory changes
     - hotspot activation

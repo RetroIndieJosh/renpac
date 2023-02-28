@@ -1,9 +1,9 @@
 import logging
 
-# TODO refactor => hotspots_clear
 def hotspots_clear():
     renpy.hide_screen("Hotspots") # type: ignore
 
+# TODO this should be made obsolete by Action system
 class Combination:
     def __init__(self) -> None:
         self.func = None
@@ -83,25 +83,3 @@ class Hotspot:
     # combine item with this hotspot
     def combine(self, item: object) -> Combination:
         return self.combinations[item.name] if item.name in self.combinations else None
-
-class Exit(Hotspot):
-    def __init__(self, name: str) -> None:
-        super().__init__(name)
-        self.target = None
-        self.width = 0
-        self.height = 0
-
-    def on_click(self) -> None:
-        if self.room is not None:
-            renpy.call("set_room", self.target) # type: ignore
-
-class Item(Hotspot):
-    def __init__(self, name: str) -> None:
-        super().__init__(name)
-        self.img_path = f"{self.name}_%s.png"
-
-    def on_click(self) -> None:
-        self.room.remove_hotspot(self)
-        self.room = None
-        global inventory_add
-        inventory_add(self)

@@ -1,7 +1,9 @@
 import logging
-from . import Room, Item, Combination, Exit
+from . import Room, Item, Combination, Exit, Action
 
-current_room = None
+# TODO move to Action.py
+current_action: Action = None
+current_room: Room = None
 
 # TODO replace with loading from file
 def game_load_bardolf():
