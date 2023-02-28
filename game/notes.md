@@ -11,6 +11,10 @@
 
 ## To Do
 
+- really only using Ren'py as a dialogue system, input detector, and renderer
+    - could write the whole thing in Pygame... or convert to something like SDL2
+    - will be better to make this decision sooner rather than later!
+
 ### Main Iteration
 
 - left, middle, and right click each have an assigned action

@@ -1,11 +1,11 @@
+from . import Area
+
 INVENTORY_ITEMS_PER_ROW = 4
 
 INVENTORY_BOTTOM = 1
 INVENTORY_LEFT = 2
 INVENTORY_RIGHT = 3
 INVENTORY_TOP = 4
-
-global Area
 
 inventory_area = Area() # type: ignore
 inventory_show_area = Area() # type: ignore
