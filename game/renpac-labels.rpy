@@ -3,7 +3,6 @@ label renpac(game_name, debug=False):
     python:
         Renpac.init()
         Renpac.load(game_name)
-        # TODO this should be set by game config
         set_inventory_mode(INVENTORY_TOP, 0.6, 0.2)
 
     if debug:

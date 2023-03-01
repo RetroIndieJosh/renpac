@@ -1,9 +1,5 @@
 import os
 
-# TODO clean option to clear all gen.rpy files
-# TODO rebuild option for current behavior (clean + build) and default to normal build
-# TODO proper circular dependency checking (instead of maximum nesting)
-
 DEPENDENCY_DEPTH_MAX = 10
 
 priority = 0
