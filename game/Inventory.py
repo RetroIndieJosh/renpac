@@ -1,3 +1,5 @@
+import logging
+
 from . import Action, Area, Hotspot, Item
 
 INVENTORY_ITEMS_PER_ROW = 4
@@ -59,4 +61,6 @@ def set_inventory_mode(mode: int, width: int, height: int) -> None:
         inventory_show_area.x = 1.0 - inventory_show_area.width
     elif mode is INVENTORY_BOTTOM:
         inventory_show_area.y = 1.0 - inventory_show_area.height
+
+    logging.info(f"set inventory mode to {mode} of size {width}x{height}")
 

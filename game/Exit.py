@@ -10,4 +10,4 @@ class Exit(Hotspot):
     # TODO handle as action
     def on_click(self) -> None:
         if self.room is not None:
-            renpy.call("set_room", self.target) # type: ignore
+            set_room(self.target) #type: ignore

@@ -11,6 +11,8 @@
 - for pure python, put EVERYTHING in classes even if it's static
     - simplifies dependencies and helps the editor recognize symbols 
         - importing global vars or funcs from . will break generator
+- in order to generate dependencies in the correct order, any import from local *must* begin with `from . import`
+    - a simple `import` will work on the python side but does not allow the generator to distinguish local imports
 
 ## To Do
 
