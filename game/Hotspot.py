@@ -12,8 +12,8 @@ class Hotspot:
         self.img_path = None
 
         # default = left click, alternate = right click, middle = middle click
-        self.action_default = Action.get("examine")
-        self.action_alternate = None
+        self.action_left = Action.get("examine")
+        self.action_right = None
         self.action_middle = None
 
         # mouse wheel scrolling actions

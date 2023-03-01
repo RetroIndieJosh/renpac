@@ -13,7 +13,7 @@ class Exit(Hotspot):
         self.height = 0
 
         self.action_left = Action.get("go")
-        self.action_alternate = Action.get("examine")
+        self.action_right = Action.get("examine")
         self.action_middle = None
         self.action_down = None
         self.action_up = None
