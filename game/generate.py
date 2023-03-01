@@ -25,7 +25,7 @@ def check_dependency(line):
         if dependency not in generated:
             priority -= 1
             write_file(dependency)
-        priority += 1
+            priority += 1
 
 def cleanup():
     gen_files = list(filter(lambda file_name: file_name.endswith(".gen.rpy"), os.listdir()))
@@ -85,5 +85,6 @@ print(f"generating {len(files)} files")
 for py_file_name in files:
     name = os.path.splitext(py_file_name)[0]
     write_file(name)
+    priority += 1
 
 print("done")
