@@ -1,5 +1,4 @@
 import logging
-from . import Hotspot
 
 class Action:
     actions = {}
@@ -22,6 +21,6 @@ class Action:
         self.name = name
         self.func = func
     
-    def execute(self, target: Hotspot) -> None:
+    def execute(self, target) -> None:
         logging.info(f"execute action '{self.name}' on '{target.name}'")
         self.func(target)

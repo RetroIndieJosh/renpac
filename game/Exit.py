@@ -1,4 +1,9 @@
-from . import Hotspot
+from . import Action, Hotspot
+
+def action_go(target):
+    target.go()
+
+Action.register("go", action_go)
 
 class Exit(Hotspot):
     def __init__(self, name: str) -> None:
@@ -7,7 +12,12 @@ class Exit(Hotspot):
         self.width = 0
         self.height = 0
 
-    # TODO handle as action
-    def on_click(self) -> None:
+        self.action_default = Action.get("go")
+        self.action_alternate = Action.get("examine")
+        self.action_middle = None
+        self.action_down = None
+        self.action_up = None
+
+    def go(self) -> None:
         if self.room is not None:
-            set_room(self.target) #type: ignore
+            Game.set_room(self.target) #type: ignore

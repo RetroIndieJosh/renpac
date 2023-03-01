@@ -1,4 +1,4 @@
-from . import Combination
+from . import Action, Combination
 
 import logging
 
@@ -17,6 +17,15 @@ class Hotspot:
         self.desc = name
         self.img_path = None
 
+        # default = left click, alternate = right click, middle = middle click
+        self.action_default = Action.get("examine")
+        self.action_alternate = None
+        self.action_middle = None
+
+        # mouse wheel scrolling actions
+        self.action_down = None
+        self.action_up = None
+
         self.x = 0
         self.y = 0
         self.width = 256
@@ -33,6 +42,9 @@ class Hotspot:
         self.combinations[item.name] = combination
     
     def click(self):
+        raise NotImplementedError()
+        # TODO remove
+        """
         global active_item
 
         if active_item is None:
@@ -44,6 +56,7 @@ class Hotspot:
         combo = self.combine(active_item)
 
         active_item = None
+        """
 
         # do func last in case it includes an execution-ender such as renpy.say()
 

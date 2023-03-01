@@ -1,4 +1,5 @@
 init python:
+    # TODO move this to Game
     active_item = None
 
 label clear_equipped:

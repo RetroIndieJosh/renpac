@@ -8,10 +8,6 @@ class Renpac(StaticClass):
         config.keymap['game_menu'].remove('mouseup_3') #type: ignore
         config.keymap['hide_windows'].clear() #type: ignore
 
-        Action.current = Action.get("take")
-        if Action.current is None:
-            raise Exception("Missing default action 'take'! Cannot proceed with initialization")
-
         Log.init()
         logging.info(f"initialized RenPaC")
 

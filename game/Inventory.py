@@ -12,17 +12,6 @@ INVENTORY_TOP = 4
 inventory_area = Area() # type: ignore
 inventory_show_area = Area() # type: ignore
 
-def take(item: Hotspot):
-    if type(item) is not Item:
-        return
-
-    item.room.remove_hotspot(item)
-    item.room = None
-    global inventory_add
-    inventory_add(item)
-
-Action.register("take", take)
-
 # width is how much space is available for the inventory (horizontal on top/bottom, vertical on left/right)
 # height is how far the inventory widthes out of the attached side of the screen
 def set_inventory_mode(mode: int, width: int, height: int) -> None:

@@ -6,10 +6,14 @@ init python:
                 return False
         return True
 
+# TODO rename to leftclick or defaultclick
+# TODO make middleclick and rightclick (alternateclick) as well
 label hotspot_click(hs):
     $ logging.info(f"clicked hotspot '{hs.name}'")
     if Action.current is None:
-        $ raise Exception("Current action is none! This should never happen")
+        if hs.action_default is not None:
+            $ hs.action_default.execute(hs)
+        return
     $ Action.current.execute(hs)
     return
 
