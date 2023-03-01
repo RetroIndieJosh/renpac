@@ -1,4 +1,4 @@
-from . import Action, Area, Hotspot
+from . import Action, Area, Hotspot, Item
 
 INVENTORY_ITEMS_PER_ROW = 4
 
@@ -11,6 +11,9 @@ inventory_area = Area() # type: ignore
 inventory_show_area = Area() # type: ignore
 
 def take(item: Hotspot):
+    if type(item) is not Item:
+        return
+
     item.room.remove_hotspot(item)
     item.room = None
     global inventory_add

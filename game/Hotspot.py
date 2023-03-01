@@ -42,24 +42,10 @@ class Hotspot:
 
         logging.debug(f"active item is {active_item.name}, try {self.name}.combine({active_item.name})")
         combo = self.combine(active_item)
-        if combo is None:
-            logging.info(f"cannot combine {active_item.name} on {self.name}")
-            renpy.say(None, f"You can't use {active_item.name} on {self.name}!") # type: ignore
-            return
-
-        # TODO maybe this should be delete_active or delete_actor? since "self" can be confusing (self is target, but self is active item O_O)
-        if combo.delete_self:
-            logging.debug(f"remove self ({active_item.name})")
-            active_item.delete()
-        if combo.delete_target:
-            logging.debug(f"remove target ({self.name})")
-            self.delete()
 
         active_item = None
 
         # do func last in case it includes an execution-ender such as renpy.say()
-        if combo.func is not None:
-            combo.func()
 
     def delete(self):
         logging.info(f"delete hotspot {self.name}")
@@ -71,10 +57,3 @@ class Hotspot:
             self.room.remove_hotspot(self)
         else:
             raise Exception(f"Tried to delete hotspot '{self.name}' but it doesn't exist in inventory or room!")
-
-    def on_click(self) -> None:
-        raise NotImplementedError()
-
-    # combine item with this hotspot
-    def combine(self, item: object) -> Combination:
-        return self.combinations[item.name] if item.name in self.combinations else None
