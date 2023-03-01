@@ -1,8 +1,8 @@
 import logging
 
-from . import Item, Combination, Room, Exit
+from . import Item, Combination, Room, Exit, StaticClass
 
-class Game:
+class Game(StaticClass):
     current_room: Room = None
 
     @staticmethod
@@ -80,6 +80,3 @@ class Game:
 
         # set start room
         Game.set_room(dungeon_cell) #type: ignore
-
-    def __init__(self) -> None:
-        raise Exception("Game is static, do not instantiate it")
