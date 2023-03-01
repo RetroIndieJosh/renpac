@@ -49,9 +49,10 @@ class Game(StaticClass):
         gruel = Item("gruel")
         shackles = Item("shackles")
 
-        gruel_shackles = Combination()
-        gruel_shackles.delete_self = True
-        gruel_shackles.func = lambda: renpy.say(None, "You dump the gruel on the shackles. Great, now the mess is even worse!")
+        gruel_shackles = Combination(
+            func = lambda: renpy.say(None, "You dump the gruel on the shackles. Great, now the mess is even worse!"),
+            delete_self = True
+        )
         shackles.add_combination(gruel, gruel_shackles)
 
         dungeon_cell.add_hotspot(gruel, 0.6, 0.6)
@@ -67,9 +68,10 @@ class Game(StaticClass):
         stairs_down.height = 307
         dungeon_cell.add_hotspot(stairs_down, 0, 782)
 
-        gruel_stairs = Combination()
-        gruel_stairs.delete_self = True
-        gruel_stairs.func = lambda: renpy.say(None, "You dump the gruel down the stairs. And now you're gonna stay hungry.")
+        gruel_stairs = Combination(
+            func = lambda: renpy.say(None, "You dump the gruel down the stairs. And now you're gonna stay hungry."),
+            delete_self = True
+        )
         stairs_down.add_combination(gruel, gruel_stairs)
 
         stairs_up = Exit("stairs up")

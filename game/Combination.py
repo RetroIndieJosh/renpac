@@ -1,6 +1,7 @@
-# TODO this is just a data class, can we make a struct? (named tuple?)
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
 class Combination:
-    def __init__(self) -> None:
-        self.func = None
-        self.delete_self = False
-        self.delete_other = False
+    func: function = None
+    delete_self: bool = False
+    delete_other: bool = False
