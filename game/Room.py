@@ -9,8 +9,7 @@ class Room:
 
         self.hotspots = []
 
-    # TODO refactor => hotspot_add
-    def add_hotspot(self, hs: object, x: int, y: int) -> None:
+    def hotspot_add(self, hs: object, x: int, y: int) -> None:
         if(hs in self.hotspots):
             raise Exception("Tried to add hs to room but it's already there! ({hs.name} in {room.name})")
 
@@ -22,7 +21,7 @@ class Room:
         hs.y = y
 
     # TODO refactor => hotspot_remove
-    def remove_hotspot(self, hs: object) -> None:
+    def hotspot_remove(self, hs: object) -> None:
         if(hs not in self.hotspots):
             raise Exception("Tried to remove hs to room but it's not there! ({hs.name} in {room.name})")
 

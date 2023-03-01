@@ -16,7 +16,7 @@ class Item(Hotspot):
         self.img_path = f"{self.name}_%s.png"
         self.action = Action.register(f"use {name} on", self.use_on)
 
-        # default = left click, alternate = right click, middle = middle click
+        # TODO refactor default => left, alternate => right
         self.action_default = Action.get("take")
 
         # TODO if usable, this is "use" - otherwise it's "use {this} on"
@@ -28,7 +28,7 @@ class Item(Hotspot):
         self.action_up = None
 
     def take(self) -> None:
-        self.room.remove_hotspot(self)
+        self.room.hotspot_remove(self)
         self.room = None
         global inventory_add
         inventory_add(self)
@@ -40,7 +40,6 @@ class Item(Hotspot):
             renpy.say(None, f"You can't use {self.name} on {other.name}!") # type: ignore
             return
 
-        # TODO active_item should be in a Game or RenPaC class
         global active_item
         if combo.delete_self:
             logging.debug(f"remove self ({self.name})")

@@ -41,24 +41,9 @@ class Hotspot:
             raise Exception(f"{item.name} is already a key in combinations for {self.name}!")
         self.combinations[item.name] = combination
     
+    # TODO remove
     def click(self):
         raise NotImplementedError()
-        # TODO remove
-        """
-        global active_item
-
-        if active_item is None:
-            logging.debug(f"no active item, do regular click on hotspot {self.name}")
-            self.on_click()
-            return
-
-        logging.debug(f"active item is {active_item.name}, try {self.name}.combine({active_item.name})")
-        combo = self.combine(active_item)
-
-        active_item = None
-        """
-
-        # do func last in case it includes an execution-ender such as renpy.say()
 
     def delete(self):
         logging.info(f"delete hotspot {self.name}")
@@ -67,6 +52,6 @@ class Hotspot:
         if self in inventory:
             inventory.remove(self)
         elif self.room is not None:
-            self.room.remove_hotspot(self)
+            self.room.hotspot_remove(self)
         else:
             raise Exception(f"Tried to delete hotspot '{self.name}' but it doesn't exist in inventory or room!")

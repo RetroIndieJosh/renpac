@@ -37,7 +37,6 @@ class Game(StaticClass):
     def update():
         Game.current_room.hotspots_show()
 
-    # TODO replace with loading from file
     @staticmethod
     def load_bardolf():
         # define rooms and items in them
@@ -55,8 +54,8 @@ class Game(StaticClass):
         )
         shackles.add_combination(gruel, gruel_shackles)
 
-        dungeon_cell.add_hotspot(gruel, 0.6, 0.6)
-        dungeon_cell.add_hotspot(shackles, 0.8, 0.8)
+        dungeon_cell.hotspot_add(gruel, 0.6, 0.6)
+        dungeon_cell.hotspot_add(shackles, 0.8, 0.8)
 
         guardhouse = Room("guardhouse")
         guardhouse.printed_name = "Guardhouse"
@@ -66,7 +65,7 @@ class Game(StaticClass):
         stairs_down.target = guardhouse
         stairs_down.width = 467
         stairs_down.height = 307
-        dungeon_cell.add_hotspot(stairs_down, 0, 782)
+        dungeon_cell.hotspot_add(stairs_down, 0, 782)
 
         gruel_stairs = Combination(
             func = lambda: renpy.say(None, "You dump the gruel down the stairs. And now you're gonna stay hungry."),
@@ -78,7 +77,7 @@ class Game(StaticClass):
         stairs_up.target = dungeon_cell
         stairs_up.width = 345
         stairs_up.height = 166
-        guardhouse.add_hotspot(stairs_up, 1575, 0)
+        guardhouse.hotspot_add(stairs_up, 1575, 0)
 
         # set start room
         Game.set_room(dungeon_cell) #type: ignore
