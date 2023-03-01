@@ -6,15 +6,27 @@ init python:
                 return False
         return True
 
-# TODO rename to leftclick or defaultclick
-# TODO make middleclick and rightclick (alternateclick) as well
-label hotspot_click(hs):
-    $ logging.info(f"clicked hotspot '{hs.name}'")
+label hotspot_click_left(hs):
     if Action.current is None:
-        if hs.action_default is not None:
-            $ hs.action_default.execute(hs)
+        $ logging.info(f"left-clicked hotspot '{hs.name}' with no current action")
+        if hs.action_left is not None:
+            $ hs.action_left.execute(hs)
         return
+    # TODO do actions have names? if not, they should
+    $ logging.info(f"left-clicked hotspot '{hs.name}' with current {Action.current.name}")
     $ Action.current.execute(hs)
+    return
+
+label hotspot_click_right(hs):
+    $ logging.info(f"right-clicked hotspot '{hs.name}'")
+    if hs.action_right is not None:
+        $ hs.action_right.execute(hs)
+    return
+
+label hotspot_click_middle(hs):
+    $ logging.info(f"middle-clicked hotspot '{hs.name}'")
+    if hs.action_middle is not None:
+        $ hs.action_middle.execute(hs)
     return
 
 label hotspot_describe(hs):
@@ -25,6 +37,8 @@ screen Hotspots(hotspots):
     zorder ZORDER_HOTSPOTS
     for hs in hotspots:
         vbox area (hs.x, hs.y, hs.width, hs.height):
+            # TODO does this work? is it only acting in the hotspot?
+            key "mousedown_3" action If(active_item is None, Call("hotspot_click_middle", hs), None)
             if hs.img_path is None:
                 button:
                     if DEBUG_SHOW_HOTSPOTS:
@@ -32,14 +46,14 @@ screen Hotspots(hotspots):
                     action If(can_click(), [
                         If(DEBUG_NOTIFY_HOTSPOTS, Notify(f"clicked '{hs.name}'"), None),
                             Hide(), 
-                            Call("hotspot_click", hs)
+                            Call("hotspot_click_left", hs)
                     ], None)
-                    alternate If(active_item is None, Call("hotspot_describe", hs), None)
+                    alternate If(active_item is None, Call("hotspot_click_right", hs), None)
             else:
                 imagebutton:
                     auto hs.img_path 
                     action If(can_click(), [
                         Hide(), 
-                        Call("hotspot_click", hs)
+                        Call("hotspot_click_left", hs)
                     ], None)
-                    alternate If(active_item is None, Call("hotspot_describe", hs), None)
+                    alternate If(active_item is None, Call("hotspot_click_right", hs), None)

@@ -35,10 +35,6 @@ class Hotspot:
             raise Exception(f"{item.name} is already a key in combinations for {self.name}!")
         self.combinations[item.name] = combination
     
-    # TODO remove
-    def click(self):
-        raise NotImplementedError()
-
     def delete(self):
         logging.info(f"delete hotspot {self.name}")
 

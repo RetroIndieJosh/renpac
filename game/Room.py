@@ -20,14 +20,12 @@ class Room:
         hs.x = x
         hs.y = y
 
-    # TODO refactor => hotspot_remove
     def hotspot_remove(self, hs: object) -> None:
         if(hs not in self.hotspots):
             raise Exception("Tried to remove hs to room but it's not there! ({hs.name} in {room.name})")
 
         self.hotspots.remove(hs)
     
-    # TODO refactor => hotspots_show
     def hotspots_show(self) -> None:
         hotspots_clear() # type: ignore
         renpy.show_screen("Hotspots", self.hotspots) # type: ignore

@@ -16,11 +16,10 @@ class Item(Hotspot):
         self.img_path = f"{self.name}_%s.png"
         self.action = Action.register(f"use {name} on", self.use_on)
 
-        # TODO refactor default => left, alternate => right
-        self.action_default = Action.get("take")
+        self.action_left = Action.get("take")
 
         # TODO if usable, this is "use" - otherwise it's "use {this} on"
-        self.action_alternate = Action.get("use")
+        self.action_left = Action.get("use")
         self.action_middle = None
 
         # mouse wheel scrolling actions
