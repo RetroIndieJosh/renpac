@@ -4,8 +4,6 @@ from os import getcwd
 from datetime import datetime
 
 class Log:
-    # TODO create a custom logger to use an external config
-    # see https://docs.python.org/3/howto/logging.html
     @staticmethod
     def init():
         logging.basicConfig(
