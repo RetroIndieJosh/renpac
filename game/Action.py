@@ -12,7 +12,7 @@ class Action:
 
     @staticmethod
     def register(name, func) -> None:
-        logging.info(f"registered action '{name}'")
+        logging.info(f"register action '{name}'")
         Action.actions[name] = Action(Action.__create_key, name, func)
 
     def __init__(self, key, name, func) -> None:

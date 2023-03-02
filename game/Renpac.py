@@ -1,5 +1,5 @@
 import logging
-from . import Log, StaticClass
+from . import StaticClass
 
 class Renpac(StaticClass):
     @staticmethod
@@ -7,7 +7,6 @@ class Renpac(StaticClass):
         config.keymap['game_menu'].remove('mouseup_3') #type: ignore
         config.keymap['hide_windows'].clear() #type: ignore
 
-        Log.init()
         logging.info(f"initialized RenPaC")
 
     ###########################

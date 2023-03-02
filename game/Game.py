@@ -11,7 +11,7 @@ class Game(StaticClass):
 
     @staticmethod
     def set_room(room):
-        logging.info(f'Set room to {room.name}')
+        logging.info(f"Set room to '{room.name}'")
 
         # can't move from a room to itself
         if Game.current_room is room or room is None:
