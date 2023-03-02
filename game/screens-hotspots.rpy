@@ -12,7 +12,6 @@ label hotspot_click_left(hs):
         if hs.action_left is not None:
             $ hs.action_left.execute(hs)
         return
-    # TODO do actions have names? if not, they should
     $ logging.info(f"left-clicked hotspot '{hs.name}' with current {Action.current.name}")
     $ Action.current.execute(hs)
     return

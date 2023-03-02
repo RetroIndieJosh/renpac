@@ -52,7 +52,7 @@ class Game(StaticClass):
             func = lambda: renpy.say(None, "You dump the gruel on the shackles. Great, now the mess is even worse!"),
             delete_self = True
         )
-        shackles.add_combination(gruel, gruel_shackles)
+        gruel.add_combination(shackles, gruel_shackles)
 
         dungeon_cell.hotspot_add(gruel, 0.6, 0.6)
         dungeon_cell.hotspot_add(shackles, 0.8, 0.8)
@@ -71,7 +71,7 @@ class Game(StaticClass):
             func = lambda: renpy.say(None, "You dump the gruel down the stairs. And now you're gonna stay hungry."),
             delete_self = True
         )
-        stairs_down.add_combination(gruel, gruel_stairs)
+        gruel.add_combination(stairs_down, gruel_stairs)
 
         stairs_up = Exit("stairs up")
         stairs_up.target = dungeon_cell

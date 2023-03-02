@@ -25,16 +25,8 @@ class Hotspot:
         self.width = 256
         self.height = 256
 
-        # a mapping of item names to funcs to trigger when item is used on this hotspot
-        self.combinations = dict()
-
         self.room = None
 
-    def add_combination(self, item: object, combination: Combination):
-        if item.name in self.combinations:
-            raise Exception(f"{item.name} is already a key in combinations for {self.name}!")
-        self.combinations[item.name] = combination
-    
     def delete(self):
         logging.info(f"delete hotspot {self.name}")
 
