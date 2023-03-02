@@ -26,3 +26,11 @@
     - minimize the length of scripts in labels unless they are dialogue or animation
     - pass control to Python as early as possible and as few times as possible per label 
 - ALWAYS put `return` to terminate a label to prevent pass through
+
+## Git
+
+- err on the side of too many commits instead of too few - this should be one commit per feature
+- use the correct keyword to close issues
+    - Fix for bugs
+    - Close for features
+    - Resolve for documentation

@@ -5,6 +5,10 @@ from os import getcwd
 from datetime import datetime
 
 class Log:
+    """! Wrap initialization and writing raw messages to the log. Most log
+    access should use the Python built-in `logging` instead of this class.
+    """
+
     ## the log filename, stored so we can write raw messages to it
     _filename = ""
 
@@ -31,8 +35,7 @@ class Log:
 
     @staticmethod
     def write_header(message, timestamp=False):
-        """! Write a header to the log. This will be distinguished with a line
-        of hashes and a blank line before and after the header.
+        """! Write a distinguished header to the log.
 
         @param message The message to write to the file.
         @param timestamp If True, write a timestamp before the main header text.
@@ -45,10 +48,20 @@ class Log:
 
     @staticmethod
     def write_header_line():
+        """! Write text to offset the header from normal log text. THis appears
+        both before and after the main header text.
+        """
         Log.write(f"#####################################################################", timestamp=False)
 
     @staticmethod
     def write(message="", newline=True, timestamp=True) -> None:
+        """! Write a raw message to the log. Prefer the use of the `logging` class.
+
+        @param message The message to write.
+        @param newline If True, end the message with a newline.
+        @param timestamp If True, begin the message with a timestamp in the
+            format Year-Month-Day Hour:Minute:Second,Millisecond.
+        """
         with open(Log._filename, 'a') as log_file:
             if newline:
                 message = f"{message}\n"
