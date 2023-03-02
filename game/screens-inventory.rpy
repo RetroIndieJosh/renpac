@@ -60,7 +60,6 @@ screen InventoryShower():
         mousearea:
             # don't show inventory if the dialogue window is showing
             hovered If(renpy.get_screen("say"), None, [
-                    # TODO how to get this to animate sliding out like a drawer?
                     Call("inventory_show")
                 ])
 

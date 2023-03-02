@@ -1,6 +1,6 @@
 import logging
 
-from . import Item, Combination, Room, Exit, StaticClass
+from . import Renpac, Item, Combination, Room, Exit, StaticClass
 
 class Game(StaticClass):
     current_room: Room = None
@@ -21,17 +21,17 @@ class Game(StaticClass):
             Game.current_room.exit()
 
         Game.current_room = room
-        renpy.scene() #type: ignore
-        renpy.show(f"bg {Game.current_room.name}") #type: ignore
+        Renpac.scene()
+        Renpac.show(f"bg {Game.current_room.name}")
         Game.current_room.enter()
 
-        renpy.notify(f"You are now in {room.name}") #type: ignore
+        Renpac.notify(f"You are now in {room.name}")
 
         if(not room.visited and room.first_desc is not None):
-            renpy.say(None, room.first_desc) #type: ignore
+            Renpac.say(None, room.first_desc)
             room.visited = True
 
-        renpy.say(None, room.desc) #type: ignore
+        Renpac.say(None, room.desc)
 
     @staticmethod
     def update():

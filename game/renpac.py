@@ -1,8 +1,7 @@
 import logging
-from . import Action, Log, Game, StaticClass
+from . import Log, StaticClass
 
 class Renpac(StaticClass):
-# TODO add say, show, and nofity as wrappers for equivalent renpy classes so we "type: ignore" only needs to be in this file
     @staticmethod
     def init():
         config.keymap['game_menu'].remove('mouseup_3') #type: ignore
@@ -11,11 +10,22 @@ class Renpac(StaticClass):
         Log.init()
         logging.info(f"initialized RenPaC")
 
+    ###########################
+    # Ren'Py redirect methods
+    ###########################
+
     @staticmethod
-    def load(game_name):
-        if(game_name is None):
-            raise Exception("RenPaC error: no game specified.")
+    def notify(message) -> None:
+        renpy.notify(message) #type: ignore
 
-        Game.load("bardolf")
+    @staticmethod
+    def say(who, what, *args, **kwargs) -> None:
+        renpy.say(who, what, args, kwargs) #type: ignore
 
-        logging.info(f"game '{game_name}' loaded")
+    @staticmethod
+    def scene(layer="master") -> None:
+        renpy.scene(layer) #type: ignore
+
+    @staticmethod
+    def show(name, at_list=[], layer='master', what=None, zorder=0, tag=None, behind=[]) -> None:
+        renpy.show(name, at_list, layer, what, zorder, tag, behind) #type: ignore

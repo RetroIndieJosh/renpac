@@ -36,7 +36,6 @@ screen Hotspots(hotspots):
     zorder ZORDER_HOTSPOTS
     for hs in hotspots:
         vbox area (hs.x, hs.y, hs.width, hs.height):
-            # TODO does this work? is it only acting in the hotspot?
             key "mousedown_3" action If(active_item is None, Call("hotspot_click_middle", hs), None)
             if hs.img_path is None:
                 button:
