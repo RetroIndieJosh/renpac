@@ -9,3 +9,4 @@ traceback.txt
 **/*.gen.rpy
 **/*.bak
 **/.vscode
+**/doc/
