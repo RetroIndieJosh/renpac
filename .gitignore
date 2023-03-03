@@ -10,3 +10,4 @@ traceback.txt
 **/*.bak
 **/.vscode
 **/doc/
+**/*.swp

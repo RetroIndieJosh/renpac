@@ -29,8 +29,12 @@
 
 ## Git
 
-- err on the side of too many commits instead of too few - this should be one commit per feature
+- err on the side of too many commits instead of too few
+- ideally, make a single commit to close an issue on GitHub
+    - use the format `keyword #XXX - description of commit`
+- for intermediary commits, reference the relevant issue
+    - example: `#396 - prepare base class for implementation`
 - use the correct keyword to close issues
-    - Fix for bugs
-    - Close for features
-    - Resolve for documentation
+    - `Fix` for bug
+    - `Close` for feature
+    - `Resolve` for documentation or question

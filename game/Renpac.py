@@ -7,6 +7,9 @@ class Renpac(StaticClass):
         config.keymap['game_menu'].remove('mouseup_3') #type: ignore
         config.keymap['hide_windows'].clear() #type: ignore
 
+        # for easier debugging of pickle errors, should probably be removed on final build
+        config.use_cpickle = False #type: ignore
+
         logging.info(f"initialized RenPaC")
 
     ###########################

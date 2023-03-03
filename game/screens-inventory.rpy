@@ -65,7 +65,7 @@ screen InventoryShower():
 
 label describe_room:
     call inventory_hide
-    "[current_room.desc]"
+    "[Game.current_room.desc]"
     return
 
 label describe_equipped:
