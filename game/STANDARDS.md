@@ -19,6 +19,8 @@
     - DO NOT use `#type: ignore` on any other line; instead, use the relevant `import` or `from . import`
     - this ensures the generator calculates the correct priorities for local dependencies
 - avoid handling animations, rendering, or dialogue in Python when possible; instead, call a Ren'Py label
+- avoid lambdas in game data (stored variables) as these cannot be pickles
+    - instead, make actual functions that live somewhere
 
 ## Ren'Py
 
