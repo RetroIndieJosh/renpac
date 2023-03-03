@@ -1,11 +1,9 @@
 label inventory_hide:
-    $ renpy.notify("Hide inventory")
     hide screen Inventory
     show screen InventoryShower
     return
 
 label inventory_show:
-    $ renpy.notify("Show inventory")
     hide screen InventoryShower
     show screen Inventory
     return

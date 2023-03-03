@@ -113,12 +113,10 @@ screen say(who, what):
 
         text what id "what"
 
-
     ## If there's a side image, display it above the text. Do not display on the
     ## phone variant - there's no room.
     if not renpy.variant("small"):
         add SideImage() xalign 0.0 yalign 1.0
-
 
 ## Make the namebox available for styling through the Character object.
 init python:
@@ -131,7 +129,6 @@ style say_thought is say_dialogue
 
 style namebox is default
 style namebox_label is say_label
-
 
 style window:
     xalign 0.5
@@ -240,16 +237,14 @@ style choice_button_text is default:
 ## menus.
 
 screen quick_menu():
-
     ## Ensure this appears on top of other screens.
     zorder 100
 
     if quick_menu:
-
-        hbox:
+        vbox:
             style_prefix "quick"
 
-            xalign 0.5
+            xalign 1.0
             yalign 1.0
 
             textbutton _("Back") action Rollback()
@@ -260,7 +255,6 @@ screen quick_menu():
             textbutton _("Q.Save") action QuickSave()
             textbutton _("Q.Load") action QuickLoad()
             textbutton _("Prefs") action ShowMenu('preferences')
-
 
 ## This code ensures that the quick_menu screen is displayed in-game, whenever
 ## the player has not explicitly hidden the interface.
@@ -277,7 +271,6 @@ style quick_button:
 
 style quick_button_text:
     properties gui.button_text_properties("quick_button")
-
 
 ################################################################################
 ## Main and Game Menu Screens
@@ -1248,7 +1241,6 @@ style skip_triangle:
 ## https://www.renpy.org/doc/html/screen_special.html#notify-screen
 
 screen notify(message):
-
     zorder 100
     style_prefix "notify"
 
@@ -1257,14 +1249,12 @@ screen notify(message):
 
     timer 3.25 action Hide('notify')
 
-
 transform notify_appear:
     on show:
         alpha 0
         linear .25 alpha 1.0
     on hide:
         linear .5 alpha 0.0
-
 
 style notify_frame is empty
 style notify_text is gui_text
@@ -1284,7 +1274,6 @@ style notify_text:
 ## This screen is used for NVL-mode dialogue and menus.
 ##
 ## https://www.renpy.org/doc/html/screen_special.html#nvl
-
 
 screen nvl(dialogue, items=None):
 

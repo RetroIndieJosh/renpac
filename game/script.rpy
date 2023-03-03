@@ -6,8 +6,8 @@
 #define e = Character("Eileen")
 
 define DEBUG_SHOW_HOTSPOTS = True
-define DEBUG_NOTIFY_HOTSPOTS = True
-define DEBUG_INVENTORY_SHOWER = True
+define DEBUG_NOTIFY_HOTSPOTS = False
+define DEBUG_INVENTORY_SHOWER = False
 
 label ask_inventory_pos:
     menu:

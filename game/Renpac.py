@@ -15,8 +15,8 @@ class Renpac(StaticClass):
         renpy.notify(message) #type: ignore
 
     @staticmethod
-    def say(who, what, *args, **kwargs) -> None:
-        renpy.say(who, what, args, kwargs) #type: ignore
+    def say(who, what, interact: bool = True) -> None:
+        renpy.say(who, what, interact = interact) #type: ignore
 
     @staticmethod
     def scene(layer="master") -> None:

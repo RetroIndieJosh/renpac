@@ -17,10 +17,16 @@ class Inventory(StaticClass):
 
     _items: list = []
 
-    # width is how much space is available for the inventory (horizontal on top/bottom, vertical on left/right)
-    # height is how far the inventory widthes out of the attached side of the screen
     @staticmethod
     def set_mode(mode: int, width: int, height: int) -> None:
+        """! Set the mode for inventory display. This can be attached to the
+        bottom, top, left, or right, with a custom-set size.
+
+        @param width How much space is available for the inventory. This is
+            horizontal on top/bottom, vertical on left/right.
+        @param height How far the inventory sticks out of the attached side of
+            the screen.
+        """
         show_scale = 0.1
 
         # set position relative to side
@@ -87,8 +93,6 @@ class Inventory(StaticClass):
             return
 
         Inventory._items.remove(item)
-
-        Renpac.notify(f"Lost {item.name}.")
         logging.info(f"remove '{item.name}' from inventory")
 
 INVENTORY_ITEMS_PER_ROW = 4

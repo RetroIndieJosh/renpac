@@ -13,7 +13,9 @@
 ## The _() surrounding the string marks it as eligible for translation.
 
 define config.name = _("bardolf")
+
 define config.rollback_enabled = False
+define config.debug_text_overflow = True
 
 ## Determines if the title given above is shown on the main menu screen. Set
 ## this to False to hide the title.

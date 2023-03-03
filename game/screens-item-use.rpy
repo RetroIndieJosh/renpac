@@ -6,14 +6,14 @@ label clear_equipped:
     python:
         global active_item
         active_item = None
-        renpy.notify("equipped item cleared")
+        logging.info("clear active item")
     return
 
 label equip_item(item):
     call inventory_hide
     python:
         active_item = item
-        renpy.notify(f"equipped {item.name}")
+        logging.info(f"set active item to '{active_item.name if active_item else 'None'}'")
     return
 
 screen Equipped():

@@ -26,13 +26,11 @@ class Game(StaticClass):
         Renpac.show(f"bg {Game.current_room.name}")
         Game.current_room.enter()
 
-        Renpac.notify(f"You are now in {room.name}")
-
         if(not room.visited and room.first_desc is not None):
             Renpac.say(None, room.first_desc)
-            room.visited = True
 
         Renpac.say(None, room.desc)
+        room.visited = True
 
     @staticmethod
     def update():
