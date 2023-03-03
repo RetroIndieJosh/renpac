@@ -5,6 +5,9 @@ from . import Renpac, Item, Combination, Room, Exit, StaticClass
 class Game(StaticClass):
     current_room: Room = None
 
+    # TODO make this _inventory so we need to use inventory_* funcs to modify
+    inventory: list = []
+
     @staticmethod
     def load(name) -> None:
         Game.load_bardolf()
@@ -32,6 +35,8 @@ class Game(StaticClass):
             room.visited = True
 
         Renpac.say(None, room.desc)
+
+        renpy.block_rollback() #type: ignore
 
     @staticmethod
     def update():

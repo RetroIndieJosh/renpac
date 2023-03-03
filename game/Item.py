@@ -2,14 +2,6 @@ import logging
 
 from . import Hotspot, Action, Combination
 
-def action_take(item: Hotspot):
-    if type(item) is not Item:
-        renpy.say("You can't take that.") #type: ignore
-    else:
-        item.take()
-
-Action.register("take", action_take)
-
 class Item(Hotspot):
     def __init__(self, name: str) -> None:
         super().__init__(name)
@@ -17,7 +9,7 @@ class Item(Hotspot):
 
         self.action_left = Action.get("take")
         self.action_right = Action.get("use")
-        self.action_middle = None
+        self.action_middle = Action.get("examine")
 
         # mouse wheel scrolling actions
         self.action_down = None
@@ -36,11 +28,9 @@ class Item(Hotspot):
             self.action_right = Action.register(f"use {self.name} on", self.use_on)
         self._combinations[target.name] = combo
 
-    def take(self) -> None:
+    def remove_from_room(self) -> None:
         self.room.hotspot_remove(self)
         self.room = None
-        global inventory_add
-        inventory_add(self)
 
     def use_on(self, other: Hotspot) -> None:
         combo = self._combinations[other.name] if other.name in self.combinations else None

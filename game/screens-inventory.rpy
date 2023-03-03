@@ -1,24 +1,3 @@
-init python:
-    inventory = []
-
-    def inventory_add(item):
-        if item in inventory:
-            raise Exception(f"Tried to add '{item.name}' to inventory but it's already there")
-        renpy.notify(f"Got {item.name}.")
-        inventory.append(item)
-
-    def inventory_remove(item):
-        renpy.notify(f"Lost {item.name}.")
-        if item not in inventory:
-            raise Exception(f"Tried to remove '{item.name}' from inventory but it's not there")
-        inventory.remove(item)
-
-    def inventory_use(item_index):
-        if(item_index >= len(inventory)):
-            return
-        
-        renpy.notify(f"Use {item_index} on what?")
-
 label inventory_hide:
     $ renpy.notify("Hide inventory")
     hide screen Inventory
@@ -43,12 +22,12 @@ screen Inventory():
         mousearea:
             unhovered Call("inventory_hide")
         vbox:
-            $ global inventory
-            for i in range(0, ceil(len(inventory) / INVENTORY_ITEMS_PER_ROW)):
+            $ item_count = Inventory.count()
+            for i in range(0, ceil(item_count / INVENTORY_ITEMS_PER_ROW)):
                 hbox:
-                    for k in range(i * INVENTORY_ITEMS_PER_ROW, min(len(inventory), INVENTORY_ITEMS_PER_ROW * (i + 1))):
-                        textbutton f"{inventory[k].name}":
-                            action Call("equip_item", inventory[k])
+                    for k in range(i * INVENTORY_ITEMS_PER_ROW, min(item_count, INVENTORY_ITEMS_PER_ROW * (i + 1))):
+                        textbutton f"{Inventory.get(k).name}":
+                            action Call("equip_item", Inventory.get(k))
 
 screen InventoryShower():
     frame:

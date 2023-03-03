@@ -4,7 +4,8 @@ from . import StaticClass
 class Renpac(StaticClass):
     @staticmethod
     def init():
-        config.keymap['game_menu'].remove('mouseup_3') #type: ignore
+        if 'mouseup_3' in config.keymap['game_menu']: #type: ignore
+            config.keymap['game_menu'].remove('mouseup_3') #type: ignore
         config.keymap['hide_windows'].clear() #type: ignore
 
         # for easier debugging of pickle errors, should probably be removed on final build
