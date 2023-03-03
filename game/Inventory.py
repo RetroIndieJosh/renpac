@@ -7,7 +7,7 @@ def action_take(item: Hotspot):
         Renpac.say("You can't take that.")
     else:
         Inventory.add(item)
-    renpy.block_rollback() #type: ignore
+    #renpy.block_rollback() #type: ignore
 
 Action.register("take", action_take)
 
@@ -16,12 +16,13 @@ class Inventory(StaticClass):
 
     def add(item) -> None:
         if item in Inventory._items:
-            raise Exception(f"Tried to add '{item.name}' to inventory but it's already there")
+            #raise Exception(f"Tried to add '{item.name}' to inventory but it's already there")
+            logging.warn(f"adding '{item.name}' to inventory but already there, ignoring")
+            return
         
         item.remove_from_room()
         Inventory._items.append(item)
 
-        Renpac.notify(f"Got {item.name}.")
         logging.info(f"add '{item.name}' to inventory")
 
     def count() -> int:
@@ -38,7 +39,10 @@ class Inventory(StaticClass):
 
     def remove(item: Item) -> None:
         if item not in Inventory._items:
-            raise Exception(f"Tried to remove '{item.name}' from inventory but it's not there")
+            #raise Exception(f"Tried to remove '{item.name}' from inventory but it's not there")
+            logging.warn(f"trying to remove '{item.name}' from inventory but not there, ignoring")
+            return
+
         Inventory._items.remove(item)
 
         Renpac.notify(f"Lost {item.name}.")

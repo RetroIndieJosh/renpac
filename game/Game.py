@@ -1,6 +1,6 @@
 import logging
 
-from . import Renpac, Item, Combination, Room, Exit, StaticClass
+from . import Renpac, Item, Combination, Room, Exit, StaticClass, Inventory
 
 class Game(StaticClass):
     current_room: Room = None
@@ -10,11 +10,12 @@ class Game(StaticClass):
 
     @staticmethod
     def load(name) -> None:
+        Inventory.clear()
         Game.load_bardolf()
 
     @staticmethod
     def set_room(room):
-        logging.info(f"Set room to '{room.name}'")
+        logging.info(f"set room to '{room.name}'")
 
         # can't move from a room to itself
         if Game.current_room is room or room is None:
@@ -35,8 +36,6 @@ class Game(StaticClass):
             room.visited = True
 
         Renpac.say(None, room.desc)
-
-        renpy.block_rollback() #type: ignore
 
     @staticmethod
     def update():

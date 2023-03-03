@@ -11,12 +11,9 @@ init offset = -2
 init python:
     gui.init(1920, 1080)
 
-
-
 ################################################################################
 ## GUI Configuration Variables
 ################################################################################
-
 
 ## Colors ######################################################################
 ##
@@ -51,7 +48,6 @@ define gui.hover_muted_color = '#7a3d00'
 define gui.text_color = '#ffffff'
 define gui.interface_text_color = '#ffffff'
 
-
 ## Fonts and Font Sizes ########################################################
 
 ## The font used for in-game text.
@@ -81,13 +77,11 @@ define gui.notify_text_size = 24
 ## The size of the game's title.
 define gui.title_text_size = 75
 
-
 ## Main and Game Menus #########################################################
 
 ## The images used for the main and game menus.
 define gui.main_menu_background = "gui/main_menu.png"
 define gui.game_menu_background = "gui/game_menu.png"
-
 
 ## Dialogue ####################################################################
 ##
@@ -123,7 +117,6 @@ define gui.namebox_borders = Borders(5, 5, 5, 5)
 ## If True, the background of the namebox will be tiled, if False, the
 ## background of the namebox will be scaled.
 define gui.namebox_tile = False
-
 
 ## The placement of dialogue relative to the textbox. These can be a whole
 ## number of pixels relative to the left or top side of the textbox, or 0.5 to
@@ -170,7 +163,6 @@ define gui.button_text_insensitive_color = gui.insensitive_color
 ## The horizontal alignment of the button text. (0.0 is left, 0.5 is center, 1.0
 ## is right).
 define gui.button_text_xalign = 0.0
-
 
 ## These variables override settings for different kinds of buttons. Please see
 ## the gui documentation for the kinds of buttons available, and what each is

@@ -8,22 +8,22 @@ init python:
 
 label hotspot_click_left(hs):
     if Action.current is None:
-        $ logging.info(f"left-clicked hotspot '{hs.name}' with no current action")
+        $ logging.info(f"left click hotspot '{hs.name}' with no current action")
         if hs.action_left is not None:
             $ hs.action_left.execute(hs)
         return
-    $ logging.info(f"left-clicked hotspot '{hs.name}' with current {Action.current.name}")
+    $ logging.info(f"left click hotspot '{hs.name}' with current {Action.current.name}")
     $ Action.current.execute(hs)
     return
 
 label hotspot_click_right(hs):
-    $ logging.info(f"right-clicked hotspot '{hs.name}'")
+    $ logging.info(f"right click hotspot '{hs.name}'")
     if hs.action_right is not None:
         $ hs.action_right.execute(hs)
     return
 
 label hotspot_click_middle(hs):
-    $ logging.info(f"middle-clicked hotspot '{hs.name}'")
+    $ logging.info(f"middle click hotspot '{hs.name}'")
     if hs.action_middle is not None:
         $ hs.action_middle.execute(hs)
     return
