@@ -14,13 +14,13 @@ label ask_inventory_pos:
         "Where should the inventory be anchored?"
 
         "Bottom":
-            $ set_inventory_mode(INVENTORY_BOTTOM, 0.6, 0.2)
+            $ Inventory.set_mode(INVENTORY_BOTTOM, 0.6, 0.2)
         "Top":
-            $ set_inventory_mode(INVENTORY_TOP, 0.6, 0.2)
+            $ Inventory.set_mode(INVENTORY_TOP, 0.6, 0.2)
         "Left":
-            $ set_inventory_mode(INVENTORY_LEFT, 0.6, 0.1)
+            $ Inventory.set_mode(INVENTORY_LEFT, 0.6, 0.1)
         "Right":
-            $ set_inventory_mode(INVENTORY_RIGHT, 0.6, 0.1)
+            $ Inventory.set_mode(INVENTORY_RIGHT, 0.6, 0.1)
 
 label start:
     call renpac("bardolf")

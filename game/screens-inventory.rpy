@@ -16,7 +16,7 @@ init python:
 screen Inventory():
     zorder ZORDER_INVENTORY
     frame:
-        area (inventory_area.x, inventory_area.y, inventory_area.width, inventory_area.height)
+        area (Inventory.area.x, Inventory.area.y, Inventory.area.width, Inventory.area.height)
 
         background "#0009"
         mousearea:
@@ -31,7 +31,7 @@ screen Inventory():
 
 screen InventoryShower():
     frame:
-        area (inventory_show_area.x, inventory_show_area.y, inventory_show_area.width, inventory_show_area.height)
+        area (Inventory.area_show.x, Inventory.area_show.y, Inventory.area_show.width, Inventory.area_show.height)
 
         if DEBUG_INVENTORY_SHOWER:
                 background "#F0F"

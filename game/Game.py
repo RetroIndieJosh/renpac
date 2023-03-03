@@ -5,9 +5,6 @@ from . import Renpac, Item, Combination, Room, Exit, StaticClass, Inventory
 class Game(StaticClass):
     current_room: Room = None
 
-    # TODO make this _inventory so we need to use inventory_* funcs to modify
-    inventory: list = []
-
     @staticmethod
     def load(name) -> None:
         Inventory.clear()

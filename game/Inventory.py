@@ -12,7 +12,50 @@ def action_take(item: Hotspot):
 Action.register("take", action_take)
 
 class Inventory(StaticClass):
+    area = Area()
+    area_show = Area()
+
     _items: list = []
+
+    # width is how much space is available for the inventory (horizontal on top/bottom, vertical on left/right)
+    # height is how far the inventory widthes out of the attached side of the screen
+    @staticmethod
+    def set_mode(mode: int, width: int, height: int) -> None:
+        show_scale = 0.1
+
+        # set position relative to side
+        if mode is INVENTORY_BOTTOM:
+            Inventory.area.y = 1.0 - height
+        elif mode is INVENTORY_TOP:
+            Inventory.area.y = 0
+        elif mode is INVENTORY_LEFT:
+            Inventory.area.x = 0
+        elif mode is INVENTORY_RIGHT:
+            Inventory.area.x = 1.0 - height
+        else:
+            raise Exception(f"Unknown inventory mode {mode}")
+
+        # center, set size, and set shower size
+        if mode is INVENTORY_BOTTOM or mode is INVENTORY_TOP:
+            Inventory.area.x = (1.0 - width) * 0.5
+            Inventory.area.width = width
+            Inventory.area.height = height
+            Inventory.area_show = Area(Inventory.area)
+            Inventory.area_show.height *= show_scale
+        elif mode is INVENTORY_LEFT or mode is INVENTORY_RIGHT:
+            Inventory.area.y = (1.0 - width) * 0.5
+            Inventory.area.width = height
+            Inventory.area.height = width
+            Inventory.area_show = Area(Inventory.area)
+            Inventory.area_show.width *= show_scale
+
+        # correct position of shower if needed
+        if mode is INVENTORY_RIGHT:
+            Inventory.area_show.x = 1.0 - inventory_show_area.width
+        elif mode is INVENTORY_BOTTOM:
+            Inventory.area_show.y = 1.0 - inventory_show_area.height
+
+        logging.info(f"set inventory mode to {mode} of size {width} X {height}")
 
     def add(item) -> None:
         if item in Inventory._items:
@@ -54,49 +97,3 @@ INVENTORY_BOTTOM = 1
 INVENTORY_LEFT = 2
 INVENTORY_RIGHT = 3
 INVENTORY_TOP = 4
-
-inventory_area = Area() # type: ignore
-inventory_show_area = Area() # type: ignore
-
-# TODO move to class above
-# width is how much space is available for the inventory (horizontal on top/bottom, vertical on left/right)
-# height is how far the inventory widthes out of the attached side of the screen
-def set_inventory_mode(mode: int, width: int, height: int) -> None:
-    global inventory_area, inventory_show_area
-
-    show_scale = 0.1
-
-    # set position relative to side
-    if mode is INVENTORY_BOTTOM:
-        inventory_area.y = 1.0 - height
-    elif mode is INVENTORY_TOP:
-        inventory_area.y = 0
-    elif mode is INVENTORY_LEFT:
-        inventory_area.x = 0
-    elif mode is INVENTORY_RIGHT:
-        inventory_area.x = 1.0 - height
-    else:
-        raise Exception(f"Unknown inventory mode {mode}")
-
-    # center, set size, and set shower size
-    if mode is INVENTORY_BOTTOM or mode is INVENTORY_TOP:
-        inventory_area.x = (1.0 - width) * 0.5
-        inventory_area.width = width
-        inventory_area.height = height
-        inventory_show_area = Area(inventory_area)
-        inventory_show_area.height *= show_scale
-    elif mode is INVENTORY_LEFT or mode is INVENTORY_RIGHT:
-        inventory_area.y = (1.0 - width) * 0.5
-        inventory_area.width = height
-        inventory_area.height = width
-        inventory_show_area = Area(inventory_area)
-        inventory_show_area.width *= show_scale
-
-    # correct position of shower if needed
-    if mode is INVENTORY_RIGHT:
-        inventory_show_area.x = 1.0 - inventory_show_area.width
-    elif mode is INVENTORY_BOTTOM:
-        inventory_show_area.y = 1.0 - inventory_show_area.height
-
-    logging.info(f"set inventory mode to {mode} of size {width}x{height}")
-

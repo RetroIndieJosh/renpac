@@ -33,7 +33,7 @@
 
 - err on the side of too many commits instead of too few
 - ideally, make a single commit to close an issue on GitHub
-    - use the format `keyword #XXX - description of commit`
+    - use the format `keyword #123 - description of commit`
 - for intermediary commits, reference the relevant issue
     - example: `#396 - prepare base class for implementation`
 - use the correct keyword to close issues
