@@ -2,32 +2,26 @@ import os
 
 DEPENDENCY_DEPTH_MAX = 10
 
-priority = 0
+base_priority = 0
 generated = []
 
-def check_dependency(line):
+def check_dependency(line, offset):
     if not line.startswith("from ."):
         return
 
-    global priority
     dependencies = line.split("from . import ", 1)[1]
     for dependency in dependencies.split(", "):
         dependency = dependency.strip()
-        # indent
-        for i in range(-priority):
-            print("    ", end='')
-        print(f" -- checking dependency {dependency}")
+        indent(-offset + 1)
+        print(f"-- checking dependency {dependency}")
         if dependency not in generated:
-            priority -= 1
-            write_file(dependency)
-            priority += 1
+            write_file(dependency, offset - 1)
 
-def check_priority(line):
+def get_priority(line) -> int:
     if not line.startswith("#priority"):
-        return
+        return base_priority
 
-    global priority
-    priority = int(line.split("#priority ", 1)[1])
+    return int(line.split("#priority ", 1)[1])
 
 def cleanup():
     gen_files = list(filter(lambda file_name: file_name.endswith(".gen.rpy"), os.listdir()))
@@ -35,42 +29,38 @@ def cleanup():
     for gen_file_name in gen_files:
         os.remove(gen_file_name)
 
-def write_file(name):
+def indent(depth=1):
+    tab = "    "
+    for _ in range(depth):
+        print(tab, end='')
+
+def write_file(name, offset=0):
     global generated
     if name in generated:
         return
 
-    global priority
-    if -priority >= DEPENDENCY_DEPTH_MAX:
+    priority = base_priority + offset
+    if priority >= DEPENDENCY_DEPTH_MAX:
         print("ERROR: maximum dependency depth reached, is there a circular dependency?")
         exit(1)
 
     with open(f"{name}.py") as file:
         file_data = file.read()
 
-    # indent
-    for _ in range(-priority):
-        print("    ", end='')
-
+    indent(-offset)
     with open(f"{name}.gen.rpy", "w") as file:
         write_warning(name, file)
 
         lines = file_data.splitlines()
-        old_priority = priority
-        check_priority(lines[0])
+        priority = get_priority(lines[0])
 
         print(f"convert {name} at priority {priority}")
         file.write(f"init {priority} python:\n")
         for line in file_data.splitlines():
-            check_dependency(line)
+            check_dependency(line, offset)
             file.write(f"    {line}\n")
 
-        # reset in case custom priority was set
-        priority = old_priority
-
-    # indent
-    for _ in range(-priority):
-        print("    ", end='')
+    indent(-offset)
     print(f" => {name}.gen.rpy ({len(lines)} lines)")
 
     generated.append(name)
@@ -89,9 +79,10 @@ if(len(files) == 0):
     exit()
 
 print(f"generating {len(files)} files")
+base_priority = 0
 for py_file_name in files:
     name = os.path.splitext(py_file_name)[0]
     write_file(name)
-    priority += 1
+    base_priority += 1
 
 print("done")
