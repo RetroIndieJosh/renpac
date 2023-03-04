@@ -38,6 +38,8 @@ class Game(StaticClass):
         if Game.current_room is room or room is None:
             return
 
+        Game.hover_clear()
+
         if Game.current_room is not None:
             Game.current_room.exit()
 
