@@ -1,10 +1,5 @@
 from . import Action, Hotspot
 
-def action_go(target):
-    target.go()
-
-Action.register("go", action_go)
-
 class Exit(Hotspot):
     def __init__(self, name: str) -> None:
         super().__init__(name)
@@ -13,8 +8,8 @@ class Exit(Hotspot):
         self.height = 0
 
         self.action_left = Action.get("go")
-        self.action_right = Action.get("examine")
-        self.action_middle = None
+        self.action_right = None
+        self.action_middle = Action.get("examine")
         self.action_down = None
         self.action_up = None
 

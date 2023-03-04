@@ -1,6 +1,6 @@
 import logging
 
-from . import Renpac, Item, Combination, Room, Exit, StaticClass, Inventory
+from . import Combination, Exit, Hotspot, Inventory, Item, Renpac, Room, StaticClass
 
 class Game(StaticClass):
     current_room: Room = None
@@ -45,15 +45,15 @@ class Game(StaticClass):
         dungeon_cell.first_desc = "You wake with a vicious pounding in your head and find yourself on the upper floor of a tower. Looks like a cell."
 
         gruel = Item("gruel")
-        shackles = Item("shackles")
-        shackles.first_take_message = "These rusty shackles are a bit wet. You dry them off with your sleeve and take them."
-        shackles.take_message = "You grab the shackles."
+        shackles = Hotspot("shackles")
+        shackles.desc = "Rusty shackles chain you to the ground. They don't look too strong, though."
 
         gruel_shackles = Combination(
             func = gruel_shackles_func,
             delete_self = True
         )
         gruel.add_combination(shackles, gruel_shackles)
+        gruel.take_message = "You almost vomit as you approach the stinky gruel, but take it in case you're hungry enough to eat it later."
 
         dungeon_cell.hotspot_add(gruel, 0.6, 0.6)
         dungeon_cell.hotspot_add(shackles, 0.8, 0.8)

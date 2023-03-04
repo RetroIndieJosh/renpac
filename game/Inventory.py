@@ -1,21 +1,6 @@
 import logging
 
-from . import Action, Area, Hotspot, Item, Renpac, StaticClass
-
-def action_take(item: Hotspot):
-    if item is None:
-        logging.warn("tried to take 'None' Hotspot")
-        return
-    if type(item) is not Item:
-        Renpac.narrate("You can't take that.")
-    else:
-        Inventory.add(item)
-        if item.take_message is None:
-            Renpac.narrate(f"You take {item.name}.")
-        else:
-            Renpac.narrate(item.take_message)
-
-Action.register("take", action_take)
+from . import Area, Item, StaticClass
 
 INVENTORY_ITEMS_PER_ROW = 4
 

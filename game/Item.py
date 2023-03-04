@@ -20,6 +20,8 @@ class Item(Hotspot):
 
         self.take_message = None
 
+        self.use_func = None
+
     def add_combination(self, target: Hotspot, combo: Combination) -> None:
         if target.name in self._combinations:
             logging.warn(f"redefining combination for 'use {self.name} on {target.name}'")

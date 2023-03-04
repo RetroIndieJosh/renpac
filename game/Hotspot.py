@@ -8,7 +8,7 @@ def hotspots_clear():
 class Hotspot:
     def __init__(self, name: str) -> None:
         self.name = name
-        self.desc = name
+        self.desc = None
         self.img_path = None
 
         # default = left click, alternate = right click, middle = middle click

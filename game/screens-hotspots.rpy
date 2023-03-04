@@ -8,11 +8,12 @@ init python:
 
 label hotspot_click_left(hs):
     if Action.current is None:
-        $ logging.info(f"left click hotspot '{hs.name}' with no current action")
-        if hs.action_left is not None:
-            $ hs.action_left.execute(hs)
+        $ logging.info(f"left click hotspot '{hs.name}' with default action")
+        $ Action.default.execute(hs)
+        #if hs.action_left is not None:
+            #$ hs.action_left.execute(hs)
         return
-    $ logging.info(f"left click hotspot '{hs.name}' with current {Action.current.name}")
+    $ logging.info(f"left click hotspot '{hs.name}' with current action {Action.current.name}")
     $ Action.current.execute(hs)
     return
 

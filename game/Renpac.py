@@ -10,7 +10,7 @@ class Renpac(StaticClass):
         logging.error(message)
         Renpac.notify(f"ERROR: {message}")
 
-    def warning(message: str) -> None:
+    def warn(message: str) -> None:
         logging.warning(message)
         Renpac.notify(f"WARNING: {message}")
 
