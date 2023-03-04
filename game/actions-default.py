@@ -32,7 +32,7 @@ def action_take(target: Hotspot) -> None:
         Renpac.narrate(target.take_message)
 
 def action_take_allowed(target: Hotspot) -> bool:
-    return target is not None and type(target) is Item
+    return target is not None and type(target) is Item and target.fixed is False
 
 def left_click(target: Hotspot):
     if action_take_allowed(target):

@@ -45,8 +45,9 @@ class Game(StaticClass):
         dungeon_cell.first_desc = "You wake with a vicious pounding in your head and find yourself on the upper floor of a tower. Looks like a cell."
 
         gruel = Item("gruel")
-        shackles = Hotspot("shackles")
+        shackles = Item("shackles")
         shackles.desc = "Rusty shackles chain you to the ground. They don't look too strong, though."
+        shackles.fixed = True
 
         gruel_shackles = Combination(
             func = gruel_shackles_func,

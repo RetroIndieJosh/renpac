@@ -7,6 +7,9 @@ class Item(Hotspot):
         super().__init__(name)
         self.img_path = f"{self.name}_%s.png"
 
+        # whether the item is fixed in place (cannot be taken)
+        self.fixed = False
+
         self.action_left = Action.get("take")
         self.action_right = Action.get("use")
         self.action_middle = Action.get("examine")
@@ -19,8 +22,6 @@ class Item(Hotspot):
         self._combinations = {}
 
         self.take_message = None
-
-        self.use_func = None
 
     def add_combination(self, target: Hotspot, combo: Combination) -> None:
         if target.name in self._combinations:
