@@ -1,7 +1,6 @@
 # the main entry point for a renpac game
-label renpac_start(game_name, debug=False):
-    if debug:
-        show screen Debug
+label renpac_start(game_name):
+    show screen Debug
 
     show screen InventoryShower
     show screen Equipped

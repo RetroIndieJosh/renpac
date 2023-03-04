@@ -1,12 +1,18 @@
 init python:
-    def can_click():
-        no_click_screens = [ "say", "Inventory" ]
-        for screen_name in no_click_screens:
+    NO_CLICK_SCREENS = [ "say", "Inventory" ]
+
+    def can_hover():
+        for screen_name in NO_CLICK_SCREENS:
             if renpy.get_screen(screen_name):
+                logging.debug("hover blocked")
                 return False
         return True
 
-init python:
+    def pre_click():
+        for screen_name in NO_CLICK_SCREENS:
+            if renpy.get_screen(screen_name):
+                renpy.hide_screen(screen_name)
+
     def hotspot_click_left(hs, x, y):
         left, right, top, bottom = hs.get_lrtb() 
         logging.debug(f"click at ({x}, {y}) checking vs ({left}, {top}) to ({right}, {bottom})")
@@ -21,9 +27,6 @@ init python:
 
 label click_left():
     $ logging.info("left click detected")
-    if not can_click():
-        $ logging.info("left click disallowed")
-        return
     python:
         x, y = renpy.get_mouse_pos()
         for hs in Game.current_room.hotspots:
@@ -47,19 +50,20 @@ label hotspot_describe(hs):
     return
 
 screen ClickArea():
-    key "mouseup_1" action Call("click_left")
+    #key "mouseup_1" action If(can_click(), Call("click_left"), None)
+    key "mouseup_1" action [pre_click, Call("click_left")]
     #key "mouseup_2" action Jump("click_middle")
     #key "mouseup_3" action Jump("click_right")
 
 label hotspot_hover(hs):
-    $ hs.is_hovered = True
+    $ Game.hover_set(hs)
     return
 
 label hotspot_unhover(hs):
-    $ hs.is_hovered = False
+    $ Game.hover_clear()
     return
 
-# TODO rename to HotspotRenderer
+# TODO split hover into a second screen (HotspotsHover, HotspotsRender)
 screen Hotspots():
     if Game.current_room is not None:
         zorder ZORDER_HOTSPOTS
@@ -70,6 +74,6 @@ screen Hotspots():
                         background "#F0F3"
                 else:
                     background hs.get_img_path() 
-            #mousearea area (hs.x, hs.y, hs.width, hs.height):
-                #hovered Call("hotspot_hover", hs)
-                #unhovered Call("hotspot_unhover", hs)
+            mousearea area (hs.x, hs.y, hs.width, hs.height):
+                hovered If(can_hover(), Call("hotspot_hover", hs), None)
+                unhovered If(can_hover(), Call("hotspot_unhover", hs), None)

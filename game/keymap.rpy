@@ -1,6 +1,7 @@
-init:
-    $ config.keymap.clear()
-    $ config.keymap = dict(
+init 999 python:
+    config.keymap.clear()
+    renpy.clear_keymap_cache()
+    #$ config.keymap = dict(
         # universal
         #rollback = [ 'K_PAGEUP', 'repeat_K_PAGEUP', 'K_AC_BACK', 'mousedown_4' ],
         #screenshot = [ 's', 'alt_K_s', 'alt_shift_K_s', 'noshift_K_s' ],
@@ -99,4 +100,4 @@ init:
         #image_load_log = [ 'K_F4' ],
         #profile_once = [ 'K_F8' ],
         #memory_profile = [ 'K_F7' ],
-    )
+    #)

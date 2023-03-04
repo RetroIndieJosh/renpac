@@ -23,6 +23,7 @@ class Hotspot:
         self.y = 0
         self.width = 256
         self.height = 256
+        self.is_hovered = False
 
         self.room = None
 

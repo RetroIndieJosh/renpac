@@ -1,6 +1,12 @@
+init python:
+    def hover_name():
+        hover = Game.hover_get()
+        if hover is None:
+            return "(None)"
+        return hover.name
+
 screen Debug():
-    fixed:
-        if renpy.get_screen("say"):
-            text "The say screen is showing."
-        else:
-            text "The say screen is hidden."
+    frame:
+        xpos 0
+        ypos 0
+        text hover_name()

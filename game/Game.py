@@ -3,7 +3,27 @@ import logging
 from . import Combination, Exit, Hotspot, Inventory, Item, Renpac, Room, StaticClass
 
 class Game(StaticClass):
+    _hover_target: Hotspot = None
     current_room: Room = None
+
+    @staticmethod
+    def hover_clear() -> None:
+        if Game._hover_target is None:
+            return
+        Game._hover_target.is_hovered = False
+        Game._hover_target = None
+
+    @staticmethod
+    def hover_get() -> Hotspot:
+        return Game._hover_target
+    
+    @staticmethod
+    def hover_set(hs: Hotspot) -> None:
+        if Game._hover_target is not None:
+            Renpac.warn(f"overwriting existing hover target {Game._hover_target.name} to {hs.name}")
+            Game.hover_clear()
+        hs.is_hovered = True
+        Game._hover_target = hs
 
     @staticmethod
     def load(name) -> None:
