@@ -22,26 +22,14 @@ class Game(StaticClass):
             Game.current_room.exit()
 
         Game.current_room = room
-        Renpac.scene()
-        Renpac.show(f"bg {Game.current_room.name}")
         Game.current_room.enter()
-
-        if(not room.visited and room.first_desc is not None):
-            Renpac.say(None, room.first_desc)
-
-        Renpac.say(None, room.desc)
-        room.visited = True
-
-    @staticmethod
-    def update():
-        Game.current_room.hotspots_show()
 
     @staticmethod
     def load_bardolf():
         # define rooms and items in them
         dungeon_cell = Room("cell")
         dungeon_cell.printed_name = "Tower Cell"
-        dungeon_cell.desc = "A foul stench assaults you from all around. In one wall a slit serves as a window, letting in just enough light to see. Someone was kind enough to leave you a bowl of gruel."
+        dungeon_cell.desc = "A foul stench assaults you from all around. In one wall a slit serves as a window, letting in just enough light to see."
         dungeon_cell.first_desc = "You wake with a vicious pounding in your head and find yourself on the upper floor of a tower. Looks like a cell."
 
         gruel = Item("gruel")
@@ -56,8 +44,8 @@ class Game(StaticClass):
         gruel.add_combination(shackles, gruel_shackles)
         gruel.take_message = "You almost vomit as you approach the stinky gruel, but take it in case you're hungry enough to eat it later."
 
-        dungeon_cell.hotspot_add(gruel, 0.6, 0.6)
-        dungeon_cell.hotspot_add(shackles, 0.8, 0.8)
+        dungeon_cell.hotspot_add(gruel, 1150, 630)
+        dungeon_cell.hotspot_add(shackles, 800, 900)
 
         guardhouse = Room("guardhouse")
         guardhouse.printed_name = "Guardhouse"
@@ -85,7 +73,7 @@ class Game(StaticClass):
         Game.set_room(dungeon_cell) #type: ignore
 
 def gruel_shackles_func():
-    Renpac.say(None, "You dump the gruel on the shackles. Great, now the mess is even worse!"),
+    Renpac.narrate("You dump the gruel on the shackles. Great, now the mess is even worse!"),
 
 def gruel_stairs_func():
-    Renpac.say(None, "You dump the gruel down the stairs. And now you're gonna stay hungry."),
+    Renpac.narrate("You dump the gruel down the stairs. And now you're gonna stay hungry."),

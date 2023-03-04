@@ -6,15 +6,28 @@ init python:
                 return False
         return True
 
-label hotspot_click_left(hs):
-    if Action.current is None:
-        $ logging.info(f"left click hotspot '{hs.name}' with default action")
-        $ Action.default.execute(hs)
-        #if hs.action_left is not None:
-            #$ hs.action_left.execute(hs)
+init python:
+    def hotspot_click_left(hs, x, y):
+        left, right, top, bottom = hs.get_lrtb() 
+        logging.debug(f"click at ({x}, {y}) checking vs ({left}, {top}) to ({right}, {bottom})")
+        if x < left or x > right or y < top or y > bottom:
+            return
+        if Action.current is None:
+            logging.info(f"left click hotspot '{hs.name}' with default action")
+            Action.default.execute(hs)
+            return
+        logging.info(f"left click hotspot '{hs.name}' with current action {Action.current.name}")
+        Action.current.execute(hs)
+
+label click_left():
+    $ logging.info("left click detected")
+    if not can_click():
+        $ logging.info("left click disallowed")
         return
-    $ logging.info(f"left click hotspot '{hs.name}' with current action {Action.current.name}")
-    $ Action.current.execute(hs)
+    python:
+        x, y = renpy.get_mouse_pos()
+        for hs in Game.current_room.hotspots:
+            hotspot_click_left(hs, x, y) 
     return
 
 label hotspot_click_right(hs):
@@ -33,26 +46,30 @@ label hotspot_describe(hs):
     "[hs.desc]"
     return
 
-screen Hotspots(hotspots):
-    zorder ZORDER_HOTSPOTS
-    for hs in hotspots:
-        vbox area (hs.x, hs.y, hs.width, hs.height):
-            key "mousedown_3" action If(active_item is None, Call("hotspot_click_middle", hs), None)
-            if hs.img_path is None:
-                button:
+screen ClickArea():
+    key "mouseup_1" action Call("click_left")
+    #key "mouseup_2" action Jump("click_middle")
+    #key "mouseup_3" action Jump("click_right")
+
+label hotspot_hover(hs):
+    $ hs.is_hovered = True
+    return
+
+label hotspot_unhover(hs):
+    $ hs.is_hovered = False
+    return
+
+# TODO rename to HotspotRenderer
+screen Hotspots():
+    if Game.current_room is not None:
+        zorder ZORDER_HOTSPOTS
+        for hs in Game.current_room.hotspots:
+            frame area (hs.x, hs.y, hs.width, hs.height):
+                if hs.get_img_path() is None:
                     if DEBUG_SHOW_HOTSPOTS:
                         background "#F0F3"
-                    action If(can_click(), [
-                        If(DEBUG_NOTIFY_HOTSPOTS, Notify(f"clicked '{hs.name}'"), None),
-                            Hide(), 
-                            Call("hotspot_click_left", hs)
-                    ], None)
-                    alternate If(active_item is None, Call("hotspot_click_right", hs), None)
-            else:
-                imagebutton:
-                    auto hs.img_path 
-                    action If(can_click(), [
-                        Hide(), 
-                        Call("hotspot_click_left", hs)
-                    ], None)
-                    alternate If(active_item is None, Call("hotspot_click_right", hs), None)
+                else:
+                    background hs.get_img_path() 
+            #mousearea area (hs.x, hs.y, hs.width, hs.height):
+                #hovered Call("hotspot_hover", hs)
+                #unhovered Call("hotspot_unhover", hs)

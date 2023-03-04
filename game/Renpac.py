@@ -4,6 +4,7 @@ from . import StaticClass
 class Renpac(StaticClass):
     @staticmethod
     def init() -> None:
+        renpy.show_screen("ClickArea") #type: ignore
         logging.info(f"initialized RenPaC")
 
     def error(message: str) -> None:
@@ -23,8 +24,8 @@ class Renpac(StaticClass):
         renpy.notify(message) #type: ignore
 
     @staticmethod
-    def narrate(message, interact: bool = True) -> None:
-        Renpac.say(None, message, interact)
+    def narrate(what, interact: bool = True) -> None:
+        renpy.say(None, what, interact = interact) #type: ignore
 
     @staticmethod
     def say(who, what, interact: bool = True) -> None:

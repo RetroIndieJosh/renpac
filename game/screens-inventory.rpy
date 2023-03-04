@@ -51,12 +51,13 @@ label describe_equipped:
     return
 
 screen Fullscreen():
-    fixed:
+    null
+    #fixed:
         # left click - hide the invnetory, in addition to reacting to a hotspot
-        key "mousedown_1" action Call("inventory_hide")
+        #key "mousedown_1" action Call("inventory_hide")
 
         # middle click - describe the equipped item, or the room if there is nont
-        key "mousedown_2" action If(active_item is None, Call("describe_room"), Call("describe_equipped"))
+        #key "mousedown_2" action If(active_item is None, Call("describe_room"), Call("describe_equipped"))
 
         # right click - clear equipped if there is one, otherwise allow pass-through for describing hotspot
-        key "mousedown_3" action If(active_item is None, None, Call("clear_equipped"))
+        #key "mousedown_3" action If(active_item is None, None, Call("clear_equipped"))

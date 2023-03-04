@@ -5,7 +5,10 @@ from . import Hotspot, Action, Combination
 class Item(Hotspot):
     def __init__(self, name: str) -> None:
         super().__init__(name)
-        self.img_path = f"{self.name}_%s.png"
+        #self.img_path = f"{self.name}_%s.png"
+        self.img_path_idle = f"{self.name}_idle.png"
+        self.img_path_hover = f"{self.name}_hover.png"
+        self.is_hovered = False
 
         # whether the item is fixed in place (cannot be taken)
         self.fixed = False
@@ -32,6 +35,11 @@ class Item(Hotspot):
         if self._combinations:
             self.action_right = Action.register(f"use {self.name} on", self.use_on)
         self._combinations[target.name] = combo
+
+    def get_img_path(self) -> str:
+        if self.is_hovered:
+            return self.img_path_hover
+        return self.img_path_idle
 
     def remove_from_room(self) -> None:
         self.room.hotspot_remove(self)

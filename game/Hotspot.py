@@ -9,7 +9,6 @@ class Hotspot:
     def __init__(self, name: str) -> None:
         self.name = name
         self.desc = None
-        self.img_path = None
 
         # default = left click, alternate = right click, middle = middle click
         self.action_left = Action.get("examine")
@@ -37,3 +36,11 @@ class Hotspot:
             self.room.hotspot_remove(self)
         else:
             raise Exception(f"Tried to delete hotspot '{self.name}' but it doesn't exist in inventory or room!")
+
+    def get_img_path(self) -> str:
+        return None
+        
+    def get_lrtb(self) -> tuple:
+        """! Return a tuple with values for (left, right, top, bottom).
+        """
+        return (self.x, self.x + self.width, self.y, self.y + self.height)

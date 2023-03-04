@@ -23,5 +23,5 @@ label ask_inventory_pos:
             $ Inventory.set_mode(INVENTORY_RIGHT, 0.6, 0.1)
 
 label start:
-    call renpac("bardolf")
+    call renpac_start("bardolf")
     return
