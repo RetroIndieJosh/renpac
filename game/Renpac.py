@@ -15,6 +15,10 @@ class Renpac(StaticClass):
         renpy.notify(message) #type: ignore
 
     @staticmethod
+    def narrate(message, interact: bool = True) -> None:
+        Renpac.say(None, message, interact)
+
+    @staticmethod
     def say(who, what, interact: bool = True) -> None:
         renpy.say(who, what, interact = interact) #type: ignore
 

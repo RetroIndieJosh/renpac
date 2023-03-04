@@ -3,13 +3,23 @@ import logging
 from . import Action, Area, Hotspot, Item, Renpac, StaticClass
 
 def action_take(item: Hotspot):
+    if item is None:
+        logging.warn("tried to take 'None' Hotspot")
+        return
     if type(item) is not Item:
-        Renpac.say("You can't take that.")
+        Renpac.narrate("You can't take that.")
     else:
         Inventory.add(item)
-    #renpy.block_rollback() #type: ignore
+        Renpac.narrate(f"You take {item.name}.")
 
 Action.register("take", action_take)
+
+INVENTORY_ITEMS_PER_ROW = 4
+
+INVENTORY_BOTTOM = 1
+INVENTORY_LEFT = 2
+INVENTORY_RIGHT = 3
+INVENTORY_TOP = 4
 
 class Inventory(StaticClass):
     area = Area()
@@ -94,10 +104,3 @@ class Inventory(StaticClass):
 
         Inventory._items.remove(item)
         logging.info(f"remove '{item.name}' from inventory")
-
-INVENTORY_ITEMS_PER_ROW = 4
-
-INVENTORY_BOTTOM = 1
-INVENTORY_LEFT = 2
-INVENTORY_RIGHT = 3
-INVENTORY_TOP = 4
