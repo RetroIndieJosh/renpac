@@ -46,6 +46,8 @@ class Game(StaticClass):
 
         gruel = Item("gruel")
         shackles = Item("shackles")
+        shackles.first_take_message = "These rusty shackles are a bit wet. You dry them off with your sleeve and take them."
+        shackles.take_message = "You grab the shackles."
 
         gruel_shackles = Combination(
             func = gruel_shackles_func,

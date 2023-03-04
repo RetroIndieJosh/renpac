@@ -10,7 +10,10 @@ def action_take(item: Hotspot):
         Renpac.narrate("You can't take that.")
     else:
         Inventory.add(item)
-        Renpac.narrate(f"You take {item.name}.")
+        if item.take_message is None:
+            Renpac.narrate(f"You take {item.name}.")
+        else:
+            Renpac.narrate(item.take_message)
 
 Action.register("take", action_take)
 

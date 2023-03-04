@@ -3,8 +3,16 @@ from . import StaticClass
 
 class Renpac(StaticClass):
     @staticmethod
-    def init():
+    def init() -> None:
         logging.info(f"initialized RenPaC")
+
+    def error(message: str) -> None:
+        logging.error(message)
+        Renpac.notify(f"ERROR: {message}")
+
+    def warning(message: str) -> None:
+        logging.warning(message)
+        Renpac.notify(f"WARNING: {message}")
 
     ###########################
     # Ren'Py redirect methods
