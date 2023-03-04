@@ -7,31 +7,41 @@ class File:
         with open(f"{name}.py") as file:
             self.lines = file.read().splitlines()
         self.priority = 0
+        self.is_dependency = False
+        self.dependencies = []
+        self.dependency_names = []
 
     def check_priority(self):
         if self.lines[0].startswith("#priority"):
-            self.priority = int(self.lines[0].split("#priority ", 1)[1])
+            self.set_max_priority(int(self.lines[0].split("#priority ", 1)[1]))
 
-    def check_dependencies(self):
+    def find_dependencies(self):
         print(f"{self.name}:")
         for line in self.lines:
             if not line.startswith("from . import"):
                 continue
+            self.dependency_names = line.split("from . import ", 1)[1].split(", ")
 
-            dependencies = line.split("from . import ", 1)[1]
-
-            for dependency in dependencies.split(", "):
-                dependency = dependency.strip()
-                print(f"    -- check dependency {dependency}")
-                if dependency not in files:
-                    raise Exception(f"Dependency for {self.name} not found: '{dependency}.py'")
-                files[dependency].set_max_priority(self.priority - 1)
+    def link_dependencies(self):
+        global files
+        for dependency_name in self.dependency_names:
+            if dependency_name not in files:
+                raise Exception(f"Missing dependency for {self.name}: '{dependency_name}'")
+            
+            dependency = files[dependency_name]
+            dependency.is_dependency = True
+            self.dependencies.append(dependency)
 
     # set priority to at most the given priority
     def set_max_priority(self, priority):
         self.priority = min(self.priority, priority)
         if self.priority < -999:
             raise Exception(f"Illegal priority for {self.name} - must be in range [-999, 999] to avoid clash with Ren'Py")
+
+    def set_priority(self, priority=0):
+        self.set_max_priority(priority)
+        for dependency in self.dependencies:
+            dependency.set_priority(priority - 1)
 
     def write(self) -> None:
         print(f"convert {self.name} at priority {self.priority}", end='')
@@ -44,12 +54,6 @@ class File:
         print(f" => {self.name}.gen.rpy ({len(self.lines)} lines)")
 
 files = {}
-
-def check_dependency(line, priority):
-    if not line.startswith("from ."):
-        return
-
-    dependencies = line.split("from . import ", 1)[1]
 
 def cleanup():
     gen_files = list(filter(lambda file_name: file_name.endswith(".gen.rpy"), os.listdir()))
@@ -77,13 +81,27 @@ for py_file_name in filenames:
     name = os.path.splitext(py_file_name)[0]
     files[name] = File(name)
 
+print(f"** reading dependencies")
+for key in files:
+    files[key].find_dependencies()
+
+print(f"** linking dependencies")
+for key in files:
+    files[key].link_dependencies()
+
+print(f"** setting priorities")
+root_files = []
+for key in files:
+    if not files[key].is_dependency:
+        root_files.append(files[key])
+for file in root_files:
+    print(f"  -- root file: {file.name}")
+for file in root_files:
+    file.set_priority()
+
 print(f"** checking manual priorities")
 for key in files:
     files[key].check_priority()
-
-print(f"** checking dependencies")
-for key in files:
-    files[key].check_dependencies()
 
 print(f"** generating {len(files)} files")
 for key in files:

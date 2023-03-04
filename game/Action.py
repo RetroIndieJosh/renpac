@@ -1,5 +1,7 @@
 import logging
 
+from . import Renpac
+
 class Action:
     actions = {}
     current = None
@@ -8,6 +10,9 @@ class Action:
 
     @staticmethod
     def get(name) -> object:
+        if name not in Action.actions:
+            logging.warning(f"attempted to retrieve action '{name}' before it was registered")
+            Renpac.notify("warning")
         return Action.actions[name] if name in Action.actions else None
 
     @staticmethod
