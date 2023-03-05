@@ -27,7 +27,7 @@ screen InventoryScreen():
         area (x, y, width, height)
 
         if inventory_visible:
-            background "#0009"
+            background "#FFF3"
         else:
             background "#0000"
 
@@ -41,5 +41,12 @@ screen InventoryScreen():
                             imagebutton:
                                 # TODO reset item to hover = False on take so this gets the right one
                                 idle item.get_img_path()
-                            #textbutton "[item.name]":
                                 action Call("equip_item", item)
+
+    if inventory_visible:
+        $ center_x, center_y = Inventory.rect.get_center()
+        text "Inventory":
+            xcenter center_x
+            ycenter center_y
+            color "#FFF6"
+        

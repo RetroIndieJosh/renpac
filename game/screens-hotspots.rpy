@@ -33,6 +33,7 @@ init python:
 label click_left():
     #$ logging.debug("left click detected")
     python:
+        Hotspot.hover_clear()
         x, y = renpy.get_mouse_pos()
         for hs in Room.current.hotspots:
             hotspot_click_left(hs, x, y) 

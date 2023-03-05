@@ -28,12 +28,13 @@ class Game(StaticClass):
         gruel = Item("gruel")
         gruel.take_message = ("You almost vomit as you approach the stinky "
             "gruel, but take it in case you're hungry enough to eat it later.")
-        dungeon_cell.hotspot_add(gruel, 1150, 630)
+        dungeon_cell.hotspot_add(gruel, 1150, 430)
         gruel.rect.set_size(100, 75)
 
         shackles = Item("shackles")
         shackles.desc = "Rusty shackles chain you to the ground. They don't look too strong, though."
         shackles.fixed = True
+        shackles.rect.set_size(200, 126)
 
         gruel_shackles = Combination(
             func = gruel_shackles_func,
@@ -41,7 +42,7 @@ class Game(StaticClass):
         )
         gruel.add_combination(shackles, gruel_shackles)
 
-        dungeon_cell.hotspot_add(shackles, 800, 900)
+        dungeon_cell.hotspot_add(shackles, 800, 700)
 
         guardhouse = Room("guardhouse")
         guardhouse.printed_name = "Guardhouse"
@@ -49,8 +50,8 @@ class Game(StaticClass):
 
         stairs_down = Exit("stairs down")
         stairs_down.target = guardhouse
-        stairs_down.rect.set_size(467, 306)
-        dungeon_cell.hotspot_add(stairs_down, 0, 782)
+        stairs_down.rect.set_size(467, 300)
+        dungeon_cell.hotspot_add(stairs_down, 0, 580)
 
         gruel_stairs = Combination(
             func = gruel_stairs_func,

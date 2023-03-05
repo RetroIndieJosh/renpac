@@ -23,6 +23,8 @@ def action_take(target: Hotspot) -> None:
         Renpac.narrate("You can't take that.")
         return
     Inventory.add(target)
+    if target.is_hovered:
+        Hotspot.hover_clear()
     if target.take_message is None:
         Renpac.narrate(f"You take {target.name}.")
     else:
