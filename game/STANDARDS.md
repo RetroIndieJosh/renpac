@@ -21,6 +21,11 @@
 - avoid handling animations, rendering, or dialogue in Python when possible; instead, call a Ren'Py label
 - avoid lambdas in game data (stored variables) as these cannot be pickles
     - instead, make actual functions that live somewhere
+- use "double quotes" for strings except:
+    - single character strings like 'm'
+    - dictionary keys like `my_dict['my key']`
+- always use type hinting for variables and return types
+    - if the type hinting doesn't work, try putting it in single quotes
 
 ## Ren'Py
 
@@ -40,3 +45,12 @@
     - `Fix` for bug
     - `Close` for feature
     - `Resolve` for documentation or question
+
+## Doxygen
+
+- use ## for variable comments and """! """ for function comments
+- in function comments:
+    - put a blank line between the three major sections: description, paramaters, and return
+    - only put a blank line between parameter descriptions if it runs more than one line
+    - for multi-line parameter descriptions, indent all lines after the first
+    - generally, follow the standard set out in `Rect.py`

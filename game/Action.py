@@ -22,7 +22,7 @@ class Action:
     default = None
 
     @staticmethod
-    def get(name) -> 'Action':
+    def get(name: str) -> 'Action':
         """! Get an action by name. If it doesn't exist, throw a warning and
         return nothing.
 
@@ -41,9 +41,9 @@ class Action:
         """
         Action._locked = True
 
-    def __init__(self, name, func: Callable[['Hotspot'], None]) -> None: #type: ignore
-        """! Create an register an action called #name that executes function
-        #func. Throw an exception if actions are locked.
+    def __init__(self, name: str, func: Callable[['Hotspot'], None]) -> None: #type: ignore
+        """! Create and register an action called \p name that executes function
+        \p func. Throw an exception if actions are locked.
 
         @param name The name of the action, or None to register as \p #Action.default.
         
