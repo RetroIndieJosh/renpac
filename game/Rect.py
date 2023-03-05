@@ -70,7 +70,7 @@ class Rect:
 
         @return A tuple with the values (x, y) of the center position, floored.
         """
-        return (self.x + floor(self.width * 0.5), self.y + floor(self.height * 0.5))
+        return self.x + floor(self.width * 0.5), self.y + floor(self.height * 0.5)
 
     def set_center(self, x, y) -> None:
         """! Position the rectangle such that the center is at the given
@@ -88,7 +88,7 @@ class Rect:
 
         @return A tuple with values (left, top, right, bottom).
         """
-        return (self.x, self.y, self.x + self.width, self.y + self.height)
+        return self.x, self.y, self.x + self.width, self.y + self.height
 
     def set_ltrb(self, left: int, top: int, right: int, bottom: int) -> None:
         """! Set the rectangle position and size given a left, right, top, and
@@ -107,7 +107,7 @@ class Rect:
 
         @return A tuple with values (width, height).
         """
-        return (self.width, self.height)
+        return self.width, self.height
 
     def set_size(self, width: int, height: int) -> None:
         """! Set the size of the rectangle and trigger on_size_change event.
@@ -126,7 +126,7 @@ class Rect:
 
         @return A tuple with values (x, y).
         """
-        return (self.x, self.y)
+        return self.x, self.y
 
     def set_pos(self, x, y) -> None:
         """! Set the position (top-left coordinate) of the rectangle.
@@ -145,7 +145,7 @@ class Rect:
 
         @return A tuple with values (x, y, width, height).
         """
-        return (self.x, self.y, self.width, self.height)
+        return self.x, self.y, self.width, self.height
 
     def set_xywh(self, x: int, y: int, width: int, height: int) -> None:
         """! Set the position and size of the rectangle.

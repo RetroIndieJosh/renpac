@@ -3,6 +3,22 @@ import logging
 from . import Hotspot, Action, Combination
 
 class Item(Hotspot):
+    _selected: 'Item' = None
+
+    @staticmethod
+    def selection_clear() -> None:
+        logging.info("clear selected item")
+        Item._selected = None
+
+    @staticmethod
+    def selection_get() -> 'Item':
+        return Item._selected
+
+    @staticmethod
+    def selection_set(item: 'Item') -> None:
+        logging.info(f"set selected item to '{item.name if item else 'None'}'")
+        Item._selected = item
+
     def __init__(self, name: str) -> None:
         super().__init__(name)
 
@@ -36,6 +52,11 @@ class Item(Hotspot):
             #self.action_right = Action(f"use {self.name} on", self.use_on)
         self._combinations[target.name] = combo
 
+    def delete(self) -> None:
+        if Item.selection_get() is self:
+            Item.selection_clear()
+        super().delete()
+
     def get_img_path(self) -> str:
         if self.is_hovered:
             return self.img_path_hover
@@ -49,19 +70,14 @@ class Item(Hotspot):
         combo = self._combinations[other.name] if other.name in self.combinations else None
         if combo is None:
             logging.info(f"cannot combine {self.name} on {other.name}")
-            renpy.say(None, f"You can't use {self.name} on {other.name}!") # type: ignore
+            renpy.say(None, f"You can't use {self.name} on {other.name}.") # type: ignore
             return
 
-        global active_item
         if combo.delete_self:
             logging.debug(f"remove self ({self.name})")
-            if active_item is self:
-                active_item = None
             self.delete()
         if combo.delete_other:
             logging.debug(f"remove other ({other.name})")
-            if active_item is other:
-                active_item = None
             other.delete()
 
         if combo.func is not None:

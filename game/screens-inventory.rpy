@@ -47,7 +47,7 @@ label describe_room:
 
 label describe_equipped:
     call inventory_hide
-    "[active_item.name]"
+    "[Item.selection_get().name]"
     return
 
 screen Fullscreen():

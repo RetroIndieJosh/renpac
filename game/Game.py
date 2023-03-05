@@ -3,7 +3,10 @@ import logging
 from . import Combination, Exit, Hotspot, Inventory, Item, Renpac, Room, StaticClass
 
 class Game(StaticClass):
+    # TODO should this be in Hotspot?
     _hover_target: Hotspot = None
+
+    # TODO make private (should this be in Room?)
     current_room: Room = None
 
     @staticmethod
@@ -26,12 +29,12 @@ class Game(StaticClass):
         Game._hover_target = hs
 
     @staticmethod
-    def load(name) -> None:
+    def load(name: str) -> None:
         Inventory.clear()
         Game.load_bardolf()
 
     @staticmethod
-    def set_room(room):
+    def room_set(room: Room) -> None:
         logging.info(f"set room to '{room.name}'")
 
         # can't move from a room to itself
@@ -90,7 +93,7 @@ class Game(StaticClass):
         guardhouse.hotspot_add(stairs_up, 1575, 0)
 
         # set start room
-        Game.set_room(dungeon_cell) #type: ignore
+        Game.room_set(dungeon_cell) #type: ignore
 
 def gruel_shackles_func():
     Renpac.narrate("You dump the gruel on the shackles. Great, now the mess is even worse!"),

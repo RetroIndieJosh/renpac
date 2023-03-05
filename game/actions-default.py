@@ -1,6 +1,6 @@
 import logging
 
-from . import Action, Exit, Hotspot, Inventory, Item, Renpac
+from . import Action, Exit, Game, Hotspot, Inventory, Item, Renpac
 
 def action_examine(target: Hotspot) -> None:
     if target is None:
@@ -16,7 +16,7 @@ def action_examine_allowed(_: Hotspot):
 def action_go(target: Hotspot) -> None:
     if not action_go_allowed(target):
         Renpac.narrate("You can't go there.")
-    target.go()
+    Game.room_set(target.target)
 
 def action_go_allowed(target: Hotspot) -> bool:
     return target is not None and type(target) is Exit

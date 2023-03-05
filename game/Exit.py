@@ -12,7 +12,3 @@ class Exit(Hotspot):
         self.action_middle = Action.get("examine")
         self.action_down = None
         self.action_up = None
-
-    def go(self) -> None:
-        if self.room is not None:
-            Game.set_room(self.target) #type: ignore
