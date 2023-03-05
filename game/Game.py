@@ -75,8 +75,7 @@ class Game(StaticClass):
 
         stairs_down = Exit("stairs down")
         stairs_down.target = guardhouse
-        stairs_down.width = 467
-        stairs_down.height = 307
+        stairs_down.rect.set_size(467, 306)
         dungeon_cell.hotspot_add(stairs_down, 0, 782)
 
         gruel_stairs = Combination(
@@ -87,8 +86,7 @@ class Game(StaticClass):
 
         stairs_up = Exit("stairs up")
         stairs_up.target = dungeon_cell
-        stairs_up.width = 345
-        stairs_up.height = 166
+        stairs_up.rect.set_size(345, 166)
         guardhouse.hotspot_add(stairs_up, 1575, 0)
 
         # set start room

@@ -1,4 +1,4 @@
-from . import Action
+from . import Action, Rect
 
 import logging
 
@@ -19,10 +19,7 @@ class Hotspot:
         self.action_down = None
         self.action_up = None
 
-        self.x = 0
-        self.y = 0
-        self.width = 256
-        self.height = 256
+        self.rect = Rect(0, 0, 256, 256)
         self.is_hovered = False
 
         self.room = None
@@ -40,8 +37,3 @@ class Hotspot:
 
     def get_img_path(self) -> str:
         return None
-        
-    def get_lrtb(self) -> tuple:
-        """! Return a tuple with values for (left, right, top, bottom).
-        """
-        return (self.x, self.x + self.width, self.y, self.y + self.height)

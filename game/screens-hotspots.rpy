@@ -14,7 +14,7 @@ init python:
                 renpy.hide_screen(screen_name)
 
     def hotspot_click_left(hs, x, y):
-        left, right, top, bottom = hs.get_lrtb() 
+        left, top, right, bottom = hs.rect.get_ltrb()
         logging.debug(f"click at ({x}, {y}) checking vs ({left}, {top}) to ({right}, {bottom})")
         if x < left or x > right or y < top or y > bottom:
             return
@@ -71,12 +71,12 @@ screen Hotspots():
     if Game.current_room is not None:
         zorder ZORDER_HOTSPOTS
         for hs in Game.current_room.hotspots:
-            frame area (hs.x, hs.y, hs.width, hs.height):
+            frame area (hs.rect.x, hs.rect.y, hs.rect.width, hs.rect.height):
                 if hs.get_img_path() is None:
                     if DEBUG_SHOW_HOTSPOTS:
                         background "#F0F3"
                 else:
                     background hs.get_img_path() 
-            mousearea area (hs.x, hs.y, hs.width, hs.height):
+            mousearea area (hs.rect.x, hs.rect.y, hs.rect.width, hs.rect.height):
                 hovered If(can_hover(), Call("hotspot_hover", hs), None)
                 unhovered If(can_hover(), Call("hotspot_unhover", hs), None)

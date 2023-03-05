@@ -1,6 +1,6 @@
 import logging
 
-from . import Area, Item, StaticClass
+from . import Item, Rect, StaticClass
 
 INVENTORY_ITEMS_PER_ROW = 4
 
@@ -10,8 +10,8 @@ INVENTORY_RIGHT = 3
 INVENTORY_TOP = 4
 
 class Inventory(StaticClass):
-    area = Area()
-    area_show = Area()
+    rect = Rect()
+    rect_show = Rect()
 
     _items: list = []
 
@@ -29,35 +29,35 @@ class Inventory(StaticClass):
 
         # set position relative to side
         if mode is INVENTORY_BOTTOM:
-            Inventory.area.y = 1.0 - height
+            Inventory.rect.y = 1.0 - height
         elif mode is INVENTORY_TOP:
-            Inventory.area.y = 0
+            Inventory.rect.y = 0
         elif mode is INVENTORY_LEFT:
-            Inventory.area.x = 0
+            Inventory.rect.x = 0
         elif mode is INVENTORY_RIGHT:
-            Inventory.area.x = 1.0 - height
+            Inventory.rect.x = 1.0 - height
         else:
             raise Exception(f"Unknown inventory mode {mode}")
 
         # center, set size, and set shower size
         if mode is INVENTORY_BOTTOM or mode is INVENTORY_TOP:
-            Inventory.area.x = (1.0 - width) * 0.5
-            Inventory.area.width = width
-            Inventory.area.height = height
-            Inventory.area_show = Area(Inventory.area)
-            Inventory.area_show.height *= show_scale
+            Inventory.rect.x = (1.0 - width) * 0.5
+            Inventory.rect.width = width
+            Inventory.rect.height = height
+            Inventory.rect_show = Rect.clone(Inventory.rect)
+            Inventory.rect_show.height *= show_scale
         elif mode is INVENTORY_LEFT or mode is INVENTORY_RIGHT:
-            Inventory.area.y = (1.0 - width) * 0.5
-            Inventory.area.width = height
-            Inventory.area.height = width
-            Inventory.area_show = Area(Inventory.area)
-            Inventory.area_show.width *= show_scale
+            Inventory.rect.y = (1.0 - width) * 0.5
+            Inventory.rect.width = height
+            Inventory.rect.height = width
+            Inventory.rect_show = Rect.clone(Inventory.rect)
+            Inventory.rect_show.width *= show_scale
 
         # correct position of shower if needed
         if mode is INVENTORY_RIGHT:
-            Inventory.area_show.x = 1.0 - inventory_show_area.width
+            Inventory.rect_show.x = 1.0 - Inventory.rect_show.width
         elif mode is INVENTORY_BOTTOM:
-            Inventory.area_show.y = 1.0 - inventory_show_area.height
+            Inventory.rect_show.y = 1.0 - Inventory.rect_show.height
 
         logging.info(f"set inventory mode to {mode} of size {width} X {height}")
 

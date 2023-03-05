@@ -17,8 +17,7 @@ class Room:
 
         self.hotspots.append(hs)
         hs.room = self
-        hs.x = x
-        hs.y = y
+        hs.rect.set_pos(x, y)
 
     def hotspot_remove(self, hs: Hotspot) -> None:
         if(hs not in self.hotspots):
