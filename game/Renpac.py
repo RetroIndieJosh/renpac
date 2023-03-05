@@ -7,7 +7,6 @@ class Renpac(StaticClass):
         logging.info(f"initialize RenPaC")
         renpy.show_screen("ClickArea") #type: ignore
 
-# TODO move to Log
     # Logging
 
     @staticmethod

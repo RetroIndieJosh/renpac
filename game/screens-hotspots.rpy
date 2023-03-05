@@ -16,6 +16,10 @@ init python:
         #logging.debug(f"click at ({x}, {y}) checking vs {hs.rect}")
         if not hs.rect.contains(x, y):
             return
+        if Item.selection_get() is not None:
+            logging.info(f"left click hotspot '{hs.name}' with active item '{Item.selection_get().name}'")
+            Action.get("use").execute(hs)
+            return
         if Action.current is None:
             if Action.default is None:
                 logging.info(f"left click hotspot '{hs.name}' but no current or default action, so do nothing")
@@ -68,6 +72,7 @@ label hotspot_unhover(hs):
 screen Hotspots():
     if Room.current is not None:
         zorder ZORDER_HOTSPOTS
+        $ Room.current.clear_deleted()
         for hs in Room.current.hotspots:
             $ x, y, width, height = hs.rect.get_xywh()
             if DEBUG_SHOW_HOTSPOTS:

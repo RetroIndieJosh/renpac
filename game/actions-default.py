@@ -10,9 +10,6 @@ def action_examine(target: Hotspot) -> None:
     else:
         Renpac.narrate(f"{target.desc}")
 
-def action_examine_allowed(_: Hotspot):
-    return True
-
 def action_go(target: Hotspot) -> None:
     if not action_go_allowed(target):
         Renpac.narrate("You can't go there.")
@@ -34,6 +31,14 @@ def action_take(target: Hotspot) -> None:
 def action_take_allowed(target: Hotspot) -> bool:
     return target is not None and type(target) is Item and target.fixed is False
 
+def action_use(target: Hotspot) -> None:
+    selection = Item.selection_get()
+    # use only makes sense if we have something to use *on* the target
+    if selection is None:
+        return
+    selection.use_on(target)
+    
+
 def left_click(target: Hotspot):
     if action_take_allowed(target):
         logging.debug("take action")
@@ -52,5 +57,6 @@ Action(None, left_click)
 Action("examine", action_examine)
 Action("go", action_go)
 Action("take", action_take)
+Action("use", action_use)
 
 Action.lock()

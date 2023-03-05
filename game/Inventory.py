@@ -68,10 +68,16 @@ class Inventory(StaticClass):
         Inventory._items.clear()
         logging.info(f"clear inventory")
 
+    def clear_deleted() -> None:
+        Inventory._items = [item for item in Inventory._items if not item.is_deleted()]
+
     def get(index: int) -> Item:
         if index < 0 or index >= len(Inventory._items):
             raise Exception(f"No item at index {index} in inventory")
         return Inventory._items[index]
+
+    def has(item: Item) -> bool:
+        return item in Inventory._items
 
     def remove(item: Item) -> None:
         if item not in Inventory._items:

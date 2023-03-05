@@ -27,10 +27,15 @@ class Room:
         self.printed_name = name
         self.desc = "An unknown place."
 
+        # TODO make private with visit() method
         self.visited = False
         self.first_desc = None
 
+        # TODO make private
         self.hotspots = []
+
+    def clear_deleted(self) -> None:
+        self.hotspots = [item for item in self.hotspots if not item.is_deleted()]
 
     def hotspot_add(self, hs: Hotspot, x: int, y: int) -> None:
         if(hs in self.hotspots):

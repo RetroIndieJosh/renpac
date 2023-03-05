@@ -12,8 +12,9 @@ label inventory_show():
 
 screen InventoryScreen():
     zorder ZORDER_INVENTORY
+    $ Inventory.clear_deleted()
     $ x, y, width, height = Inventory.rect.get_xywh()
-    
+  
     if can_hover():
         mousearea:
             area (x, y, width, height)

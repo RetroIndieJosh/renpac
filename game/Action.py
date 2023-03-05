@@ -57,18 +57,31 @@ class Action:
         self.name = name
         self.func = func
 
+        self.allow_func: Callable[['Hotspot'], bool] = None #type: ignore
+        self.disallowed_func: Callable[['Hotspot'], bool] = None #type: ignore
+
         if name is None:
             Action.default = self
         else:
             Action._actions[name] = self
     
     def execute(self, target: 'Hotspot') -> None: #type: ignore
-        """! Execute the action on the given #target.
+        """! Execute the action on the given \p target. If the action has an
+        allow_func defined, abort the action if it returns False. If the
+        allow_func fails and a not_allowed_func exists, call that before
+        returning.
         
         @param target The hotspot on which the #Action.func will execute.
         """
+        if self.allow_func is not None:
+            if not self.allow_func():
+                if self.not_allowed_func is not None:
+                    self.not_allowed_func()
+                return
+
         if self.name is None:
             logging.info(f"execute default action on '{target.name}'")
         else:
             logging.info(f"execute action '{self.name}' on '{target.name}'")
+
         self.func(target)

@@ -45,16 +45,14 @@ class Hotspot:
 
         self.room = None
 
+        self._deleted = False
+
     def delete(self):
         logging.info(f"delete hotspot {self.name}")
-
-        global inventory
-        if self in inventory:
-            inventory.remove(self)
-        elif self.room is not None:
-            self.room.hotspot_remove(self)
-        else:
-            raise Exception(f"Tried to delete hotspot '{self.name}' but it doesn't exist in inventory or room!")
+        self._deleted = True
 
     def get_img_path(self) -> str:
         return None
+
+    def is_deleted(self) -> bool:
+        return self._deleted
