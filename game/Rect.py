@@ -8,9 +8,20 @@ class Rect:
         self.pos_change = None
         self.size_change = None
 
+    def __repr__(self) -> str:
+        return str(self)
+
+    def __str__(self) -> str:
+        left, top, right, bottom = self.get_ltrb()
+        return f"[({left}, {top}) - ({right}, {bottom})] ({self.width} x {self.height})"
+
     @staticmethod
     def clone(rect: 'Rect') -> 'Rect':
         return Rect(*rect.get_xywh())
+
+    def contains(self, x: int, y: int) -> bool:
+        left, top, right, bottom = self.get_ltrb()
+        return x >= left and x <= right and y >= top and y <= bottom
 
     def get_ltrb(self) -> tuple:
         """! Return a tuple with values for (left, right, top, bottom).

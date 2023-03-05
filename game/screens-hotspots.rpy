@@ -14,9 +14,8 @@ init python:
                 renpy.hide_screen(screen_name)
 
     def hotspot_click_left(hs, x, y):
-        left, top, right, bottom = hs.rect.get_ltrb()
-        logging.debug(f"click at ({x}, {y}) checking vs ({left}, {top}) to ({right}, {bottom})")
-        if x < left or x > right or y < top or y > bottom:
+        logging.debug(f"click at ({x}, {y}) checking vs {hs.rect}")
+        if not hs.rect.contains(x, y):
             return
         if Action.current is None:
             if Action.default is None:
