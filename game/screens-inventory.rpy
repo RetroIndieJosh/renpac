@@ -4,9 +4,11 @@ init python:
 
 label inventory_hide():
     $ inventory_visible = False
+    return
 
 label inventory_show():
     $ inventory_visible = True
+    return
 
 screen InventoryScreen():
     zorder ZORDER_INVENTORY

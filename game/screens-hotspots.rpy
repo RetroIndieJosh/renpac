@@ -1,5 +1,5 @@
 init python:
-    NO_CLICK_SCREENS = [ "say", "Inventory" ]
+    NO_CLICK_SCREENS = [ "say" ]
 
     def can_hover():
         for screen_name in NO_CLICK_SCREENS:
