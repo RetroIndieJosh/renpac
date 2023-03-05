@@ -19,8 +19,11 @@ init python:
         if x < left or x > right or y < top or y > bottom:
             return
         if Action.current is None:
-            logging.info(f"left click hotspot '{hs.name}' with default action")
-            Action.default.execute(hs)
+            if Action.default is None:
+                logging.info(f"left click hotspot '{hs.name}' but no current or default action, so do nothing")
+            else:
+                logging.info(f"left click hotspot '{hs.name}' with default action")
+                Action.default.execute(hs)
             return
         logging.info(f"left click hotspot '{hs.name}' with current action {Action.current.name}")
         Action.current.execute(hs)

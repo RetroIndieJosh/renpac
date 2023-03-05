@@ -31,8 +31,9 @@ class Item(Hotspot):
 
         # if this is the first combination, register the "use on" action for
         # this item to replace the "use" action
-        if self._combinations:
-            self.action_right = Action.register(f"use {self.name} on", self.use_on)
+        # TODO register this as a general "use on" action, two targets? or automtaically reference active item
+        #if self._combinations:
+            #self.action_right = Action(f"use {self.name} on", self.use_on)
         self._combinations[target.name] = combo
 
     def get_img_path(self) -> str:

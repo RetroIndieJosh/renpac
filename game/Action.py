@@ -1,37 +1,70 @@
 import logging
+from typing import Callable
 
 from . import Renpac
 
 class Action:
-    __create_key = object()
+    """! An action the player can perform in the game targeting at most one
+    hotspot. This is either called through context in the game or bound to a
+    mouse button to trigger when a hotspot is clicked.
+    """
 
+    ## The list of registered actions.
     _actions = {}
 
+    ## Whether actions are locked, i.e. no more actions can be registered.
+    _locked = False
+
+    ## The current active action.
     current = None
+
+    ## The default action for a given context.
     default = None
 
     @staticmethod
-    def get(name) -> object:
+    def get(name) -> 'Action':
+        """! Get an action by name. If it doesn't exist, throw a warning and
+        return nothing.
+        """
         if name not in Action._actions:
             Renpac.warn(f"attempted to retrieve action '{name}' before it was registered")
+            return None
         return Action._actions[name] if name in Action._actions else None
 
     @staticmethod
-    def register(name, func) -> None:
-        logging.info(f"register action '{name}'")
-        action = Action(Action.__create_key, name, func)
-        if name is None:
-            Action.default = action
-        else:
-            Action._actions[name] = action
+    def lock() -> None:
+        """! Lock actions so no more can be regsitered. Actions should be
+        registered early in the program run and then locked. Actions can be
+        locked multiple times with no ill effect, but can never be unlocked.
+        """
+        Action._locked = True
 
-    def __init__(self, key, name, func) -> None:
-        if key is not Action.__create_key:
-            raise Exception("Use Action.register() to create a new action, not the Action() constructor.")
+    def __init__(self, name, func: Callable[['Hotspot'], None]) -> None: #type: ignore
+        """! Create an register an action called #name that executes function
+        #func. Throw an exception if actions are locked.
+
+        @param name The name of the action, or None to register as \p #Action.default.
+        
+        @param func The function to call when executing the action. This must
+        take one argument - the target hotspot - and return nothing.
+        """
+        if Action._locked:
+            raise Exception(f"Attempted to create action, but actions are "
+                "locked. Please create action '{name}' BEFORE locking.")
+
         self.name = name
         self.func = func
+
+        if name is None:
+            Action.default = self
+        else:
+            Action._actions[name] = self
     
-    def execute(self, target) -> None:
+    def execute(self, target: 'Hotspot') -> None: #type: ignore
+        """! Execute the action on the given #target.
+        
+        @param target The hotspot on which the #Action.func will execute.
+        """
         if self.name is None:
             logging.info(f"execute default action on '{target.name}'")
         else:

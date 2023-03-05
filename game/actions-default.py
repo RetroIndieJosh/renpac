@@ -48,7 +48,9 @@ def left_click(target: Hotspot):
     logging.debug("examine action")
     action_examine(target)
 
-Action.register(None, left_click)
-Action.register("examine", action_examine)
-Action.register("go", action_go)
-Action.register("take", action_take)
+Action(None, left_click)
+Action("examine", action_examine)
+Action("go", action_go)
+Action("take", action_take)
+
+Action.lock()
