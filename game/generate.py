@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import os
 
-class File:
+class GeneratorFile:
     def __init__(self, name) -> None:
         self.name = name
         with open(f"{name}.py") as file:
@@ -79,7 +79,7 @@ print(f"** loading files")
 priority = 0
 for py_file_name in filenames:
     name = os.path.splitext(py_file_name)[0]
-    files[name] = File(name)
+    files[name] = GeneratorFile(name)
 
 print(f"** reading dependencies")
 for key in files:
