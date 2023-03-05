@@ -13,7 +13,7 @@ init python:
                 renpy.hide_screen(screen_name)
 
     def hotspot_click_left(hs, x, y):
-        logging.debug(f"click at ({x}, {y}) checking vs {hs.rect}")
+        #logging.debug(f"click at ({x}, {y}) checking vs {hs.rect}")
         if not hs.rect.contains(x, y):
             return
         if Action.current is None:
@@ -27,7 +27,7 @@ init python:
         Action.current.execute(hs)
 
 label click_left():
-    $ logging.info("left click detected")
+    #$ logging.debug("left click detected")
     python:
         x, y = renpy.get_mouse_pos()
         for hs in Game.current_room.hotspots:
@@ -51,10 +51,11 @@ label hotspot_describe(hs):
     return
 
 screen ClickArea():
-    #key "mouseup_1" action If(can_click(), Call("click_left"), None)
-    key "mouseup_1" action [pre_click, Call("click_left")]
-    #key "mouseup_2" action Jump("click_middle")
-    #key "mouseup_3" action Jump("click_right")
+    if not inventory_visible and renpy.get_screen("say") is None:
+        #key "mouseup_1" action If(can_click(), Call("click_left"), None)
+        key "mouseup_1" action [pre_click, Call("click_left")]
+        #key "mouseup_2" action Jump("click_middle")
+        #key "mouseup_3" action Jump("click_right")
 
 label hotspot_hover(hs):
     $ Game.hover_set(hs)

@@ -36,5 +36,9 @@ screen InventoryScreen():
                 for i in range(0, ceil(item_count / INVENTORY_ITEMS_PER_ROW)):
                     hbox:
                         for k in range(i * INVENTORY_ITEMS_PER_ROW, min(item_count, INVENTORY_ITEMS_PER_ROW * (i + 1))):
-                            textbutton f"{Inventory.get(k).name}":
-                                action Call("equip_item", Inventory.get(k))
+                            $ item = Inventory.get(k)
+                            imagebutton:
+                                # TODO reset item to hover = False on take so this gets the right one
+                                idle item.get_img_path()
+                            #textbutton "[item.name]":
+                                action Call("equip_item", item)

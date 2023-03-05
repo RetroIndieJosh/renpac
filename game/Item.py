@@ -1,6 +1,6 @@
 import logging
 
-from . import Hotspot, Action, Combination
+from . import Hotspot, Action, Combination, Renpac
 
 class Item(Hotspot):
     _selected: 'Item' = None
@@ -9,6 +9,7 @@ class Item(Hotspot):
     def selection_clear() -> None:
         logging.info("clear selected item")
         Item._selected = None
+        Renpac.mouse_reset()
 
     @staticmethod
     def selection_get() -> 'Item':
@@ -18,6 +19,7 @@ class Item(Hotspot):
     def selection_set(item: 'Item') -> None:
         logging.info(f"set selected item to '{item.name if item else 'None'}'")
         Item._selected = item
+        Renpac.mouse_set(item.name)
 
     def __init__(self, name: str) -> None:
         super().__init__(name)

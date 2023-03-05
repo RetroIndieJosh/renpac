@@ -70,7 +70,7 @@ def indent(depth=1):
 
 cleanup()
 
-ignore_list = [ "generate.py" ]
+ignore_list = [ "cursors.py", "generate.py" ]
 filenames = list(filter(lambda file_name: file_name.endswith(".py") and file_name not in ignore_list, os.listdir(SCRIPT_DIR)))
 
 if(len(filenames) == 0):

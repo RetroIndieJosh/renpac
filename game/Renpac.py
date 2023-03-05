@@ -7,17 +7,35 @@ class Renpac(StaticClass):
         logging.info(f"initialize RenPaC")
         renpy.show_screen("ClickArea") #type: ignore
 
+    # Mouse
+
+    @staticmethod
+    def mouse_reset() -> None:
+        global default_mouse
+        default_mouse = "default"
+
+    @staticmethod
+    def mouse_set(mouse_name: str) -> None:
+        global config
+        if mouse_name not in config.mouse:
+            Renpac.warn(f"no mouse cursor '{mouse_name}' in config")
+
+        global default_mouse
+        default_mouse = mouse_name
+
+    # Logging
+
+    @staticmethod
     def error(message: str) -> None:
         logging.error(message)
         Renpac.notify(f"ERROR: {message}")
 
+    @staticmethod
     def warn(message: str) -> None:
         logging.warning(message)
         Renpac.notify(f"WARNING: {message}")
 
-    ###########################
     # Ren'Py redirect methods
-    ###########################
 
     @staticmethod
     def notify(message) -> None:
