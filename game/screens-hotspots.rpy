@@ -65,7 +65,6 @@ label hotspot_unhover(hs):
     $ Hotspot.hover_clear()
     return
 
-# TODO split hover into a second screen (HotspotsHover, HotspotsRender)
 screen Hotspots():
     if Room.current is not None:
         zorder ZORDER_HOTSPOTS
