@@ -16,50 +16,39 @@ class Inventory(StaticClass):
     _items: list = []
 
     @staticmethod
-    def set_mode(mode: int, width: int, height: int) -> None:
+    def set_mode(mode: int, length: int, depth: int) -> None:
         """! Set the mode for inventory display. This can be attached to the
         bottom, top, left, or right, with a custom-set size.
 
-        @param width How much space is available for the inventory. This is
+        @param length How much space is available for the inventory. This is
             horizontal on top/bottom, vertical on left/right.
-        @param height How far the inventory sticks out of the attached side of
+        @param depth How far the inventory sticks out of the attached side of
             the screen.
         """
-        show_scale = 0.1
+        logging.info(f"set inventory mode {mode}, size {length} x {depth}")
+
+        SCREEN_WIDTH = 1920
+        SCREEN_HEIGHT = 1080
 
         # set position relative to side
-        if mode is INVENTORY_BOTTOM:
-            Inventory.rect.y = 1.0 - height
-        elif mode is INVENTORY_TOP:
-            Inventory.rect.y = 0
-        elif mode is INVENTORY_LEFT:
-            Inventory.rect.x = 0
+        if mode is INVENTORY_TOP or mode is INVENTORY_LEFT:
+            Inventory.rect.set_pos(0, 0)
+        elif mode is INVENTORY_BOTTOM:
+            Inventory.rect.set_pos(0, SCREEN_HEIGHT - depth)
         elif mode is INVENTORY_RIGHT:
-            Inventory.rect.x = 1.0 - height
+            Inventory.rect.set_pos(SCREEN_WIDTH - depth, 0)
         else:
             raise Exception(f"Unknown inventory mode {mode}")
 
-        # center, set size, and set shower size
+        # set size and center along side
         if mode is INVENTORY_BOTTOM or mode is INVENTORY_TOP:
-            Inventory.rect.x = (1.0 - width) * 0.5
-            Inventory.rect.width = width
-            Inventory.rect.height = height
-            Inventory.rect_show = Rect.clone(Inventory.rect)
-            Inventory.rect_show.height *= show_scale
+            Inventory.rect.set_size(length, depth)
+            Inventory.rect.center_hori(1920)
         elif mode is INVENTORY_LEFT or mode is INVENTORY_RIGHT:
-            Inventory.rect.y = (1.0 - width) * 0.5
-            Inventory.rect.width = height
-            Inventory.rect.height = width
-            Inventory.rect_show = Rect.clone(Inventory.rect)
-            Inventory.rect_show.width *= show_scale
+            Inventory.rect.set_size(depth, length)
+            Inventory.rect.center_vert(1080)
 
-        # correct position of shower if needed
-        if mode is INVENTORY_RIGHT:
-            Inventory.rect_show.x = 1.0 - Inventory.rect_show.width
-        elif mode is INVENTORY_BOTTOM:
-            Inventory.rect_show.y = 1.0 - Inventory.rect_show.height
-
-        logging.info(f"set inventory mode to {mode} of size {width} X {height}")
+        logging.info(f"inventory viewer created with area {Inventory.rect}")
 
     def add(item) -> None:
         if item in Inventory._items:

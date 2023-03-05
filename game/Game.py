@@ -9,6 +9,8 @@ class Game(StaticClass):
     # TODO make private (should this be in Room?)
     current_room: Room = None
 
+    _first_room: Room = None
+
     @staticmethod
     def hover_clear() -> None:
         if Game._hover_target is None:
@@ -30,6 +32,7 @@ class Game(StaticClass):
 
     @staticmethod
     def load(name: str) -> None:
+        logging.info(f"load game '{name}'")
         Inventory.clear()
         Game.load_bardolf()
 
@@ -48,6 +51,11 @@ class Game(StaticClass):
 
         Game.current_room = room
         Game.current_room.enter()
+
+    @staticmethod
+    def start() -> None:
+        logging.info(f"start game in '{Game._first_room.name}'")
+        Game.room_set(Game._first_room)
 
     @staticmethod
     def load_bardolf():
@@ -92,8 +100,7 @@ class Game(StaticClass):
         stairs_up.rect.set_size(345, 166)
         guardhouse.hotspot_add(stairs_up, 1575, 0)
 
-        # set start room
-        Game.room_set(dungeon_cell) #type: ignore
+        Game._first_room = dungeon_cell
 
 def gruel_shackles_func():
     Renpac.narrate("You dump the gruel on the shackles. Great, now the mess is even worse!"),

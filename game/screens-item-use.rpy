@@ -1,12 +1,10 @@
 label clear_equipped:
-    call inventory_hide
     python:
         Item.selection_clear()
         logging.info("clear active item")
     return
 
 label equip_item(item):
-    call inventory_hide
     python:
         Item.selection_set(item)
     return

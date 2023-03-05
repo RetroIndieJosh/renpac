@@ -4,8 +4,8 @@ from . import StaticClass
 class Renpac(StaticClass):
     @staticmethod
     def init() -> None:
+        logging.info(f"initialize RenPaC")
         renpy.show_screen("ClickArea") #type: ignore
-        logging.info(f"initialized RenPaC")
 
     def error(message: str) -> None:
         logging.error(message)

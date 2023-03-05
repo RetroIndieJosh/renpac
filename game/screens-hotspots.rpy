@@ -4,7 +4,6 @@ init python:
     def can_hover():
         for screen_name in NO_CLICK_SCREENS:
             if renpy.get_screen(screen_name):
-                logging.debug("hover blocked")
                 return False
         return True
 
@@ -70,12 +69,15 @@ screen Hotspots():
     if Game.current_room is not None:
         zorder ZORDER_HOTSPOTS
         for hs in Game.current_room.hotspots:
-            frame area (hs.rect.x, hs.rect.y, hs.rect.width, hs.rect.height):
+            $ x, y, width, height = hs.rect.get_xywh()
+            frame:
+                area (x, y, width, height)
                 if hs.get_img_path() is None:
                     if DEBUG_SHOW_HOTSPOTS:
                         background "#F0F3"
                 else:
                     background hs.get_img_path() 
-            mousearea area (hs.rect.x, hs.rect.y, hs.rect.width, hs.rect.height):
+            mousearea:
+                area (x, y, width, height)
                 hovered If(can_hover(), Call("hotspot_hover", hs), None)
                 unhovered If(can_hover(), Call("hotspot_unhover", hs), None)
