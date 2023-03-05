@@ -1,6 +1,6 @@
 import logging
 
-from . import Hotspot, Renpac
+from . import Hotspot, Item, Renpac
 
 class Room:
     # TODO make private
@@ -14,6 +14,7 @@ class Room:
         if Room.current is room or room is None:
             return
 
+        Item.selection_clear()
         Hotspot.hover_clear()
 
         if Room.current is not None:

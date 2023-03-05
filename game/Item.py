@@ -1,6 +1,6 @@
 import logging
 
-from . import Cursor, Hotspot, Action, Combination, Renpac
+from . import Cursor, Hotspot, Action, Combination
 
 class Item(Hotspot):
     _selection: 'Item' = None

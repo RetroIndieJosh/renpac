@@ -5,10 +5,6 @@
 
 #define e = Character("Eileen")
 
-define DEBUG_SHOW_HOTSPOTS = True
-define DEBUG_NOTIFY_HOTSPOTS = False
-define DEBUG_INVENTORY_SHOWER = False
-
 label ask_inventory_pos:
     menu:
         "Where should the inventory be anchored?"

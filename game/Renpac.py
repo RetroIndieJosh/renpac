@@ -1,6 +1,12 @@
 import logging
 from . import StaticClass
 
+DEBUG_SHOW_HOTSPOTS = True
+
+DEBUG_NOTIFY_ALL = True
+DEBUG_NOTIFY_WARNINGS = DEBUG_NOTIFY_ALL or False
+DEBUG_NOTIFY_ERRORS = DEBUG_NOTIFY_ALL or False
+
 class Renpac(StaticClass):
     @staticmethod
     def init() -> None:
@@ -12,12 +18,14 @@ class Renpac(StaticClass):
     @staticmethod
     def error(message: str) -> None:
         logging.error(message)
-        Renpac.notify(f"ERROR: {message}")
+        if DEBUG_NOTIFY_ERRORS:
+            Renpac.notify(f"ERROR: {message}")
 
     @staticmethod
     def warn(message: str) -> None:
         logging.warning(message)
-        Renpac.notify(f"WARNING: {message}")
+        if DEBUG_NOTIFY_WARNINGS:
+            Renpac.notify(f"WARNING: {message}")
 
     # Ren'Py redirect methods
 

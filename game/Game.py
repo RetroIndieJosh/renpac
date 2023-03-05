@@ -20,11 +20,13 @@ class Game(StaticClass):
     def load_bardolf():
         dungeon_cell = Room("cell")
         dungeon_cell.printed_name = "Tower Cell"
-        dungeon_cell.desc = "A foul stench assaults you from all around. In one wall a slit serves as a window, letting in just enough light to see."
-        dungeon_cell.first_desc = "You wake with a vicious pounding in your head and find yourself on the upper floor of a tower. Looks like a cell."
+        dungeon_cell.desc = ("A foul stench assaults you from all around. In one "
+            "wall a slit serves as a window, letting in just enough light to see.")
+        dungeon_cell.first_desc = ("You wake with a vicious pounding in your head "
+            "and find yourself on the upper floor of a tower. Looks like a cell.")
 
         gruel = Item("gruel")
-        gruel.take_message = ("You almost vomit as you approach the stinky"
+        gruel.take_message = ("You almost vomit as you approach the stinky "
             "gruel, but take it in case you're hungry enough to eat it later.")
         dungeon_cell.hotspot_add(gruel, 1150, 630)
         gruel.rect.set_size(100, 75)
