@@ -1,6 +1,6 @@
 init python:
     def hover_name():
-        hover = Game.hover_get()
+        hover = Hotspot.hover_get()
         if hover is None:
             return "(None)"
         return hover.name

@@ -21,9 +21,7 @@ define config.debug_text_overflow = True
 define config.mouse = { }
 
 init python:
-    #cursors = ["default", "gruel"]
-    #for cursor in cursors:
-        #config.mouse[cursor] = [(f"gui/cursors/{cursor}.png", 0, 0)]
+    # TODO handle animated cursors (image0.png, image1.png, etc.)
     cursor_dir_path = f"{os.getcwd()}/gui/cursors"
     cursor_filenames = list(filter(
         lambda file_name: 
@@ -33,11 +31,6 @@ init python:
         name = os.path.splitext(cursor_filename)[0].split("/")[-1]
         config.mouse[name] = [ ( f"{cursor_filename}", 0, 0)]
 
-#define config.mouse['default'] = [("gui/cursors/default.png", 0, 0)]
-#define config.mouse['gruel'] = [("gui/cursors/gruel.png", 0, 0)]
-
-# TODO handle animated cursors (image0.png, image1.png, etc.)
-#python:
 ## Determines if the title given above is shown on the main menu screen. Set
 ## this to False to hide the title.
 

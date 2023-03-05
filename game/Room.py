@@ -1,6 +1,27 @@
+import logging
+
 from . import Hotspot, Renpac
 
 class Room:
+    # TODO make private
+    current = None
+
+    @staticmethod
+    def current_set(room: 'Room') -> None:
+        logging.info(f"set room to '{room.name}'")
+
+        # can't move from a room to itself
+        if Room.current is room or room is None:
+            return
+
+        Hotspot.hover_clear()
+
+        if Room.current is not None:
+            Room.current.exit()
+
+        Room.current = room
+        Room.current.enter()
+
     def __init__(self, name: str) -> None:
         self.name = name
         self.printed_name = name

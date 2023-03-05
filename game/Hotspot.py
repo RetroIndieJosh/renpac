@@ -1,4 +1,4 @@
-from . import Action, Rect
+from . import Action, Rect, Renpac
 
 import logging
 
@@ -6,6 +6,27 @@ def hotspots_clear():
     renpy.hide_screen("Hotspots") # type: ignore
 
 class Hotspot:
+    _hovered = None
+
+    @staticmethod
+    def hover_clear() -> None:
+        if Hotspot._hovered is None:
+            return
+        Hotspot._hovered.is_hovered = False
+        Hotspot._hovered = None
+
+    @staticmethod
+    def hover_get() -> 'Hotspot':
+        return Hotspot._hovered
+    
+    @staticmethod
+    def hover_set(hs: 'Hotspot') -> None:
+        if Hotspot._hovered is not None:
+            Renpac.warn(f"overwriting existing hover target {Hotspot._hovered.name} to {hs.name}")
+            Hotspot.hover_clear()
+        hs.is_hovered = True
+        Hotspot._hovered = hs
+
     def __init__(self, name: str) -> None:
         self.name = name
         self.desc = None

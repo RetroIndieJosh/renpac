@@ -30,7 +30,7 @@ label click_left():
     #$ logging.debug("left click detected")
     python:
         x, y = renpy.get_mouse_pos()
-        for hs in Game.current_room.hotspots:
+        for hs in Room.current.hotspots:
             hotspot_click_left(hs, x, y) 
     return
 
@@ -58,26 +58,29 @@ screen ClickArea():
         #key "mouseup_3" action Jump("click_right")
 
 label hotspot_hover(hs):
-    $ Game.hover_set(hs)
+    $ Hotspot.hover_set(hs)
     return
 
 label hotspot_unhover(hs):
-    $ Game.hover_clear()
+    $ Hotspot.hover_clear()
     return
 
 # TODO split hover into a second screen (HotspotsHover, HotspotsRender)
 screen Hotspots():
-    if Game.current_room is not None:
+    if Room.current is not None:
         zorder ZORDER_HOTSPOTS
-        for hs in Game.current_room.hotspots:
+        for hs in Room.current.hotspots:
             $ x, y, width, height = hs.rect.get_xywh()
+            if DEBUG_SHOW_HOTSPOTS:
+                frame:
+                    area (x, y, width, height)
+                    if hs.is_hovered:
+                        background "#F0FA"
+                    else:
+                        background "#F0F3"
             frame:
                 area (x, y, width, height)
-                if hs.get_img_path() is None:
-                    if DEBUG_SHOW_HOTSPOTS:
-                        background "#F0F3"
-                else:
-                    background hs.get_img_path() 
+                background hs.get_img_path() 
             mousearea:
                 area (x, y, width, height)
                 hovered If(can_hover(), Call("hotspot_hover", hs), None)
