@@ -4,15 +4,21 @@ from . import Combination, Exit, Hotspot, Inventory, Item, Renpac, Room, StaticC
 
 class Game(StaticClass):
     _first_room: Room = None
+    _loaded: bool = False
 
     @staticmethod
     def load(name: str) -> None:
         logging.info(f"load game '{name}'")
         Inventory.clear()
-        Game.load_bardolf()
+
+        # TODO Game._loaded = True
+
+        #Game.load_bardolf()
 
     @staticmethod
     def start() -> None:
+        if not Game._loaded:
+            raise Exception("cannot start game, not loaded")
         logging.info(f"start game in '{Game._first_room.name}'")
         Room.current_set(Game._first_room)
 
