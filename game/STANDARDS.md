@@ -40,7 +40,7 @@
 - ideally, make a single commit to close an issue on GitHub
     - use the format `keyword #123 - description of commit`
 - for intermediary commits, reference the relevant issue
-    - example: `#396 - prepare base class for implementation`
+    - example: `Ref #396 - prepare base class for implementation`
 - use the correct keyword to close issues
     - `Fix` for bug
     - `Close` for feature
