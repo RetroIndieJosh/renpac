@@ -18,8 +18,9 @@ def parse_combo(section_key: str) -> None:
     if not Game.has_hotspot(target):
         print(f"ERROR: for combo, no hotspot target '{target}' defined in game configuration")
 
-    item_python = item.replace('.', '_').replace(' ', '_')
-    target_python = target.replace('.', '_').replace(' ', '_')
+    # reuse parts here so we keep the prefix (item. => item_ or exit. => exit_)
+    item_python = parts[0].strip().replace('.', '_').replace(' ', '_')
+    target_python = parts[1].strip().replace('.', '_').replace(' ', '_')
     Script.add_header(f"COMBO: {item_python} + {target_python}")
 
     message = None
@@ -79,3 +80,4 @@ def parse_combo(section_key: str) -> None:
 
     python_name = name_to_python("combo", section_key).replace('.', '_').replace('+', 'plus')
     Script.add_line(f"{python_name} = Combination(\"{message}\", {delete_flags}, {replace_flags}, {replace_with})")
+    Script.add_line(f"{item_python}.add_combination({target_python}, {python_name})")

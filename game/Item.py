@@ -65,11 +65,14 @@ class Item(Hotspot):
         self.room = None
 
     def use_on(self, other: Hotspot) -> None:
+        logging.debug(f"combos in {self.name}: {self._combinations}")
         combo = self._combinations[other.name] if other.name in self._combinations else None
         if combo is None:
             logging.info(f"cannot use {self.name} on {other.name}")
-            renpy.say(None, f"You can't use {self.name} on {other.name}.") # type: ignore
+            Renpac.narrate(f"You can't use {self.name} on {other.name}.")
             return
+
+        room = self.room
 
         if combo.delete_flags & TARGET_SELF or combo.replace_flags & TARGET_SELF:
             logging.debug(f"remove self ({self.name})")
@@ -79,13 +82,14 @@ class Item(Hotspot):
             other.delete()
 
         if combo.replace_with is not None:
-            self.room.hotspot_add(combo.replace_with)
             replace_pos = 0, 0
             if combo.replace_flags & TARGET_SELF:
+                self.room.hotspot_add(combo.replace_with)
                 replace_pos = self.rect.get_pos()
             elif combo.replace_flags & TARGET_OTHER:
+                other.room.hotspot_add(combo.replace_with)
                 replace_pos = other.rect.get_pos()
             combo.replace_with.rect.set_pos(*replace_pos)
 
         if combo.message is not None:
-            Renpac.say(combo.message)
+            Renpac.narrate(combo.message)
