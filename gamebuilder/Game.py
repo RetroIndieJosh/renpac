@@ -34,7 +34,7 @@ class Game:
 
     @staticmethod
     def finalize() -> None:
-        Script.add_line("# START ROOM")
+        Script.add_header("START ROOM")
         start_room = name_to_python("room", Game._start_room)
         Script.add_line(f"return {start_room}")
 

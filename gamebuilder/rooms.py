@@ -9,7 +9,7 @@ room_varmaps = [
 ]
 
 def parse_room(name: str) -> None:
-    Script.add_line(f"# ROOM: {name}")
+    Script.add_header(f"ROOM: {name}")
 
     section_key = f"room.{name}"
     python_name = name_to_python("room", name)

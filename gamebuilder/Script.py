@@ -4,6 +4,10 @@ class Script:
     _text = ""
 
     @staticmethod
+    def add_header(header: str) -> None:
+        Script._text += f"\n###\n# {header}\n###\n"
+
+    @staticmethod
     def add_line(line: str) -> None:
         Script._text += f"{line}\n"
 

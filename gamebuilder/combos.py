@@ -20,11 +20,11 @@ def parse_combo(section_key: str) -> None:
 
     item_python = item.replace('.', '_').replace(' ', '_')
     target_python = target.replace('.', '_').replace(' ', '_')
-    Script.add_line(f"# COMBO: {item_python} + {target_python}")
+    Script.add_header(f"COMBO: {item_python} + {target_python}")
 
     message = None
-    delete_flags = TARGET_NONE
-    replace_flags = TARGET_NONE
+    delete_flags = "TARGET_NONE"
+    replace_flags = "TARGET_NONE"
     replace_with = None
 
     section = Config.get_section(section_key)
@@ -35,13 +35,13 @@ def parse_combo(section_key: str) -> None:
     if 'delete' in section:
         delete_target = section['delete']
         if delete_target == 'none':
-            delete_flags = TARGET_NONE
-        elif delete_target == 'none':
-            delete_flags = TARGET_NONE
-        elif delete_target == 'none':
-            delete_flags = TARGET_NONE
+            delete_flags = "TARGET_NONE"
+        elif delete_target == 'self':
+            delete_flags = "TARGET_SELF"
+        elif delete_target == 'other':
+            delete_flags = "TARGET_OTHER"
         elif delete_target == 'both':
-            delete_flags = TARGET_SELF | TARGET_OTHER
+            delete_flags = "TARGET_SELF | TARGET_OTHER"
 
     if 'message' in section:
         message = section['message']
@@ -49,11 +49,11 @@ def parse_combo(section_key: str) -> None:
     if 'replace' in section:
         replace_target = section['replace']
         if replace_target == 'none':
-            replace_flags = TARGET_NONE
-        elif replace_target == 'none':
-            replace_flags = TARGET_NONE
-        elif replace_target == 'none':
-            replace_flags = TARGET_NONE
+            replace_flags = "TARGET_NONE"
+        elif replace_target == 'self':
+            replace_flags = "TARGET_SELF"
+        elif replace_target == 'other':
+            replace_flags = "TARGET_OTHER"
         elif replace_target == 'both':
             print("ERROR: 'both' is not valid for 'replace' in combo")
         else:
@@ -62,11 +62,17 @@ def parse_combo(section_key: str) -> None:
     if 'with' in section:
         replace_with = name_to_python("item", section['with'])
 
-    if replace_with is not None and replace_flags == TARGET_NONE:
+    # error checking
+
+    if replace_with is not None and replace_flags == "TARGET_NONE":
         print(f"WARN: 'with' defined in '{section_key}' but 'replace' is set to 'none'")
 
-    if replace_with is None and replace_flags != TARGET_NONE:
+    if replace_with is None and replace_flags != "TARGET_NONE":
         print(f"WARN: 'replace' defined in '{section_key}' but no 'with' set")
+
+    # ignore delete flag if it's the same as replace
+    if replace_flags == delete_flags:
+        delete_flags = "TARGET_NONE"
 
     if message is None:
         print(f"WARN: no message for combo '{section_key}")
