@@ -78,9 +78,10 @@ class Game:
                 continue
             if '+' in section_name:
                 Game._combos.append(section_name)
+                continue
             parts = section_name.split('.')
             if len(parts) > 2:
-                print(f"too many parts to section name '{section_name}")
+                print(f"WARN too many parts in section name '{section_name}")
                 continue
             Game._parse_definition(parts[0], parts[1])
 

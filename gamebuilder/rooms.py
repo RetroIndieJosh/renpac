@@ -22,8 +22,10 @@ def parse_room(name: str) -> None:
         return
 
     for item in section['items'].split(','):
+        item = item.strip()
         if not Game.has_hotspot(item):
             print(f"ERROR: item '{item}' for room '{python_name}' not defined in game configuration")
+            continue
         item_python = name_to_python("item", item)
         Script.add_line(f"{python_name}.hotspot_add({item_python})")
 

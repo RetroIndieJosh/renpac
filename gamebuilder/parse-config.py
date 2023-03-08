@@ -35,9 +35,5 @@ Game.parse_inventory()
 
 Game.finalize()
 
-print("\n\n***SCRIPT BEGIN***\n")
-Script.print()
-print("\n\n***SCRIPT END***\n")
-
 print(f"writing file to '{OUTPUT_PATH}'")
 Script.write_file(OUTPUT_PATH)

@@ -11,8 +11,8 @@ def parse_combo(section_key: str) -> None:
         print("ERROR: too many parts in combo '{combo}'")
         return
 
-    item = parts[0].strip()
-    target = parts[1].strip()
+    item = parts[0].split('.')[1].strip()
+    target = parts[1].split('.')[1].strip()
     if not Game.has_item(item):
         print(f"ERROR: for combo, no item '{item}' defined in game configuration")
     if not Game.has_hotspot(target):
