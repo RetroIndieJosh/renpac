@@ -43,8 +43,16 @@ class Game:
         return name in Game._combos
 
     @staticmethod
+    def has_exit(name: str) -> bool:
+        return name in Game._exits
+
+    @staticmethod
     def has_hotspot(name: str) -> bool:
-        return name in Game._exits or name in Game._items
+        return Game.has_exit(name) or Game.has_item(name)
+
+    @staticmethod
+    def has_item(name: str) -> bool:
+        return name in Game._items
 
     @staticmethod
     def has_room(name: str) -> bool:

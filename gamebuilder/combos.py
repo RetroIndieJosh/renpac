@@ -1,3 +1,4 @@
+from Game import *
 from VariableMap import *
 
 TARGET_NONE = 0b00
@@ -10,9 +11,16 @@ def parse_combo(section_key: str) -> None:
         print("ERROR: too many parts in combo '{combo}'")
         return
 
-    item = parts[0].strip().replace('.', '_').replace(' ', '_')
-    target = parts[1].strip().replace('.', '_').replace(' ', '_')
-    Script.add_line(f"# COMBO: {item} + {target}")
+    item = parts[0].strip()
+    target = parts[1].strip()
+    if not Game.has_item(item):
+        print(f"ERROR: for combo, no item '{item}' defined in game configuration")
+    if not Game.has_hotspot(target):
+        print(f"ERROR: for combo, no hotspot target '{target}' defined in game configuration")
+
+    item_python = item.replace('.', '_').replace(' ', '_')
+    target_python = target.replace('.', '_').replace(' ', '_')
+    Script.add_line(f"# COMBO: {item_python} + {target_python}")
 
     message = None
     delete_flags = TARGET_NONE
@@ -22,6 +30,7 @@ def parse_combo(section_key: str) -> None:
     section = Config.get_section(section_key)
 
     # TODO change to a loop to catch repeats and illegal keys
+    # TODO these could probably be done with varmaps? at least message
 
     if 'delete' in section:
         delete_target = section['delete']

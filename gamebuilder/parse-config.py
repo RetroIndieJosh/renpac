@@ -14,16 +14,20 @@ OUTPUT_PATH = f"game/{GAME_NAME}.game.rpy"
 
 Config.load(CONFIG_FILE)
 
+# gather a lits of elements in the script so it doesn't need to be in order
 Game.parse_definitions()
 Game.report_definitions()
 
-# TODO major problem: exits reference rooms for their target location, but rooms reference exits to add as hotspots!
-
-# do exits and items first since rooms and combos can reference them
-Game.all_exits(parse_exit)
+# must be in order items, rooms, exits, combos
 Game.all_items(parse_item)
 
+# rooms list items contained in them
 Game.all_rooms(parse_room)
+
+# exits define their room location and target
+Game.all_exits(parse_exit)
+
+# combos can refer to both items and exits
 Game.all_combos(parse_combo)
 
 Game.parse_game()
