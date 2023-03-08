@@ -1,6 +1,6 @@
 import logging
 
-from . import Combination, Exit, Hotspot, Inventory, Item, Renpac, Room, StaticClass
+from . import Combination, Exit, Inventory, Item, Renpac, Room, StaticClass
 
 class Game(StaticClass):
     _first_room: Room = None
@@ -11,9 +11,9 @@ class Game(StaticClass):
         logging.info(f"load game '{name}'")
         Inventory.clear()
 
-        # TODO Game._loaded = True
-
-        #Game.load_bardolf()
+        # defined by the gamebuilder
+        Game._first_room = load_game() #type: ignore
+        Game._loaded = Game._first_room is not None
 
     @staticmethod
     def start() -> None:
@@ -22,6 +22,7 @@ class Game(StaticClass):
         logging.info(f"start game in '{Game._first_room.name}'")
         Room.current_set(Game._first_room)
 
+    # TODO remove
     @staticmethod
     def load_bardolf():
         dungeon_cell = Room("cell")
