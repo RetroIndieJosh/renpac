@@ -23,7 +23,7 @@ def parse_exit(name: str) -> None:
         else:
             print(f"WARN no room {location} for 'location' of {section_key}")
     if 'target' in section:
-        target = section['location']
+        target = section['target']
         if Game.has_room(target):
             target_python = name_to_python("room", target)
             Script.add_line(f"{python_name}.target = {target_python}")
