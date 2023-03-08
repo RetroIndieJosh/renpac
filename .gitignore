@@ -3,6 +3,7 @@ log.txt
 traceback.txt
 text_overflow.txt
 **/*.rpyc
+**/*.pyc
 **/*.rpa
 **/*.rpymc
 **/cache/
