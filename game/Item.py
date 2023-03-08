@@ -1,6 +1,8 @@
 import logging
 
-from . import Cursor, Hotspot, Action, Combination
+from Combination import *
+
+from . import Cursor, Hotspot, Action, Combination, Renpac
 
 class Item(Hotspot):
     _selection: 'Item' = None
@@ -69,12 +71,21 @@ class Item(Hotspot):
             renpy.say(None, f"You can't use {self.name} on {other.name}.") # type: ignore
             return
 
-        if combo.delete_self:
+        if combo.delete_flags & TARGET_SELF or combo.replace_flags & TARGET_SELF:
             logging.debug(f"remove self ({self.name})")
             self.delete()
-        if combo.delete_other:
+        if combo.delete_flags & TARGET_OTHER or combo.replace_flags & TARGET_OTHER:
             logging.debug(f"remove other ({other.name})")
             other.delete()
 
-        if combo.func is not None:
-            combo.func()
+        if combo.replace_with is not None:
+            self.room.hotspot_add(combo.replace_with)
+            replace_pos = 0, 0
+            if combo.replace_flags & TARGET_SELF:
+                replace_pos = self.rect.get_pos()
+            elif combo.replace_flags & TARGET_OTHER:
+                replace_pos = other.rect.get_pos()
+            combo.replace_with.rect.set_pos(*replace_pos)
+
+        if combo.message is not None:
+            Renpac.say(combo.message)

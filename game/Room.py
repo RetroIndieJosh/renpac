@@ -38,18 +38,15 @@ class Room:
     def clear_deleted(self) -> None:
         self.hotspots = [item for item in self.hotspots if not item.is_deleted()]
 
-    def hotspot_add(self, hs: Hotspot, x: int, y: int) -> None:
+    def hotspot_add(self, hs: Hotspot) -> None:
         if(hs in self.hotspots):
             raise Exception("Tried to add hs to room but it's already there! ({hs.name} in {room.name})")
-
         self.hotspots.append(hs)
         hs.room = self
-        hs.rect.set_pos(x, y)
 
     def hotspot_remove(self, hs: Hotspot) -> None:
         if(hs not in self.hotspots):
             raise Exception("Tried to remove hs to room but it's not there! ({hs.name} in {room.name})")
-
         self.hotspots.remove(hs)
 
     def enter(self) -> None:
