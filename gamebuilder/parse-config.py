@@ -17,10 +17,14 @@ Config.load(CONFIG_FILE)
 Game.parse_definitions()
 Game.report_definitions()
 
-Game.all_combos(parse_combo)
+# TODO major problem: exits reference rooms for their target location, but rooms reference exits to add as hotspots!
+
+# do exits and items first since rooms and combos can reference them
 Game.all_exits(parse_exit)
 Game.all_items(parse_item)
+
 Game.all_rooms(parse_room)
+Game.all_combos(parse_combo)
 
 Game.parse_game()
 Game.parse_inventory()

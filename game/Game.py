@@ -13,6 +13,7 @@ class Game(StaticClass):
 
         # defined by the gamebuilder
         Game._first_room = load_game() #type: ignore
+
         Game._loaded = Game._first_room is not None
 
     @staticmethod

@@ -52,9 +52,7 @@ class Game:
 
     @staticmethod
     def _parse_definition(type_name: str, element_name: str):
-        if type_name == "combo":
-            Game._combos.append(element_name)
-        elif type_name == "exit":
+        if type_name == "exit":
             Game._exits.append(element_name)
         elif type_name == "item":
             Game._items.append(element_name)
@@ -70,6 +68,8 @@ class Game:
             print(f" -- '{section_name}'")
             if '.' not in section_name:
                 continue
+            if '+' in section_name:
+                Game._combos.append(section_name)
             parts = section_name.split('.')
             if len(parts) > 2:
                 print(f"too many parts to section name '{section_name}")
