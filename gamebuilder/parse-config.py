@@ -10,16 +10,22 @@ from VariableMap import *
 
 GAME_NAME = "bardolf"
 CONFIG_FILE = f"gameconfigs/{GAME_NAME}.cfg"
-OUTPUT_PATH = f"game/{GAME_NAME}.gen.rpy"
+OUTPUT_PATH = f"game/{GAME_NAME}.game.rpy"
 
 Config.load(CONFIG_FILE)
 
 Game.parse_definitions()
+Game.report_definitions()
 
 Game.all_combos(parse_combo)
 Game.all_exits(parse_exit)
 Game.all_items(parse_item)
 Game.all_rooms(parse_room)
+
+Game.parse_game()
+Game.parse_inventory()
+
+Game.finalize()
 
 print("\n\n***SCRIPT BEGIN***\n")
 Script.print()

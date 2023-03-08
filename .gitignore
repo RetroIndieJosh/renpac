@@ -8,6 +8,7 @@ text_overflow.txt
 **/*.rpymc
 **/cache/
 **/saves/
+**/*.game.rpy
 **/*.gen.rpy
 **/*.bak
 **/.vscode

@@ -12,7 +12,7 @@ def parse_room(name: str) -> None:
     Script.add_line(f"# ROOM: {name}")
 
     section_key = f"room.{name}"
-    python_name = name.replace(' ', '_')
+    python_name = name_to_python("room", name)
     Script.add_line(f"{python_name} = Room(\"{name}\")")
 
     process_varmaps(room_varmaps, section_key, python_name)

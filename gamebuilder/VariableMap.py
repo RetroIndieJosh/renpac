@@ -24,6 +24,9 @@ class VariableMap:
             value = f"\"{text}\""
         Script.add_line(f"{python_name}.{self.python_key} = {value}")
 
+def name_to_python(type: str, name: str) -> str:
+    return f"{type}_{name}".replace(' ', '_')
+
 def process_varmaps(varmaps: list, section_key: str, python_name: str):
     section = Config.get_section(section_key)
     for varmap in varmaps:
