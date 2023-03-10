@@ -94,7 +94,9 @@ class Hotspot:
 
     # TODO _deleted functionality should be in a more generalized base class
     def delete(self):
-        """! Delete the hotspot from the current game session
+        """! Delete the hotspot from the current game session. When the
+        containing room or inventory next updates, the hotspot will be removed
+        from that location.
         """
         logging.info(f"delete hotspot {self.name}")
         self._deleted = True
