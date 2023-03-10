@@ -3,6 +3,10 @@ import logging
 from . import Action, Exit, Hotspot, Inventory, Item, Renpac, Room
 
 def action_examine(target: Hotspot) -> None:
+    """! Action for looking at a hotspot (item or exit).
+    
+    @param target The hotspot the player is interacting with.
+    """
     if target is None:
         Renpac.narrate(f"[Game.current_room.desc]")
     elif target.desc is None:
@@ -11,14 +15,28 @@ def action_examine(target: Hotspot) -> None:
         Renpac.narrate(f"{target.desc}")
 
 def action_go(target: Hotspot) -> None:
+    """! Action for going to a room through the target hotspot (exit). Fails if
+    the target is not an exit.
+    
+    @param target The hotspot the player is interacting with.
+    """
     if not action_go_allowed(target):
         Renpac.narrate("You can't go there.")
     Room.current_set(target.target)
 
 def action_go_allowed(target: Hotspot) -> bool:
+    """! Whether the user is allowed to "go" on the given hotspot.
+    
+    @param target The hotspot the player is interacting with.
+    """
     return target is not None and type(target) is Exit
 
 def action_take(target: Hotspot) -> None:
+    """! Action for going to a room through the target hotspot (exit). Fails if
+    the target is not an item.
+    
+    @param target The hotspot the player is interacting with.
+    """
     if not action_take_allowed(target):
         Renpac.narrate("You can't take that.")
         return
@@ -31,17 +49,29 @@ def action_take(target: Hotspot) -> None:
         Renpac.narrate(target.take_message)
 
 def action_take_allowed(target: Hotspot) -> bool:
+    """! Whether the user is allowed to "take" on the given hotspot.
+    
+    @param target The hotspot the player is interacting with.
+    """
     return target is not None and type(target) is Item and target.fixed is False
 
 def action_use(target: Hotspot) -> None:
+    """! Action for using the selected item on the target hotspot. Fails if no
+    item currently selected.
+    
+    @param target The hotspot the player is interacting with.
+    """
     selection = Item.selection_get()
-    # use only makes sense if we have something to use *on* the target
     if selection is None:
         return
     selection.use_on(target)
     
-
 def left_click(target: Hotspot):
+    """! Handle the player left clicking. Executes the highest-level allowed
+    default action: take, go, or examine, in that order.
+    
+    @param target The hotspot the player is clicking.
+    """
     if action_take_allowed(target):
         logging.debug("take action")
         action_take(target)

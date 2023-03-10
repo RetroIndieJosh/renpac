@@ -7,6 +7,7 @@ TYPE_BOOL = 2
 TYPE_POSITION = 3
 TYPE_SIZE = 4
 
+# TODO clean this up, combine with Definition in Game.py used for inventory/game
 class VariableMap:
     def __init__(self, config_key: str, python_key: str = None, type: int = TYPE_STRING) -> None:
         self.config_key = config_key

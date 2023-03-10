@@ -99,29 +99,35 @@ class Game:
                 Game._start_room = section[key]
 
     @staticmethod
-    def parse_inventory() -> None:
-        section = Config.get_section('inventory')
-        required = {
-            "anchor": Definition(True, False),
-            "depth": Definition(True, True),
-            "length": Definition(True, True)
-        }
+    def get_values(section_name: str, required: dict) -> dict:
+        section = Config.get_section(section_name)
         values = {}
         for key in section:
             if key in required:
                 values[key] = section[key]
             else:
-                print(f"WARN: unknown inventory key '{key}'")
+                print(f"WARN: unknown {section_name} key '{key}'")
 
         for key in required:
-            if key not in values:
-                if required[key].is_required:
-                    print(f"ERROR: missing required key '{key}' in inventory")
-                else:
-                    print(f"WARN: missing optional key '{key}' in inventory")
-            else:
+            if key in values:
                 if required[key].is_numeric and not values[key].isnumeric():
                     print(f"ERROR: expected number for '{key}' but got value '{values[key]}'")
+            else:
+                if required[key].is_required:
+                    print(f"ERROR: missing required key '{key}' in {section_name}")
+                else:
+                    print(f"WARN: missing optional key '{key}' in {section_name}")
+        
+        return values
+
+    @staticmethod
+    def parse_inventory() -> None:
+        required = {
+            "anchor": Definition(True, False),
+            "depth": Definition(True, True),
+            "length": Definition(True, True)
+        }
+        values = Game.get_values("inventory", required)
 
         valid_anchors = {"bottom", "left", "right", "top"}
         if values['anchor'] not in valid_anchors:
