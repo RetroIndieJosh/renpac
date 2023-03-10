@@ -66,14 +66,29 @@ class Rect:
 
     # TODO intersects(rect)
 
+    # TODO also allow for offset
     def center_on(self, container_width, container_height) -> None:
+        """! Center this rectangle in the given width and height starting with
+        the top left at (0, 0)
+
+        @param width The containing width
+        @param height The containing height
+        """
         self.set_center(floor(container_width * 0.5), floor(container_height * 0.5))
     
     def center_vert(self, container_height) -> None:
+        """! Center this rectangle vertically with the given height starting at y = 0
+
+        @param height The containing height
+        """
         center_x, _ = self.get_center()
         self.set_center(center_x, floor(container_height * 0.5))
 
     def center_hori(self, container_width) -> None:
+        """! Center this rectangle horizontally with the given width starting at x = 0
+
+        @param width The containing width
+        """
         _, center_y = self.get_center()
         self.set_center(floor(container_width * 0.5), center_y)
 
