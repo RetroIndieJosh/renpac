@@ -9,7 +9,6 @@ label renpac_start(game_name):
     python:
         Renpac.init()
         Game.load(game_name)
-        Inventory.set_mode(INVENTORY_BOTTOM, 1100, 200)
         Game.start()
 
     while True:

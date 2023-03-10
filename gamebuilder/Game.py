@@ -1,8 +1,14 @@
+from dataclasses import dataclass
 from typing import Callable
 
 from Config import *
 from Script import *
 from VariableMap import *
+
+@dataclass(frozen=True)
+class Definition:
+    is_required: bool
+    is_numeric: bool
 
 class Game:
     _combos = []
@@ -95,8 +101,40 @@ class Game:
     @staticmethod
     def parse_inventory() -> None:
         section = Config.get_section('inventory')
+        required = {
+            "anchor": Definition(True, False),
+            "depth": Definition(True, True),
+            "length": Definition(True, True)
+        }
+        values = {}
         for key in section:
-            pass
+            if key in required:
+                values[key] = section[key]
+            else:
+                print(f"WARN: unknown inventory key '{key}'")
+
+        for key in required:
+            if key not in values:
+                if required[key].is_required:
+                    print(f"ERROR: missing required key '{key}' in inventory")
+                else:
+                    print(f"WARN: missing optional key '{key}' in inventory")
+            else:
+                if required[key].is_numeric and not values[key].isnumeric():
+                    print(f"ERROR: expected number for '{key}' but got value '{values[key]}'")
+
+        valid_anchors = {"bottom", "left", "right", "top"}
+        if values['anchor'] not in valid_anchors:
+            anchor = f"INVENTORY_{anchor.upper()}"
+            print(f"ERROR: illegal inventory anchor '{anchor}'")
+            return
+        anchor = f"INVENTORY_{values['anchor'].upper()}"
+
+        length = int(values['length'])
+        depth = int(values['depth'])
+
+        Script.add_header("INVENTORY")
+        Script.add_line(f"Inventory.set_mode({anchor}, {length}, {depth})")
 
     @staticmethod
     def report_definitions() -> None:
