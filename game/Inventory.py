@@ -2,17 +2,31 @@ import logging
 
 from . import Item, Rect, StaticClass
 
+## THe number of items to show per row in the inventory (which becomes columns
+## if the inventory is anchored to the left or right)
 INVENTORY_ITEMS_PER_ROW = 4
 
+## Anchor the inventory to the bottom of the screen
 INVENTORY_BOTTOM = 1
+
+## Anchor the inventory to the left of the screen
 INVENTORY_LEFT = 2
+
+## Anchor the inventory to the right of the screen
 INVENTORY_RIGHT = 3
+
+## Anchor the inventory to the top of the screen
 INVENTORY_TOP = 4
 
 class Inventory(StaticClass):
-    rect = Rect()
-    rect_show = Rect()
+    """! A collection of items held by the player
+    """
 
+    # TODO make private
+    ## The rectangle where the inventory is drawn
+    rect = Rect()
+
+    ## The list of items in the inventory
     _items: list = []
 
     @staticmethod
@@ -51,6 +65,11 @@ class Inventory(StaticClass):
         logging.info(f"inventory viewer created with area {Inventory.rect}")
 
     def add(item) -> None:
+        """! Add an item to the inventory, first removing it from the current
+        location. Raise a warning if the item is already in the inventory.
+
+        @param item The item to add
+        """
         if item in Inventory._items:
             #raise Exception(f"Tried to add '{item.name}' to inventory but it's already there")
             logging.warn(f"adding '{item.name}' to inventory but already there, ignoring")
@@ -62,26 +81,52 @@ class Inventory(StaticClass):
         logging.info(f"add '{item.name}' to inventory")
 
     def count() -> int:
+        """! Get the number of items in the inventory.
+        
+        @return The number of items in the inventory, an integer
+        """
         return len(Inventory._items)
 
     def clear() -> None:
+        """! Clear all items from the inventory
+        """
         Inventory._items.clear()
         logging.info(f"clear inventory")
 
     def clear_deleted() -> None:
+        """! Clear any deleted items from the inventory
+        """
         Inventory._items = [item for item in Inventory._items if not item.is_deleted()]
 
     def get(index: int) -> Item:
+        """! Get the inventory item at the given index. If the index is invalid
+        for the inventory, raise an exception.
+        
+        @param index The 0-based index of the item to get
+
+        @return The Item at the given index
+        """
         if index < 0 or index >= len(Inventory._items):
             raise Exception(f"No item at index {index} in inventory")
         return Inventory._items[index]
 
     def has(item: Item) -> bool:
+        """! Determine whether the given item is in the inventory
+        
+        @param item The item to check for
+        
+        @return True if the item is in the inventory, False otherwise
+        """
         return item in Inventory._items
 
     def remove(item: Item) -> None:
+        """! Remove the given item from the inventory. Warn if the item is not
+        in the inventory.
+        
+        @param item The item to remove
+        """
+
         if item not in Inventory._items:
-            #raise Exception(f"Tried to remove '{item.name}' from inventory but it's not there")
             logging.warn(f"trying to remove '{item.name}' from inventory but not there, ignoring")
             return
 
