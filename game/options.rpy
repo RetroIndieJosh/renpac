@@ -17,6 +17,9 @@ define config.name = _("bardolf")
 define config.rollback_enabled = False
 define config.debug_text_overflow = True
 
+# skip quit confirmation dialog
+define config.quit_action = Quit(confirm=False)
+
 ## Mouse
 define config.mouse = { }
 
