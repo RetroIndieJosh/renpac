@@ -1,18 +1,7 @@
-# TODO cleanup
-errors.txt
-log.txt
-traceback.txt
-text_overflow.txt
-**/*.rpyc
-**/*.pyc
-**/*.rpa
-**/*.rpymc
-**/cache/
-**/saves/
-**/*.game.rpy
-**/*.gen.rpy
-**/*.bak
-**/.vscode
-**/doc/
-**/*.swp
 __pycache__
+build
+
+**/*.bak
+**/*.pyc
+**/*.swo
+**/*.swp
