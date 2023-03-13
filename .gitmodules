@@ -1,0 +1,3 @@
+[submodule "renpy-python-generator"]
+	path = renpy-python-generator
+	url = git@github.com:RetroIndieJosh/renpy-python-generator.git
