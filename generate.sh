@@ -1,1 +1,1 @@
-python3 renpy-python-generator/generate.py -i game/py -o game -v
+python3 renpy-python-generator/generate.py -i game/renpac-engine -o game -v
