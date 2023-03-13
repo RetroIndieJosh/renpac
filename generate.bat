@@ -1,1 +1,1 @@
-python generate.py
+python renpy-python-generator/generate.py -i game/py -o game -v

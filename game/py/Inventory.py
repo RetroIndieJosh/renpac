@@ -125,7 +125,6 @@ class Inventory(StaticClass):
         
         @param item The item to remove
         """
-
         if item not in Inventory._items:
             logging.warn(f"trying to remove '{item.name}' from inventory but not there, ignoring")
             return
