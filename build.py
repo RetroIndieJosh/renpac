@@ -3,6 +3,7 @@ import shutil
 import subprocess
 
 from configparser import ConfigParser
+from Path import Path
 
 from combos import *
 from exits import *
@@ -16,116 +17,110 @@ from Script import Script
 THIS_PATH = os.path.dirname(__file__)
 
 class Build:
-    game_name = None
-    engine_path = None
-    game_path = None
+    def __init__(self, config_path="build.cfg") -> None:
+        self._config_path = Path(config_path)
+        self._game_name = None
+        self._game_path = None
+        self._engine_path = None
+        #self._images_path = None
+        #self._audio_path = None
 
-    @staticmethod
-    def get_game_config_path() -> str:
-        return f"{Build.game_path}/{Build.game_name}.cfg"
-    
-    @staticmethod
-    def get_output_path() -> str:
-        return f"{THIS_PATH}/build/{Build.game_name}/game"
+    def build(self) -> None:
+        self.parse_config()
+        self.print()
+        self.clean()
+        self.build_engine()
+        self.copy_engine()
+        self.build_game()
+        #self.copy_images()
+        #self.copy_audio()
 
-    @staticmethod
-    def get_game_output_file_path() -> str:
-        return f"{Build.get_output_path()}/{Build.game_name}.game.rpy"
+    def build_engine(self) -> None:
+        builder = "generate.bat" if platform.system() == "Windows" else "./generate.sh"
+        engine_path = self._engine_path.get()
 
-    @staticmethod
-    def is_valid() -> bool:
-        return Build.game_name is not None and Build.engine_path is not None and Build.game_path is not None
+        print(f"building engine: {engine_path}/{builder}")
+        os.chdir(engine_path)
+        subprocess.run(builder)
+        os.chdir(THIS_PATH)
 
-    @staticmethod
-    def print() -> None:
-        print(f"Game '{Build.game_name}'"
-              f"\n\tEngine: '{Build.engine_path}'"
-              f"\n\tFiles: '{Build.game_path}'"
-              f"\n\tOutput: '{Build.get_output_path()}'")
+    # TODO move to Game - but causes circular deps!
+    def build_game(self) -> None:
+        Config.load(f"{self._game_path}/{self._game_name}.cfg")
 
-def build_game() -> None:
-    Config.load(Build.get_game_config_path())
+        # gather a lits of elements in the script so it doesn't need to be in order
+        Game.parse_definitions()
+        Game.report_definitions()
 
-    # gather a lits of elements in the script so it doesn't need to be in order
-    Game.parse_definitions()
-    Game.report_definitions()
+        # must be in order items, rooms, exits, combos
+        Game.all_items(parse_item)
+        Game.all_rooms(parse_room)
+        Game.all_exits(parse_exit)
+        Game.all_combos(parse_combo)
 
-    # must be in order items, rooms, exits, combos
-    Game.all_items(parse_item)
+        Game.parse_game()
+        Game.parse_inventory()
 
-    # rooms list items contained in them
-    Game.all_rooms(parse_room)
+        Game.finalize()
 
-    # exits define their room location and target
-    Game.all_exits(parse_exit)
+        path = self._output_file_path
+        print(f"writing game file to '{path}'")
+        Script.write_file(path.get())
 
-    # combos can refer to both items and exits
-    Game.all_combos(parse_combo)
+    def clean(self) -> None:
+        path = self._output_path.get()
+        print(f"cleaning '{path}'")
+        shutil.rmtree(path, ignore_errors=True)
 
-    Game.parse_game()
-    Game.parse_inventory()
+    def copy_engine(self) -> None:
+        # this is weird but it gets us a clean-looking path; doesn't make sense
+        # to store the /game path and we need the base engine path to get the
+        # engine builder script
+        source_path = Path(f"{self._engine_path}/game").get()
+        dest_path = self._output_path.get()
+        print(f"copying engine from '{source_path}' to '{dest_path}'")
+        # TODO if building for release, include .rpyc and but exclude .rpy
+        shutil.copytree(source_path, dest_path,
+                        ignore=shutil.ignore_patterns("renpac-engine", "*.py", "*.pyc", "*.rpyc", "*.bak"),
+                        copy_function=shutil.copy2)
 
-    Game.finalize()
+    def parse_config(self) -> None:
+        parser = ConfigParser()
+        if len(parser.read(self._config_path.get())) == 0:
+            raise Exception(f"could not open or no data in build config '{self._config_path}'")
 
-    path = Build.get_game_output_file_path()
-    print(f"writing game file to '{path}'")
-    Script.write_file(path)
+        required_path_sections = ['engine', 'game']
+        for section in required_path_sections:
+            if section not in parser:
+                raise Exception(f"ERROR: No '{section}' section in build config {self._config_path}")
+            if 'path' not in parser[section]:
+                raise Exception(f"ERROR: No 'path' defined in '{section}' section in build config {self._config_path}")
 
-def build_engine() -> None:
-    if platform.system() == "Windows":
-        builder = "generate.bat"
-    else:
-        builder = "./generate.sh"
+        self._engine_path = Path(parser['engine']['path'])
+        self._game_path = Path(parser['game']['path'])
 
-    os.chdir(Build.engine_path)
+        if 'name' not in parser['game']:
+            raise Exception(f"ERROR: No 'name' defined in 'game' section in build config {self._config_path}")
 
-    print(f"building engine: {os.getcwd()}/{builder}")
-    subprocess.run(builder)
+        self._game_name = parser['game']['name']
+        self.generate_paths()
 
-    os.chdir(os.path.dirname(__file__))
+    def generate_paths(self) -> None:
+        self._game_config_path = Path(f"{self._game_path}/{self._game_name}.cfg")
+        self._output_path = Path(f"build/{self._game_name}/game", False)
+        self._output_file_path = Path(f"{self._output_path}/{self._game_name}.game.rpy", False)
 
-def clean() -> None:
-    shutil.rmtree(Build.get_output_path(), ignore_errors=True)
-
-def copy_engine() -> None:
-    print(f"copying engine to '{Build.get_output_path()}'")
-    # TODO if building for release, include .rpyc and but exclude .rpy
-    shutil.copytree(f"{Build.engine_path}/game", Build.get_output_path(), 
-                    ignore=shutil.ignore_patterns("renpac-engine", "*.py", "*.pyc", "*.rpyc", "*.bak"),
-                    copy_function=shutil.copy2)
-
-def parse_build_config() -> None:
-    parser = ConfigParser()
-    filename = "build.cfg"
-    if len(parser.read(filename)) == 0:
-        raise Exception(f"could not open or no data in build config '{os.getcwd()}/{filename}'")
-
-    print("keys:", end=' ')
-    for key in parser.keys():
-        print(key, end=', ')
-    print("")
-
-    Build.engine_path = parse_path(parser['engine']['path'])
-    Build.game_path = parse_path(parser['game']['path'])
-    Build.game_name = parser['game']['name']
-
-def parse_path(path: str) -> str:
-    # absolute
-    if path.startswith('/') or ':' in path:
-        return path
-    # relative
-    return f"{THIS_PATH}/{path}"
+    def print(self) -> None:
+        print(f"Paths:"
+              f"\n\tEngine: '{self._engine_path}'"
+              f"\n\tFiles: '{self._game_path}'"
+              f"\n\tGame Config: '{self._game_config_path}'"
+              f"\n\tOutput: '{self._output_path}'"
+              f"\n\tOutput File: '{self._output_file_path}'\n\n")
 
 def main() -> None:
-    parse_build_config()
-    if not Build.is_valid():
-        print("missing required config key for build")
-        return
-    Build.print()
-    clean()
-    build_engine()
-    copy_engine()
-    build_game()
+    build = Build()
+    build.build()
 
 if __name__ == "__main__":
     main()
