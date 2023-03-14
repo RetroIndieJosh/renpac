@@ -1,9 +1,10 @@
 from configparser import ConfigParser
 
+# TODO rename to GameConfig
 class Config:
-    _parser = None
+    _parser: ConfigParser = None
 
-    filename = None
+    filename: str = None
 
     @staticmethod
     def get_section(section_key: str) -> list:
