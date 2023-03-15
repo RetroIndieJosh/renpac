@@ -35,4 +35,4 @@ class Script:
                 "init python:\n"
                 f"{TAB}def load_game():\n")
             for line in Script._text.splitlines():
-                file.write(f"{TAB}{TAB}{line}")
+                file.write(f"{TAB}{TAB}{line}\n")
