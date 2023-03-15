@@ -23,14 +23,10 @@ init python:
         Action.current.execute(hs)
 
 label click_left():
-    # TODO not detecting left click at all? is the window screen eating it?
-    # TODO this can be called on any left click, regardless of location, since we're using the hover target
-    $ logging.debug("left click detected")
+    #$ logging.debug("left click detected")
     python:
         target = Hotspot.hover_get()
-        if target is None:
-            Renpac.narrate("Nothing there!")
-        else:
+        if target is not None:
             hotspot_click_left(Hotspot.hover_get())
     return
 

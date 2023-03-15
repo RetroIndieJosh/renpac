@@ -2,6 +2,23 @@ init python:
     from math import ceil
     inventory_visible = False
 
+label clear_equipped:
+    $ Item.selection_clear()
+    return
+
+label equip_item(item):
+    $ Item.selection_set(item)
+    return
+
+screen Equipped():
+    $ selected = Item.selection_get()
+    frame:
+        if selected is None:
+            area (0, 0, 0, 0)
+        else:
+            background "#0008"
+            text f"use {selected.name} on..."
+
 label inventory_hide():
     $ inventory_visible = False
     return
