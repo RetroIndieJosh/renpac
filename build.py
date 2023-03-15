@@ -40,9 +40,9 @@ class Build:
         self._audio_path = None
 
     def build(self) -> None:
-        print(f"Building {self._game_name}")
         self.parse_config()
-        self.printv()
+        print(f"Building {self._game_name}")
+        self.print()
         self.clean()
         self.build_engine()
         self.copy_engine()
@@ -176,7 +176,7 @@ class Build:
         self._output_path = Path(f"build/{self._game_name}/game", False)
         self._output_file_path = Path(f"{self._output_path}/{self._game_name}.game.rpy", False)
 
-    def printv(self) -> None:
+    def print(self) -> None:
         printv(f"Paths:"
               f"\n\tEngine: '{self._engine_path}'"
               f"\n\tFiles: '{self._game_path}'"
