@@ -4,17 +4,18 @@ import shutil
 import subprocess
 
 from configparser import ConfigParser
-from Path import Path
-
-from printv import *
+from datetime import datetime
 
 from combos import *
 from exits import *
 from items import *
 from rooms import *
 
+from printv import *
+
 from Config import Config
 from Game import Game
+from Path import Path
 from Script import Script
 
 import argparse
@@ -41,14 +42,17 @@ class Build:
 
     def build(self) -> None:
         self.parse_config()
-        print(f"Building {self._game_name}")
+        start_time = datetime.now()
+        print(f"Building {self._game_name} at {start_time}")
         self.print()
         self.clean()
         self.build_engine()
         self.copy_engine()
         self.build_game()
         self.copy_resources()
-        print(f"Build done")
+        end_time = datetime.now()
+        diff_time = (end_time - start_time).total_seconds()
+        print(f"Build done at {datetime.now()} ({diff_time} seconds elapsed)")
 
     def build_engine(self) -> None:
         builder = "generate.bat" if platform.system() == "Windows" else "./generate.sh"
