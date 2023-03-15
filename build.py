@@ -22,8 +22,8 @@ class Build:
         self._game_name = None
         self._game_path = None
         self._engine_path = None
-        #self._images_path = None
-        #self._audio_path = None
+        self._images_path = None
+        self._audio_path = None
 
     def build(self) -> None:
         self.parse_config()
@@ -32,8 +32,7 @@ class Build:
         self.build_engine()
         self.copy_engine()
         self.build_game()
-        #self.copy_images()
-        #self.copy_audio()
+        self.copy_resources()
 
     def build_engine(self) -> None:
         builder = "generate.bat" if platform.system() == "Windows" else "./generate.sh"
@@ -84,6 +83,20 @@ class Build:
                         ignore=shutil.ignore_patterns("renpac-engine", "*.py", "*.pyc", "*.rpyc", "*.bak"),
                         copy_function=shutil.copy2)
 
+    def copy_resources(self) -> None:
+        mapping = {
+            self._audio_path: "audio",
+            self._images_path: "images"
+        }
+        for source_path in mapping:
+            resource_type = mapping[source_path]
+            dest_path = Path(f"{self._output_path}/{resource_type}", False)
+            print(f"copying resources ({resource_type}) from '{source_path}' to '{dest_path}'")
+            # TODO figure out what ignores we want for this (maybe none? or customizable in build config?)
+            shutil.copytree(source_path.get(), dest_path.get(),
+                            #ignore=shutil.ignore_patterns("renpac-engine", "*.py", "*.pyc", "*.rpyc", "*.bak"),
+                            copy_function=shutil.copy2)
+
     def parse_config(self) -> None:
         parser = ConfigParser()
         if len(parser.read(self._config_path.get())) == 0:
@@ -96,8 +109,23 @@ class Build:
             if 'path' not in parser[section]:
                 raise Exception(f"ERROR: No 'path' defined in '{section}' section in build config {self._config_path}")
 
+        # TODO rewrite to use variable mapping thingy (will first need some adjustments)
         self._engine_path = Path(parser['engine']['path'])
         self._game_path = Path(parser['game']['path'])
+
+        # TODO optional, so would flag as such in variable map (and also set default)
+        if 'audio' in parser['game']:
+            audio_path_relative = parser['game']['audio']
+        else:
+            audio_path_relative = "audio"
+        self._audio_path = Path(f"{self._game_path}/{audio_path_relative}")
+
+        # TODO ditto above
+        if 'images' in parser['game']:
+            images_path_relative = Path(parser['game']['images'])
+        else:
+            images_path_relative = "images"
+        self._images_path = Path(f"{self._game_path}/{images_path_relative}")
 
         if 'name' not in parser['game']:
             raise Exception(f"ERROR: No 'name' defined in 'game' section in build config {self._config_path}")
@@ -115,6 +143,8 @@ class Build:
               f"\n\tEngine: '{self._engine_path}'"
               f"\n\tFiles: '{self._game_path}'"
               f"\n\tGame Config: '{self._game_config_path}'"
+              f"\n\tGame Images: '{self._images_path}'"
+              f"\n\tGame Audio: '{self._audio_path}'"
               f"\n\tOutput: '{self._output_path}'"
               f"\n\tOutput File: '{self._output_file_path}'\n\n")
 
