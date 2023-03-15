@@ -37,8 +37,9 @@ class Build:
         self._game_name = None
         self._game_path = None
         self._engine_path = None
-        self._images_path = None
         self._audio_path = None
+        self._images_path = None
+        self._gui_path = None
 
     def build(self) -> None:
         self.parse_config()
@@ -128,6 +129,7 @@ class Build:
         mapping = {
             self._audio_path: "audio",
             self._images_path: "images",
+            self._gui_path: "gui",
         }
         for source_path in mapping:
             resource_type = mapping[source_path]
@@ -164,10 +166,17 @@ class Build:
 
         # TODO ditto above
         if 'images' in parser['game']:
-            images_path_relative = Path(parser['game']['images'])
+            images_path_relative = parser['game']['images']
         else:
             images_path_relative = "images"
         self._images_path = Path(f"{self._game_path}/{images_path_relative}")
+
+        # TODO ditto above
+        if 'gui' in parser['game']:
+            gui_path_relative = parser['game']['gui']
+        else:
+            gui_path_relative = "audio"
+        self._gui_path = Path(f"{self._game_path}/{gui_path_relative}")
 
         if 'name' not in parser['game']:
             raise Exception(f"ERROR: No 'name' defined in 'game' section in build config {self._config_path}")
