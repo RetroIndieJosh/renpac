@@ -47,9 +47,10 @@ label hotspot_describe(hs):
     return
 
 screen ClickArea():
-    key "mouseup_1" action Call("click_left")
-    #key "mouseup_2" action Jump("click_middle")
-    #key "mouseup_3" action Jump("click_right")
+    if not inventory_visible:
+        key "mouseup_1" action Call("click_left")
+        #key "mouseup_2" action Jump("click_middle")
+        #key "mouseup_3" action Jump("click_right")
 
 label hotspot_hover(hs):
     $ Hotspot.hover_set(hs)
