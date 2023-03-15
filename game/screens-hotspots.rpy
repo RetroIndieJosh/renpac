@@ -2,20 +2,12 @@ init python:
     NO_CLICK_SCREENS = [ "say" ]
 
     def can_hover():
-        for screen_name in NO_CLICK_SCREENS:
-            if renpy.get_screen(screen_name):
-                return False
+        #for screen_name in NO_CLICK_SCREENS:
+            #if renpy.get_screen(screen_name):
+                #return False
         return True
 
-    def pre_click():
-        for screen_name in NO_CLICK_SCREENS:
-            if renpy.get_screen(screen_name):
-                renpy.hide_screen(screen_name)
-
-    def hotspot_click_left(hs, x, y):
-        #logging.debug(f"click at ({x}, {y}) checking vs {hs.rect}")
-        if not hs.rect.contains(x, y):
-            return
+    def hotspot_click_left(hs):
         if Item.selection_get() is not None:
             logging.info(f"left click hotspot '{hs.name}' with active item '{Item.selection_get().name}'")
             Action.get("use").execute(hs)
@@ -31,12 +23,15 @@ init python:
         Action.current.execute(hs)
 
 label click_left():
-    #$ logging.debug("left click detected")
+    # TODO not detecting left click at all? is the window screen eating it?
+    # TODO this can be called on any left click, regardless of location, since we're using the hover target
+    $ logging.debug("left click detected")
     python:
-        Hotspot.hover_clear()
-        x, y = renpy.get_mouse_pos()
-        for hs in Room.current.hotspots:
-            hotspot_click_left(hs, x, y) 
+        target = Hotspot.hover_get()
+        if target is None:
+            Renpac.narrate("Nothing there!")
+        else:
+            hotspot_click_left(Hotspot.hover_get())
     return
 
 label hotspot_click_right(hs):
@@ -56,18 +51,18 @@ label hotspot_describe(hs):
     return
 
 screen ClickArea():
-    if not inventory_visible and renpy.get_screen("say") is None:
-        #key "mouseup_1" action If(can_click(), Call("click_left"), None)
-        key "mouseup_1" action [pre_click, Call("click_left")]
-        #key "mouseup_2" action Jump("click_middle")
-        #key "mouseup_3" action Jump("click_right")
+    key "mouseup_1" action Call("click_left")
+    #key "mouseup_2" action Jump("click_middle")
+    #key "mouseup_3" action Jump("click_right")
 
 label hotspot_hover(hs):
     $ Hotspot.hover_set(hs)
+    "[hs.desc]"
     return
 
 label hotspot_unhover(hs):
     $ Hotspot.hover_clear()
+    "[Room.current.desc]"
     return
 
 screen Hotspots():

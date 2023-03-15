@@ -12,5 +12,5 @@ label renpac_start(game_name):
         Game.start()
 
     while True:
-        pause
+        $ renpy.say(None, Room.current.desc)
     return
