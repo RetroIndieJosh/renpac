@@ -87,7 +87,6 @@ class Build:
         mapping = {
             self._audio_path: "audio",
             self._images_path: "images",
-            Path(f"{self._engine_path}/game/gui"): "gui"
         }
         for source_path in mapping:
             resource_type = mapping[source_path]
