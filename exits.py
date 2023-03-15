@@ -1,3 +1,5 @@
+from printv import *
+
 from Game import *
 from VariableMap import *
 
@@ -21,13 +23,13 @@ def parse_exit(name: str) -> None:
             location_python = name_to_python("room", location)
             Script.add_line(f"{location_python}.hotspot_add({python_name})")
         else:
-            print(f"WARN no room {location} for 'location' of {section_key}")
+            printv(f"WARN no room {location} for 'location' of {section_key}")
     if 'target' in section:
         target = section['target']
         if Game.has_room(target):
             target_python = name_to_python("room", target)
             Script.add_line(f"{python_name}.target = {target_python}")
         else:
-            print(f"WARN no room {target} for 'target' of {section_key}")
+            printv(f"WARN no room {target} for 'target' of {section_key}")
 
     process_varmaps(exit_varmaps, section_key, python_name)

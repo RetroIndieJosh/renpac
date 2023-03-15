@@ -1,3 +1,5 @@
+from printv import *
+
 from Config import *
 from Script import *
 
@@ -16,7 +18,7 @@ class VariableMap:
 
     def process(self, section: dict, python_name: str) -> str:
         if section is None or not self.config_key in section:
-            print(f"WARN no '{self.config_key}' defined for {section}")
+            printv(f"WARN no '{self.config_key}' defined for {section}")
             return None
         raw_value = section[self.config_key]
         if self.type == TYPE_POSITION:

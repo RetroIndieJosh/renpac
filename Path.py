@@ -3,7 +3,7 @@ import platform
 
 THIS_PATH = os.path.dirname(__file__)
 
-# python probably has something like this, but pathlib feels like overkill
+# pathlib alone can probably do most of this, but feels like overkill
 class Path:
     _platform = None
 

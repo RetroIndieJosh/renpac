@@ -1,3 +1,5 @@
+from printv import *
+
 from Game import *
 from VariableMap import *
 
@@ -8,15 +10,15 @@ TARGET_OTHER = 0b10
 def parse_combo(section_key: str) -> None:
     parts = section_key.split('+')
     if len(parts) > 2:
-        print("ERROR: too many parts in combo '{combo}'")
+        printv("ERROR: too many parts in combo '{combo}'")
         return
 
     item = parts[0].split('.')[1].strip()
     target = parts[1].split('.')[1].strip()
     if not Game.has_item(item):
-        print(f"ERROR: for combo, no item '{item}' defined in game configuration")
+        printv(f"ERROR: for combo, no item '{item}' defined in game configuration")
     if not Game.has_hotspot(target):
-        print(f"ERROR: for combo, no hotspot target '{target}' defined in game configuration")
+        printv(f"ERROR: for combo, no hotspot target '{target}' defined in game configuration")
 
     # reuse parts here so we keep the prefix (item. => item_ or exit. => exit_)
     item_python = parts[0].strip().replace('.', '_').replace(' ', '_')
@@ -56,9 +58,9 @@ def parse_combo(section_key: str) -> None:
         elif replace_target == 'other':
             replace_flags = "TARGET_OTHER"
         elif replace_target == 'both':
-            print("ERROR: 'both' is not valid for 'replace' in combo")
+            printv("ERROR: 'both' is not valid for 'replace' in combo")
         else:
-            print(f"ERROR: unknown value for 'replace' in combo: {replace_target}")
+            printv(f"ERROR: unknown value for 'replace' in combo: {replace_target}")
     
     if 'with' in section:
         replace_with = name_to_python("item", section['with'])
@@ -66,17 +68,17 @@ def parse_combo(section_key: str) -> None:
     # error checking
 
     if replace_with is not None and replace_flags == "TARGET_NONE":
-        print(f"WARN: 'with' defined in '{section_key}' but 'replace' is set to 'none'")
+        printv(f"WARN: 'with' defined in '{section_key}' but 'replace' is set to 'none'")
 
     if replace_with is None and replace_flags != "TARGET_NONE":
-        print(f"WARN: 'replace' defined in '{section_key}' but no 'with' set")
+        printv(f"WARN: 'replace' defined in '{section_key}' but no 'with' set")
 
     # ignore delete flag if it's the same as replace
     if replace_flags == delete_flags:
         delete_flags = "TARGET_NONE"
 
     if message is None:
-        print(f"WARN: no message for combo '{section_key}")
+        printv(f"WARN: no message for combo '{section_key}")
 
     python_name = name_to_python("combo", section_key).replace('.', '_').replace('+', 'plus')
     Script.add_line(f"{python_name} = Combination(\"{message}\", {delete_flags}, {replace_flags}, {replace_with})")

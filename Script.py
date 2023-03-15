@@ -1,3 +1,5 @@
+from printv import *
+
 import os
 
 from Config import *
@@ -19,7 +21,7 @@ class Script:
     
     @staticmethod
     def print() -> None:
-        print(Script._text)
+        printv(Script._text)
 
     @staticmethod
     def write_file(filename: str) -> None:

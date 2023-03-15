@@ -1,3 +1,5 @@
+from printv import *
+
 from dataclasses import dataclass
 from typing import Callable
 
@@ -73,13 +75,13 @@ class Game:
         elif type_name == "room":
             Game._rooms.append(element_name)
         else:
-            print(f"unknown type '{type_name}'")
+            printv(f"unknown type '{type_name}'")
 
     @staticmethod
     def parse_definitions() -> None:
-        print("parsing definitions")
+        printv("parsing definitions")
         for section_name in Config.sections():
-            print(f" -- '{section_name}'")
+            printv(f" -- '{section_name}'")
             if '.' not in section_name:
                 continue
             if '+' in section_name:
@@ -87,7 +89,7 @@ class Game:
                 continue
             parts = section_name.split('.')
             if len(parts) > 2:
-                print(f"WARN too many parts in section name '{section_name}")
+                printv(f"WARN too many parts in section name '{section_name}")
                 continue
             Game._parse_definition(parts[0], parts[1])
 
@@ -106,17 +108,17 @@ class Game:
             if key in required:
                 values[key] = section[key]
             else:
-                print(f"WARN: unknown {section_name} key '{key}'")
+                printv(f"WARN: unknown {section_name} key '{key}'")
 
         for key in required:
             if key in values:
                 if required[key].is_numeric and not values[key].isnumeric():
-                    print(f"ERROR: expected number for '{key}' but got value '{values[key]}'")
+                    printv(f"ERROR: expected number for '{key}' but got value '{values[key]}'")
             else:
                 if required[key].is_required:
-                    print(f"ERROR: missing required key '{key}' in {section_name}")
+                    printv(f"ERROR: missing required key '{key}' in {section_name}")
                 else:
-                    print(f"WARN: missing optional key '{key}' in {section_name}")
+                    printv(f"WARN: missing optional key '{key}' in {section_name}")
         
         return values
 
@@ -132,7 +134,7 @@ class Game:
         valid_anchors = {"bottom", "left", "right", "top"}
         if values['anchor'] not in valid_anchors:
             anchor = f"INVENTORY_{anchor.upper()}"
-            print(f"ERROR: illegal inventory anchor '{anchor}'")
+            printv(f"ERROR: illegal inventory anchor '{anchor}'")
             return
         anchor = f"INVENTORY_{values['anchor'].upper()}"
 
@@ -144,7 +146,7 @@ class Game:
 
     @staticmethod
     def report_definitions() -> None:
-        print(f"{len(Game._combos)} combos: {Game._combos}")
-        print(f"{len(Game._exits)} exits: {Game._exits}")
-        print(f"{len(Game._items)} items: {Game._items}")
-        print(f"{len(Game._rooms)} rooms: {Game._rooms}")
+        printv(f"{len(Game._combos)} combos: {Game._combos}")
+        printv(f"{len(Game._exits)} exits: {Game._exits}")
+        printv(f"{len(Game._items)} items: {Game._items}")
+        printv(f"{len(Game._rooms)} rooms: {Game._rooms}")

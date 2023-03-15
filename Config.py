@@ -9,10 +9,10 @@ class Config:
     @staticmethod
     def get_section(section_key: str) -> list:
         if Config._parser is None:
-            print("ERROR: config not loaded, cannot get section")
+            printv("ERROR: config not loaded, cannot get section")
             return None
         if section_key not in Config._parser:
-            print(f"ERROR: no section '{section_key}' in config")
+            printv(f"ERROR: no section '{section_key}' in config")
             return None
         return Config._parser[section_key]
 
@@ -26,6 +26,6 @@ class Config:
     @staticmethod
     def sections() -> list:
         if Config._parser is None:
-            print("ERROR: config not loaded, cannot get sections")
+            printv("ERROR: config not loaded, cannot get sections")
             return None
         return Config._parser.sections()
