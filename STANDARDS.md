@@ -1,5 +1,38 @@
 # RenPaC Development Standards
 
+## Config Design
+
+- user-facing scripts should be as simple as possible
+- break into small, understandable sections (game, debug, etc.)
+- discourage the use of paired elements (parentheses, braces, brackets, quotes)
+- keys should be:
+    - a single word to avoid awkward double words or underscores (level, not loglevel or log_level)
+    - context-aware in their section (debug.level suggests relationship to the log)
+    - easy to distinguish and easy to spell (path instead of directory)
+
+## Issues
+
+- for a bug, name the issue after what's going wrong
+    - avoid starting with "Fix"
+    - example:
+        - bad: "The button should be purple"
+        - also bad: "Fix the button being red instead of purple"
+        - okay: "The button is red"
+        - good: "The button is red, but should be purple"
+- for a feature, name the issue after the action that the code will be performing to avoid needless words
+    - avoid starting with "Implement" as "Add" or "Change" is more accurate
+    - example:
+        - bad: "Implement back button"
+        - okay: "User clicks back button to go back"
+        - good: "Add back button which allows user to go back"
+- avoid modifying issue descriptions or comments after creation
+    - for additional information, write a new comment (to preserve history)
+    - when removing information, strike it through add a new explanatory comment
+    - technical corrections like spelling, grammar, and formatting are okay
+- if an issue is closed manually:
+    - always close in the project manager with an explanatory comment to sync repos and projects
+    - use "Close as not planned" if the issue was not actually resolved
+
 ## Python
 
 - class names are ProperCase
