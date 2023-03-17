@@ -5,6 +5,7 @@ import subprocess
 
 from configparser import ConfigParser
 from datetime import datetime
+from generate import generate
 
 from combos import *
 from exits import *
@@ -56,13 +57,7 @@ class Build:
         print(f"Build done at {datetime.now()} ({diff_time} seconds elapsed)")
 
     def build_engine(self) -> None:
-        builder = "generate.bat" if platform.system() == "Windows" else "./generate.sh"
-        engine_path = self._engine_path.get()
-
-        printv(f"building engine: {engine_path}/{builder}")
-        os.chdir(engine_path)
-        subprocess.run(builder)
-        os.chdir(THIS_PATH)
+        generate(f"{self._engine_path}/game/renpac-engine", f"{self._engine_path}/game")
 
     # TODO move to Game - but causes circular deps!
     def build_game(self) -> None:
@@ -100,10 +95,6 @@ class Build:
         dest_path = self._output_path.get()
         printv(f"copying engine from '{source_path}' to '{dest_path}'")
         self.copy_files(source_path, dest_path)
-        # TODO if building for release, include .rpyc and but exclude .rpy
-        #shutil.copytree(source_path, dest_path, 
-                        #ignore=shutil.ignore_patterns("renpac-engine", "*.py", "*.pyc", "*.rpyc", "*.bak"),
-                        #copy_function=shutil.copy2)
 
     def copy_files(self, source_dir: str, dest_dir: str, relative_dir: str = ""):
         dir = os.path.join(source_dir, relative_dir)
@@ -136,10 +127,6 @@ class Build:
             dest_path = Path(f"{self._output_path}/{resource_type}", False)
             printv(f"copying resources ({resource_type}) from '{source_path}' to '{dest_path}'")
             self.copy_files(source_path.get(), dest_path.get())
-            # TODO figure out what ignores we want for this (maybe none? or customizable in build config?)
-            #shutil.copytree(source_path.get(), dest_path.get(),
-                            #ignore=shutil.ignore_patterns("renpac-engine", "*.py", "*.pyc", "*.rpyc", "*.bak"),
-                            #copy_function=shutil.copy2)
 
     def parse_config(self) -> None:
         parser = ConfigParser()
