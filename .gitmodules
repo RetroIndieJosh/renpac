@@ -1,3 +1,0 @@
-[submodule ".\\game\\renpac-engine\\renpac-base"]
-	path = .\\game\\renpac-engine\\renpac-base
-	url = git@github.com:RetroIndieJosh/renpac-base.git
