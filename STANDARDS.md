@@ -39,6 +39,15 @@
 
 ## Python
 
+- files should be ordered: global variables, class definitions, functions, loose script
+    - loose script should be avoided if possible and put in the main() test function
+- every file must have at the end of the file:
+        if __name__ == "__main__":
+            main()
+    - as a consequence, every file must define a main() function
+    - the main() function should test all functionality in the file
+    - as a temporary measure, the main function should print "no tests available" if tests have not been implemented
+    - the main() function should be listed first in the functions section
 - class names are ProperCase
 - all other variables and functions are lower_case_with_underscores
 - always use @staticmethod or @classmethod on relevant functions
@@ -63,6 +72,8 @@
     - dictionary keys like `my_dict['my key']`
 - always use type hinting for variables and return types
     - if the type hinting doesn't work, try putting it in single quotes
+- avoid nested functions
+    - they might be useful in extreme edge cases but they're weird in python
 
 ## Ren'Py
 
