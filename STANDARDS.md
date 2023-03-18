@@ -32,6 +32,10 @@
 - if an issue is closed manually:
     - always close in the project manager with an explanatory comment to sync repos and projects
     - use "Close as not planned" if the issue was not actually resolved
+- always set milestone before marking as done
+    - every "done" issue must be in a milestone, even if it's a wontfix
+    - if the issue is in a future milestone, move it back to the current before closing
+    - future milestones should only have open issues
 
 ## Python
 
