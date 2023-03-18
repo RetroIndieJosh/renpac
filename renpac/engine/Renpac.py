@@ -1,8 +1,6 @@
 import logging
 
-# TODO revert to base after fixing #113
-#from base import StaticClass
-from . import StaticClass
+from base import StaticClass
 
 class Renpac(StaticClass):
     """! Static methods for global RenPaC features. Includs redirects for Ren'Py

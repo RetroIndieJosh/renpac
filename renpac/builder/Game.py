@@ -149,7 +149,7 @@ class Game:
             if key == 'start':
                 self._start_room = section[key]
             else:
-                print(f"WARNING unknown game key '{key}')")
+                print(f"WARNING unknown game key '{key}'")
     
     def parse_inventory(self) -> None:
         required = {

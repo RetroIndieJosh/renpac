@@ -30,7 +30,16 @@ class GeneratorFile(Script):
         super().__init__(output_path, source_path=source_path)
 
     def add_base_dependency(self, line):
-        self._base_dependency_names = line.split("from base import ", 1)[1].split(", ")
+        new_dependencies = line.split("from base import ", 1)[1].split(", ")
+        self._base_dependency_names += new_dependencies
+        for dep in new_dependencies:
+            printv(f"-- [base] {dep}")
+
+    def add_dependency(self, line):
+        new_dependencies = line.split("from . import ", 1)[1].split(", ")
+        self._dependency_names += new_dependencies
+        for dep in new_dependencies:
+            printv(f"-- {dep}")
 
     def check_priority(self):
         if len(self._input_lines) == 0:
@@ -38,17 +47,23 @@ class GeneratorFile(Script):
         if self._input_lines[0].startswith("#priority"):
             self.set_max_priority(int(self._input_lines[0].split("#priority ", 1)[1]))
 
-    def find_dependencies(self):
+    def clear(self):
+        self._base_dependency_names = []
+        self._dependency_names = []
+        self._dependencies = []
+        super().clear()
+
+    def extract_dependencies(self):
+        self.clear()
         printv(f"{self._name}:")
         for line in self._input_lines:
             if line.startswith("from base import"):
                 self.add_base_dependency(line)
-            if not line.startswith("from . import"):
                 continue
-            new_dependencies = line.split("from . import ", 1)[1].split(", ")
-            self._dependency_names += new_dependencies
-            for dep in new_dependencies:
-                printv(f"-- {dep}")
+            if line.startswith("from . import"):
+                self.add_dependency(line)
+                continue
+            self.add_line(line)
 
     def is_dependency(self) -> bool:
         return self._is_dependency
@@ -77,8 +92,9 @@ class GeneratorFile(Script):
             dependency.set_priority(priority - 1)
 
     def write(self) -> None:
-        self.clear()
-        self.add_lines(self._input_lines)
+        if self.is_empty():
+            printv(f"WARNING no lines in GeneratorFile '{self._name}', file will not be created\n"
+                   "- did you extract dependencies?")
         printv(f"convert {self._name} at priority {self._priority}")
         super().write()
         printv(f" => {self._output_path} ({len(self._input_lines)} lines)")

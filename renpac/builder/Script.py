@@ -25,6 +25,9 @@ class Script:
         ])
 
     def add_line(self, line: str) -> None:
+        line = line.rstrip()
+        if line is None or line == "":
+            return
         for _ in range(self._indent):
             self._text += TAB
         self._text += f"{line}\n"
@@ -44,6 +47,9 @@ class Script:
 
     def indent_reset(self) -> None:
         self._indent = 0
+
+    def is_empty(self) -> bool:
+        return self._text is None or self._text == ""
 
     def write(self) -> None:
         if len(self._text) == 0:

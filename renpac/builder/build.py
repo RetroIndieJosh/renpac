@@ -94,16 +94,19 @@ class Build:
             if os.path.isdir(source_file):
                 self.copy_files(source_dir, dest_dir, os.path.join(relative_dir, file))
             else:
-                printv(f"[{relative_dir}] ", end='')
+                # TODO use logging.debug
+                #printv(f"[{relative_dir}] ", end='')
                 dest_file = os.path.join(dest_dir, relative_dir, file)
                 if not FORCE_OVERWRITE:
                     # skip copy if the destination file matches exactly
                     if os.path.exists(dest_file):
                         if os.path.getsize(source_file) == os.path.getsize(dest_file):
                             if filecmp.cmp(source_file, dest_file, False):
-                                printv(f"SKIP\n\t{source_file}")
+                                # TODO use logging.debug
+                                #printv(f"SKIP\n\t{source_file}")
                                 continue
-                printv(f"COPY\n\t{source_file}\n\tTO {dest_file}")
+                # TODO use logging.debug
+                #printv(f"COPY\n\t{source_file}\n\tTO {dest_file}")
                 os.makedirs(os.path.dirname(dest_file), exist_ok=True)
                 shutil.copy2(source_file, dest_file)
 

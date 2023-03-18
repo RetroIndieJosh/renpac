@@ -58,7 +58,7 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
 
     printv(f"** reading dependencies")
     for key in GeneratorFile.files:
-        GeneratorFile.files[key].find_dependencies()
+        GeneratorFile.files[key].extract_dependencies()
 
     printv(f"** linking dependencies")
     for key in GeneratorFile.files:
@@ -84,8 +84,6 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
 
     # TODO make this less hacky
     # TODO check for name collisions
-    # TODO uncomment when fixed, see #113
-    """
     base_filenames = list(filter(file_valid, os.listdir(base_input_path)))
     printv(f"** copying {len(base_filenames)} files from base")
     GeneratorFile.input_path = base_input_path
@@ -93,9 +91,9 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
         gen_file = GeneratorFile(os.path.splitext(file)[0])
         # TODO can probably set this to min among generated files but might not matter?
         # TODO actually, might need to do full dependency/priority thing if anything in base relies on anything else in base
+        gen_file.extract_dependencies()
         gen_file.set_priority(-999)
         gen_file.write()
-    """
 
     print(f"{len(GeneratorFile.files)} files generated successfully")
 
