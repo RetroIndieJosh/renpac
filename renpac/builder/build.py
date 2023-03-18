@@ -5,6 +5,7 @@ import shutil
 from configparser import ConfigParser
 from datetime import datetime
 from renpac.builder.generate import generate
+from renpac.builder.GeneratorFile import generate_rpy
 
 from renpac.builder.combos import *
 from renpac.builder.exits import *
@@ -25,6 +26,7 @@ THIS_PATH = os.path.dirname(__file__)
 class Build:
     def __init__(self, config_path="build.cfg") -> None:
         self._config_path = Path(config_path)
+        self._debug_lines = None
         self._game_name = None
         self._game_path = None
         self._engine_path = None
@@ -40,6 +42,7 @@ class Build:
         self.clean()
         self.build_engine()
         self.copy_engine()
+        self.generate_debug_file()
         self.build_game()
         self.copy_resources()
         end_time = datetime.now()
@@ -163,8 +166,27 @@ class Build:
         if 'name' not in parser['game']:
             raise Exception(f"ERROR: No 'name' defined in 'game' section in build config {self._config_path}")
 
+        if 'debug' in parser:
+            self._debug_lines = [
+                f"DEBUG_SHOW_HOTSPOTS = {parser.getboolean('debug', 'hotspots', fallback=False)}"
+            ]
+            notify = "none"
+            if 'notify' in parser['debug']:
+                notify = parser['debug']['notify']
+            if notify not in ['none', 'warnings', 'errors', 'all']:
+                print(f"WARNING unknown value for debug.notify: '{notify}'")
+            self._debug_lines.append(f"DEBUG_NOTIFY_ALL = {'True' if notify == 'all' else 'False'}")
+            self._debug_lines.append(f"DEBUG_NOTIFY_WARNINGS = DEBUG_NOTIFY_ALL or {'True' if notify == 'warnings' else 'False'}")
+            self._debug_lines.append(f"DEBUG_NOTIFY_ERRORS = DEBUG_NOTIFY_ALL or {'True' if notify == 'errors' else 'False'}")
+
         self._game_name = parser['game']['name']
         self.generate_paths()
+
+    def generate_debug_file(self) -> None:
+        if self._debug_lines is None:
+            return
+        printv("generating debug file")
+        generate_rpy(f"{self._output_path}/debug.gen.rpy", -999, self._debug_lines)
 
     def generate_paths(self) -> None:
         self._game_config_path = Path(f"{self._game_path}/{self._game_name}.cfg")

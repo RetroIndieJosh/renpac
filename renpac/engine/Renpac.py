@@ -1,18 +1,8 @@
 import logging
 
-from base import StaticClass
-
-## Turn on to show magenta boxes where hotspots are located
-DEBUG_SHOW_HOTSPOTS = True
-
-## Turn on to enable all notifications
-DEBUG_NOTIFY_ALL = True
-
-## Turn on to notify in-game when warnings occur
-DEBUG_NOTIFY_WARNINGS = DEBUG_NOTIFY_ALL or False
-
-## Turn on to notify in-game when errors occur
-DEBUG_NOTIFY_ERRORS = DEBUG_NOTIFY_ALL or False
+# TODO revert to base after fixing #113
+#from base import StaticClass
+from . import StaticClass
 
 class Renpac(StaticClass):
     """! Static methods for global RenPaC features. Includs redirects for Ren'Py
@@ -32,7 +22,7 @@ class Renpac(StaticClass):
         """! Helper method to log errors that also notifies in-game if desired
         """
         logging.error(message)
-        if DEBUG_NOTIFY_ERRORS:
+        if DEBUG_NOTIFY_ERRORS: #type:ignore
             Renpac.notify(f"ERROR: {message}")
 
     @staticmethod
@@ -40,7 +30,7 @@ class Renpac(StaticClass):
         """! Helper method to log warnings that also notifies in-game if desired
         """
         logging.warning(message)
-        if DEBUG_NOTIFY_WARNINGS:
+        if DEBUG_NOTIFY_WARNINGS: #type:ignore
             Renpac.notify(f"WARNING: {message}")
 
     # Ren'Py redirect methods

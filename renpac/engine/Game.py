@@ -1,6 +1,8 @@
 import logging
 
-from base import StaticClass
+# TODO revert to base after fixing #113
+#from base import StaticClass
+from . import StaticClass
 
 from . import Inventory, Room
 

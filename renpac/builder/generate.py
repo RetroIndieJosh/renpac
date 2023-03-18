@@ -84,6 +84,8 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
 
     # TODO make this less hacky
     # TODO check for name collisions
+    # TODO uncomment when fixed, see #113
+    """
     base_filenames = list(filter(file_valid, os.listdir(base_input_path)))
     printv(f"** copying {len(base_filenames)} files from base")
     GeneratorFile.input_path = base_input_path
@@ -93,6 +95,7 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
         # TODO actually, might need to do full dependency/priority thing if anything in base relies on anything else in base
         gen_file.set_priority(-999)
         gen_file.write()
+    """
 
     print(f"{len(GeneratorFile.files)} files generated successfully")
 
