@@ -93,13 +93,13 @@ class Game:
         return name in self._exits
     
     def has_hotspot(self, name: str) -> bool:
-        return self.has_exit(name) or self.has_item(name)
+        return self.has_exit(name.strip()) or self.has_item(name.strip())
     
     def has_item(self, name: str) -> bool:
-        return name in self._items
+        return name.strip() in self._items
     
     def has_room(self, name: str) -> bool:
-        return name in self._rooms
+        return name.strip() in self._rooms
     
     def set_output_path(self, path: str) -> None:
         self._script = Script(path)
@@ -153,9 +153,10 @@ class Game:
     
     def parse_inventory(self) -> None:
         required = {
-            "anchor": Definition(True, False),
-            "depth": Definition(True, True),
-            "length": Definition(True, True)
+            'anchor': Definition(True, False),
+            'depth': Definition(True, True),
+            'length': Definition(True, True),
+            'items': Definition(False, False)
         }
         values = self.get_values("inventory", required)
         valid_anchors = {"bottom", "left", "right", "top"}
@@ -168,6 +169,14 @@ class Game:
         depth = int(values['depth'])
         self._script.add_header("INVENTORY")
         self._script.add_line(f"Inventory.set_mode({anchor}, {length}, {depth})")
+
+        if 'items' in values:
+            items: list[str] = values['items'].split(',')
+            for item in items:
+                if not self.has_item(item):
+                    raise Exception(f"ERROR no item '{item}' for initial inventory")
+                item_python = name_to_python("item", item)
+                self._script.add_line(f"Inventory.add({item_python})")
     
     def report_definitions(self) -> None:
         printv(f"{len(self._combos)} combos: {self._combos}")

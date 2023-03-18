@@ -108,6 +108,8 @@ class Item(Hotspot):
     def remove_from_room(self) -> None:
         """! Remove the hotspot from its containing room.
         """
+        if self.room is None:
+            return
         self.room.hotspot_remove(self)
         self.room = None
 
