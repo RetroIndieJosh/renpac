@@ -1,1 +1,1 @@
-python ../renpac-builder/build.py --verbose
+python ../renpac-builder/build.py

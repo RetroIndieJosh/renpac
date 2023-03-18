@@ -11,6 +11,5 @@ text_overflow.txt
 **/*.game.rpy
 **/*.gen.rpy
 **/*.bak
-**/.vscode
 **/doc/
 **/*.swp
