@@ -1,15 +1,26 @@
-errors.txt
-log.txt
-traceback.txt
-text_overflow.txt
-**/*.rpyc
-**/*.pyc
-**/*.rpa
-**/*.rpymc
+# directories
+**/__pycache__/
+**/build/
 **/cache/
+**/doc/
 **/saves/
+
+# file types
+**/*.bak
+**/*.bak
 **/*.game.rpy
 **/*.gen.rpy
-**/*.bak
-**/doc/
+**/*.pyc
+**/*.pyc
+**/*.rpa
+**/*.rpyc
+**/*.rpymc
+**/*.swo
 **/*.swp
+**/*.swp
+
+# specific files
+errors.txt
+log.txt
+text_overflow.txt
+traceback.txt
