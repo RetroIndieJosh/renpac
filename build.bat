@@ -1,1 +1,1 @@
-python ../renpac-builder/build.py
+python -m renpac.builder.build

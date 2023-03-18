@@ -5,6 +5,33 @@ from renpac.base.printv import *
 from renpac.builder.GeneratorFile import GeneratorFile
 from renpac.builder.Path import Path
 
+def main():
+    enable_verbose()
+    generate("../engine", "../engine/rpy")
+
+def cleanup(output_path: str) -> None:
+    if not os.path.exists(output_path):
+        return
+    gen_files = list(filter(lambda file_name: 
+        file_name.endswith(".gen.rpy"), os.listdir(output_path)))
+    printv(f"cleaning up {len(gen_files)} .gen.rpy files from '{output_path}'")
+    for gen_file_name in gen_files:
+        os.remove(f"{output_path}/{gen_file_name}")
+
+# TODO better name
+# TODO pass in ignore list
+# TODO option to decide whether ignore list should be exact (or contains)
+def file_valid(filename: str) -> bool:
+    # ignore any paths that *contain* the string 
+    ignore_list = [ "__init__.py" ]
+    if not filename.endswith(".py"):
+        return False
+    for ignore in ignore_list:
+        if ignore in filename:
+            return False
+    return True
+
+# TODO split this up, it's massive!
 def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
     if input_path is None or output_path is None:
         print("You must specify the input and output paths.")
@@ -16,37 +43,9 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
     GeneratorFile.input_path = input_path
     GeneratorFile.output_path = output_path
 
-    def cleanup() -> None:
-        if not os.path.exists(output_path):
-            return
-        gen_files = list(filter(lambda file_name: 
-            file_name.endswith(".gen.rpy"), os.listdir(output_path)))
-        printv(f"cleaning up {len(gen_files)} .gen.rpy files from '{output_path}'")
-        for gen_file_name in gen_files:
-            os.remove(f"{output_path}/{gen_file_name}")
+    cleanup(output_path)
 
-    cleanup()
-
-    def file_valid(filename: str) -> bool:
-        # ignore any paths that *contain* the string 
-        ignore_list = [ "__init__.py" ]
-        if not filename.endswith(".py"):
-            return False
-        for ignore in ignore_list:
-            if ignore in filename:
-                return False
-        return True
-
-    if flatten:
-        all_filenames = []
-        for path, _, files in os.walk(input_path):
-            for file in files:
-                file_path = os.path.join(path, file)
-                all_filenames.append(file_path[len(input_path)+1:])
-    else:
-        all_filenames = os.listdir(input_path)
-    filenames = list(filter(file_valid, all_filenames))
-
+    filenames = list(filter(file_valid, os.listdir(input_path)))
     if(len(filenames) == 0):
         print(f"no files for generator in '{input_path}'")
         exit(0)
@@ -83,3 +82,6 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
         GeneratorFile.files[key].write()
 
     print(f"{len(GeneratorFile.files)} files generated successfully")
+
+if __name__ == "__main__":
+    main()
