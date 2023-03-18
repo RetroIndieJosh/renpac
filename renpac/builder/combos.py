@@ -16,13 +16,10 @@ def parse_combo(section_key: str) -> list[str]:
     item = parts[0].split('.')[1].strip()
     target = parts[1].split('.')[1].strip()
 
-    # TODO do error checking separately
-    """
-    if not Game.has_item(item):
+    if not Game.instance().has_item(item):
         printv(f"ERROR: for combo, no item '{item}' defined in game configuration")
-    if not Game.has_hotspot(target):
+    if not Game.instance().has_hotspot(target):
         printv(f"ERROR: for combo, no hotspot target '{target}' defined in game configuration")
-    """
 
     # reuse parts here so we keep the prefix (item. => item_ or exit. => exit_)
     item_python = parts[0].strip().replace('.', '_').replace(' ', '_')

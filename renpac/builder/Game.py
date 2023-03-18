@@ -11,7 +11,14 @@ class Definition:
     is_numeric: bool
 
 class Game:
+    _instance = None
+
     def __init__(self, output_path):
+        if Game._instance is not None:
+            raise Exception("Cannot create more than one Game object")
+
+        Game._instance = self
+
         self._combos = []
         self._exits = []
         self._items = []
@@ -21,6 +28,9 @@ class Game:
         self._script = Script(output_path)
         self._script.add_line("def load_game():")
         self._script.indent()
+
+    def instance() -> 'Game':
+        return Game._instance
     
     def all_combos(self, func: Callable[[str], list[str]]) -> None:
         if self._combos is None:
