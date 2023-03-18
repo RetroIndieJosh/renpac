@@ -93,9 +93,8 @@ class Room:
         # and it also doesn't know how to handle a {p} tag! it just erases everything after it!
         if(not self.visited and self.first_desc is not None):
             self.visited = True
-            Renpac.narrate(f"{self.first_desc} {self.desc}")
-        else:
-            Renpac.narrate(self.desc)
+            Renpac.narrate(self.first_desc)
+        Renpac.narrate(self.desc)
 
     def exit(self) -> None:
         """! Called when the player leaves the room to trigger any on exit events.

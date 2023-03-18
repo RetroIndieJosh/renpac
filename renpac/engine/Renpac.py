@@ -1,11 +1,15 @@
 import logging
 
 from base import StaticClass
+from queue import SimpleQueue
 
 class Renpac(StaticClass):
     """! Static methods for global RenPaC features. Includs redirects for Ren'Py
     methods to avoid needing to use "#type: ignore" in the code, which could
     dangerously hide some errors/warnings."""
+
+    _messages = []
+
     @staticmethod
     def init() -> None:
         """! Initialize RenPaC. This is mostly legacy, as it used to do a lot more. TODO remove
@@ -40,16 +44,29 @@ class Renpac(StaticClass):
         renpy.notify(message) #type: ignore
 
     @staticmethod
-    def narrate(what, interact: bool = True) -> None:
+    def narrate(what) -> None:
         """! renpy.say(who=None)
         """
-        renpy.say(None, what, interact = interact) #type: ignore
+        Renpac.say(None, what)
 
     @staticmethod
-    def say(who, what, interact: bool = True) -> None:
+    def say(who, what) -> None:
         """! renpy.say
         """
-        renpy.say(who, what, interact = interact) #type: ignore
+        Renpac._messages.append((who, what))
+
+    @staticmethod
+    def can_hover() -> bool:
+        return len(Renpac._messages) <= 1
+
+    @staticmethod
+    def next_say():
+        if len(Renpac._messages) == 0:
+            return ""
+        next_say = Renpac._messages[0]
+        if len(Renpac._messages) > 1:
+            Renpac._messages = Renpac._messages[1:]
+        return next_say
 
     @staticmethod
     def scene(layer="master") -> None:

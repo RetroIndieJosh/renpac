@@ -1,12 +1,4 @@
 init python:
-    NO_CLICK_SCREENS = [ "say" ]
-
-    def can_hover():
-        #for screen_name in NO_CLICK_SCREENS:
-            #if renpy.get_screen(screen_name):
-                #return False
-        return True
-
     def hotspot_click_left(hs):
         if Item.selection_get() is not None:
             logging.info(f"left click hotspot '{hs.name}' with active item '{Item.selection_get().name}'")
@@ -24,6 +16,8 @@ init python:
 
 label click_left():
     #$ logging.debug("left click detected")
+    if not Renpac.can_hover():
+        return
     python:
         target = Hotspot.hover_get()
         if target is not None:
@@ -47,7 +41,7 @@ label hotspot_describe(hs):
     return
 
 screen ClickArea():
-    if not inventory_visible:
+    if not inventory_visible and Renpac.can_hover():
         key "mouseup_1" action Call("click_left")
         #key "mouseup_2" action Jump("click_middle")
         #key "mouseup_3" action Jump("click_right")
@@ -80,5 +74,5 @@ screen Hotspots():
                 background hs.get_img_path() 
             mousearea:
                 area (x, y, width, height)
-                hovered If(can_hover(), Call("hotspot_hover", hs), None)
-                unhovered If(can_hover(), Call("hotspot_unhover", hs), None)
+                hovered If(Renpac.can_hover(), Call("hotspot_hover", hs), None)
+                unhovered If(Renpac.can_hover(), Call("hotspot_unhover", hs), None)

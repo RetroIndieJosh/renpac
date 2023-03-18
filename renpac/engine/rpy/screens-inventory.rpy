@@ -32,7 +32,7 @@ screen InventoryScreen():
     $ Inventory.clear_deleted()
     $ x, y, width, height = Inventory.rect.get_xywh()
   
-    if can_hover():
+    if Renpac.can_hover():
         mousearea:
             area (x, y, width, height)
             if inventory_visible:

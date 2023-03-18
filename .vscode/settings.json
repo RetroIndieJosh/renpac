@@ -12,13 +12,11 @@
     "explorer.sortOrder": "type",
     "emeraldwalk.runonsave": 
     {
-        /*
         "commands": [
             {
                 "match": ".*",
                 "cmd": "build.bat"
             }
         ]
-        */
     }
 }
