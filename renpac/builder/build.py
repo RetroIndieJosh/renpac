@@ -5,7 +5,6 @@ import shutil
 from configparser import ConfigParser
 from datetime import datetime
 from renpac.builder.generate import generate
-from renpac.builder.GeneratorFile import generate_rpy
 
 from renpac.builder.combos import *
 from renpac.builder.exits import *
@@ -40,8 +39,8 @@ class Build:
         print(f"Building {self._game_name} at {start_time}")
         self.print()
         self.clean()
-        self.build_engine()
-        self.copy_engine()
+        self.generate_engine_rpy()
+        self.copy_engine_files()
         self.generate_debug_file()
         self.build_game()
         self.copy_resources()
@@ -50,38 +49,38 @@ class Build:
         print(f"Output: {self._output_path}")
         print(f"Build done at {datetime.now()} ({diff_time} seconds elapsed)")
 
-    def build_engine(self) -> None:
+    def generate_engine_rpy(self) -> None:
         generate(f"../engine", f"../engine/rpy")
 
     # TODO move to Game - but causes circular deps!
     def build_game(self) -> None:
         Config.load(f"{self._game_path}/{self._game_name}.cfg")
 
+        game = Game(self._output_file_path)
+
         # gather a lits of elements in the script so it doesn't need to be in order
-        Game.parse_definitions()
-        Game.report_definitions()
+        game.parse_definitions()
+        game.report_definitions()
 
         # must be in order items, rooms, exits, combos
-        Game.all_items(parse_item)
-        Game.all_rooms(parse_room)
-        Game.all_exits(parse_exit)
-        Game.all_combos(parse_combo)
+        game.all_items(parse_item)
+        game.all_rooms(parse_room)
+        game.all_exits(parse_exit)
+        game.all_combos(parse_combo)
 
-        Game.parse_game()
-        Game.parse_inventory()
+        game.parse_game()
+        game.parse_inventory()
 
-        Game.finalize()
+        game.finalize()
 
-        path = self._output_file_path
-        printv(f"writing game file to '{path}'")
-        Script.write_file(path.get())
+        game.write()
 
     def clean(self) -> None:
         path = self._output_path.get()
         printv(f"cleaning '{path}'")
         shutil.rmtree(path, ignore_errors=True)
 
-    def copy_engine(self) -> None:
+    def copy_engine_files(self) -> None:
         source_path = Path(f"../engine/rpy").get()
         dest_path = self._output_path.get()
         printv(f"copying engine from '{source_path}' to '{dest_path}'")
@@ -186,7 +185,9 @@ class Build:
         if self._debug_lines is None:
             return
         printv("generating debug file")
-        generate_rpy(f"{self._output_path}/debug.gen.rpy", -999, self._debug_lines)
+        debug_script = Script(f"{self._output_path}/debug.gen.rpy", 999, self._config_path)
+        debug_script.add_lines(self._debug_lines)
+        debug_script.write()
 
     def generate_paths(self) -> None:
         self._game_config_path = Path(f"{self._game_path}/{self._game_name}.cfg")

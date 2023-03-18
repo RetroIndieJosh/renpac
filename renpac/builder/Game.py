@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable
-
 from renpac.base.printv import *
-
 from renpac.builder.Config import *
 from renpac.builder.Script import *
 from renpac.builder.VariableMap import *
@@ -13,95 +11,96 @@ class Definition:
     is_numeric: bool
 
 class Game:
-    _combos = []
-    _exits = []
-    _items = []
-    _rooms = []
+    def __init__(self, output_path):
+        self._combos = []
+        self._exits = []
+        self._items = []
+        self._rooms = []
+        self._start_room = None
 
-    _start_room = None
+        self._script = Script(output_path)
+        self._script.add_line("def load_game():")
+        self._script.indent()
+    
+    def all_combos(self, func: Callable[[str], list[str]]) -> None:
+        if self._combos is None:
+            print("WARNING: no combinations in game")
+        self._script.add_header(f"COMBOS")
+        self._script.add_lines(flatten(map(func, self._combos)))
+    
+    def all_exits(self, func: Callable[[str], list[str]]) -> None:
+        if self._exits is None:
+            print("WARNING: no exits in game")
+        self._script.add_header(f"EXITS")
+        self._script.add_lines(flatten(map(func, self._exits)))
 
-    @staticmethod
-    def all_combos(func: Callable[[str], None]) -> None:
-        for combo in Game._combos:
-            func(combo)
-
-    @staticmethod
-    def all_exits(func: Callable[[str], None]) -> None:
-        for exit in Game._exits:
-            func(exit)
-
-    @staticmethod
-    def all_items(func: Callable[[str], None]) -> None:
-        for item in Game._items:
-            func(item)
-
-    @staticmethod
-    def all_rooms(func: Callable[[str], None]) -> None:
-        for room in Game._rooms:
-            func(room)
-
-    @staticmethod
-    def finalize() -> None:
-        Script.add_header("START ROOM")
-        start_room = name_to_python("room", Game._start_room)
-        Script.add_line(f"return {start_room}")
-
-    @staticmethod
-    def has_combo(name: str) -> bool:
-        return name in Game._combos
-
-    @staticmethod
-    def has_exit(name: str) -> bool:
-        return name in Game._exits
-
-    @staticmethod
-    def has_hotspot(name: str) -> bool:
-        return Game.has_exit(name) or Game.has_item(name)
-
-    @staticmethod
-    def has_item(name: str) -> bool:
-        return name in Game._items
-
-    @staticmethod
-    def has_room(name: str) -> bool:
-        return name in Game._rooms
-
-    @staticmethod
-    def _parse_definition(type_name: str, element_name: str):
+    def all_items(self, func: Callable[[str], list[str]]) -> None:
+        if self._items is None:
+            print("WARNING: no items in game")
+        self._script.add_header(f"ITEMS")
+        self._script.add_lines(flatten(map(func, self._items)))
+    
+    def all_rooms(self, func: Callable[[str], list[str]]) -> None:
+        if self._rooms is None:
+            raise Exception("ERROR game must have at least one room")
+        self._script.add_header(f"ROOMS")
+        self._script.add_lines(flatten(map(func, self._rooms)))
+    
+    def finalize(self) -> None:
+        self._script.add_header("START ROOM")
+        start_room = name_to_python("room", self._start_room)
+        self._script.add_line(f"return {start_room}")
+    
+    def has_combo(self, name: str) -> bool:
+        return name in self._combos
+    
+    def has_exit(self, name: str) -> bool:
+        return name in self._exits
+    
+    def has_hotspot(self, name: str) -> bool:
+        return self.has_exit(name) or self.has_item(name)
+    
+    def has_item(self, name: str) -> bool:
+        return name in self._items
+    
+    def has_room(self, name: str) -> bool:
+        return name in self._rooms
+    
+    def set_output_path(self, path: str) -> None:
+        self._script = Script(path)
+    
+    def _parse_definition(self, type_name: str, element_name: str):
         if type_name == "exit":
-            Game._exits.append(element_name)
+            self._exits.append(element_name)
         elif type_name == "item":
-            Game._items.append(element_name)
+            self._items.append(element_name)
         elif type_name == "room":
-            Game._rooms.append(element_name)
+            self._rooms.append(element_name)
         else:
             printv(f"unknown type '{type_name}'")
-
-    @staticmethod
-    def parse_definitions() -> None:
+    
+    def parse_definitions(self) -> None:
         printv("parsing definitions")
         for section_name in Config.sections():
             printv(f" -- '{section_name}'")
             if '.' not in section_name:
                 continue
             if '+' in section_name:
-                Game._combos.append(section_name)
+                self._combos.append(section_name)
                 continue
             parts = section_name.split('.')
             if len(parts) > 2:
                 printv(f"WARN too many parts in section name '{section_name}")
                 continue
-            Game._parse_definition(parts[0], parts[1])
-
-    @staticmethod
-    def parse_game() -> None:
+            self._parse_definition(parts[0], parts[1])
+    
+    def parse_game(self) -> None:
         section = Config.get_section('game')
         for key in section:
             if key == "start":
-                Game._start_room = section[key]
-
-    @staticmethod
-    def get_values(section_name: str, required: dict) -> dict:
+                self._start_room = section[key]
+    
+    def get_values(self, section_name: str, required: dict) -> dict:
         section = Config.get_section(section_name)
         values = {}
         for key in section:
@@ -109,7 +108,6 @@ class Game:
                 values[key] = section[key]
             else:
                 printv(f"WARN: unknown {section_name} key '{key}'")
-
         for key in required:
             if key in values:
                 if required[key].is_numeric and not values[key].isnumeric():
@@ -121,32 +119,36 @@ class Game:
                     printv(f"WARN: missing optional key '{key}' in {section_name}")
         
         return values
-
-    @staticmethod
-    def parse_inventory() -> None:
+    
+    def parse_inventory(self) -> None:
         required = {
             "anchor": Definition(True, False),
             "depth": Definition(True, True),
             "length": Definition(True, True)
         }
-        values = Game.get_values("inventory", required)
-
+        values = self.get_values("inventory", required)
         valid_anchors = {"bottom", "left", "right", "top"}
         if values['anchor'] not in valid_anchors:
             anchor = f"INVENTORY_{anchor.upper()}"
             printv(f"ERROR: illegal inventory anchor '{anchor}'")
             return
         anchor = f"INVENTORY_{values['anchor'].upper()}"
-
         length = int(values['length'])
         depth = int(values['depth'])
+        self._script.add_header("INVENTORY")
+        self._script.add_line(f"Inventory.set_mode({anchor}, {length}, {depth})")
+    
+    def report_definitions(self) -> None:
+        printv(f"{len(self._combos)} combos: {self._combos}")
+        printv(f"{len(self._exits)} exits: {self._exits}")
+        printv(f"{len(self._items)} items: {self._items}")
+        printv(f"{len(self._rooms)} rooms: {self._rooms}")
 
-        Script.add_header("INVENTORY")
-        Script.add_line(f"Inventory.set_mode({anchor}, {length}, {depth})")
+    def write(self) -> None:
+        printv(f"writing game file to '{self._script._output_path}'")
+        self._script.write()
 
-    @staticmethod
-    def report_definitions() -> None:
-        printv(f"{len(Game._combos)} combos: {Game._combos}")
-        printv(f"{len(Game._exits)} exits: {Game._exits}")
-        printv(f"{len(Game._items)} items: {Game._items}")
-        printv(f"{len(Game._rooms)} rooms: {Game._rooms}")
+def flatten(list: list[list]) -> list:
+    if list is None:
+        return None
+    return [item for sublist in list for item in sublist]

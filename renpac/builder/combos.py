@@ -7,7 +7,7 @@ TARGET_NONE = 0b00
 TARGET_SELF = 0b01
 TARGET_OTHER = 0b10
 
-def parse_combo(section_key: str) -> None:
+def parse_combo(section_key: str) -> list[str]:
     parts = section_key.split('+')
     if len(parts) > 2:
         printv("ERROR: too many parts in combo '{combo}'")
@@ -15,15 +15,18 @@ def parse_combo(section_key: str) -> None:
 
     item = parts[0].split('.')[1].strip()
     target = parts[1].split('.')[1].strip()
+
+    # TODO do error checking separately
+    """
     if not Game.has_item(item):
         printv(f"ERROR: for combo, no item '{item}' defined in game configuration")
     if not Game.has_hotspot(target):
         printv(f"ERROR: for combo, no hotspot target '{target}' defined in game configuration")
+    """
 
     # reuse parts here so we keep the prefix (item. => item_ or exit. => exit_)
     item_python = parts[0].strip().replace('.', '_').replace(' ', '_')
     target_python = parts[1].strip().replace('.', '_').replace(' ', '_')
-    Script.add_header(f"COMBO: {item_python} + {target_python}")
 
     message = None
     delete_flags = "TARGET_NONE"
@@ -81,5 +84,7 @@ def parse_combo(section_key: str) -> None:
         printv(f"WARN: no message for combo '{section_key}")
 
     python_name = name_to_python("combo", section_key).replace('.', '_').replace('+', 'plus')
-    Script.add_line(f"{python_name} = Combination(\"{message}\", {delete_flags}, {replace_flags}, {replace_with})")
-    Script.add_line(f"{item_python}.add_combination({target_python}, {python_name})")
+
+    return [
+        f"{python_name} = Combination(\"{message}\", {delete_flags}, {replace_flags}, {replace_with})",
+        f"{item_python}.add_combination({target_python}, {python_name})"]

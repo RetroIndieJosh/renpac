@@ -10,24 +10,29 @@ room_varmaps = [
     VariableMap("printed", "printed_name")
 ]
 
-def parse_room(name: str) -> None:
-    Script.add_header(f"ROOM: {name}")
+def parse_room(name: str) -> list[str]:
+    lines = []
 
     section_key = f"room.{name}"
     python_name = name_to_python("room", name)
-    Script.add_line(f"{python_name} = Room(\"{name}\")")
+    lines.append(f"{python_name} = Room(\"{name}\")")
 
-    process_varmaps(room_varmaps, section_key, python_name)
+    lines += process_varmaps(room_varmaps, section_key, python_name)
 
     section = Config.get_section(section_key)
     if not 'items' in section:
-        return
+        return lines
 
     for item in section['items'].split(','):
         item = item.strip()
+        # TODO do error checking separately
+        """
         if not Game.has_hotspot(item):
             printv(f"ERROR: item '{item}' for room '{python_name}' not defined in game configuration")
             continue
+        """
         item_python = name_to_python("item", item)
-        Script.add_line(f"{python_name}.hotspot_add({item_python})")
+        lines.append(f"{python_name}.hotspot_add({item_python})")
+
+    return lines
 

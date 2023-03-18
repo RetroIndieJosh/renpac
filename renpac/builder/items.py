@@ -8,11 +8,13 @@ item_varmaps = [
     VariableMap("size", type=TYPE_SIZE)
 ]
 
-def parse_item(name: str) -> None:
-    Script.add_header(f"ITEM: {name}")
+def parse_item(name: str) -> list[str]:
+    lines = []
 
     config_key = f"item.{name}"
     python_name = name_to_python("item", name)
-    Script.add_line(f"{python_name} = Item(\"{name}\")")
+    lines.append(f"{python_name} = Item(\"{name}\")")
 
-    process_varmaps(item_varmaps, config_key, python_name)
+    lines += process_varmaps(item_varmaps, config_key, python_name)
+
+    return lines

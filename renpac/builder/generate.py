@@ -67,10 +67,10 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
     printv(f"** setting priorities")
     root_files = []
     for key in GeneratorFile.files:
-        if not GeneratorFile.files[key].is_dependency:
+        if not GeneratorFile.files[key].is_dependency():
             root_files.append(GeneratorFile.files[key])
     for file in root_files:
-        printv(f"  -- root file: {file.name}")
+        printv(f"  -- root file: {file.name()}")
     for file in root_files:
         file.set_priority()
 
