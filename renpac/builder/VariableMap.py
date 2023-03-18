@@ -1,7 +1,7 @@
-from printv import *
+from renpac.base.printv import *
 
-from Config import *
-from Script import *
+from renpac.builder.Config import *
+from renpac.builder.Script import *
 
 TYPE_STRING = 0
 TYPE_LITERAL = 1 # for numbers, functions, and references to other objects

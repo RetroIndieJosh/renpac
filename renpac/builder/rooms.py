@@ -1,8 +1,8 @@
-from printv import *
+from renpac.base.printv import *
 
-from Game import *
-from Script import *
-from VariableMap import *
+from renpac.builder.Game import *
+from renpac.builder.Script import *
+from renpac.builder.VariableMap import *
 
 room_varmaps = [
     VariableMap("desc"),

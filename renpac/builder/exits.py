@@ -1,7 +1,7 @@
-from printv import *
+from renpac.base.printv import *
 
-from Game import *
-from VariableMap import *
+from renpac.builder.Game import *
+from renpac.builder.VariableMap import *
 
 exit_varmaps = [
     VariableMap("message"),

@@ -1,6 +1,8 @@
+import os
+
 from datetime import datetime
 
-from printv import printv
+from renpac.base.printv import *
 
 class GeneratorFile:
     # TODO clean this up by putting it in some other higher level thing that
@@ -59,6 +61,8 @@ class GeneratorFile:
     def write(self) -> None:
         if GeneratorFile.output_path is None:
             raise Exception("Must set output path before writing a generator file")
+
+        os.makedirs(GeneratorFile.output_path, exist_ok=True)
 
         printv(f"convert {self.name} at priority {self.priority}")
         with open(f"{GeneratorFile.output_path}/{self.name}.gen.rpy", "w") as file:

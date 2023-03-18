@@ -1,4 +1,4 @@
-from VariableMap import *
+from renpac.builder.VariableMap import *
 
 item_varmaps = [
     VariableMap("desc"),

@@ -1,4 +1,4 @@
-from printv import printv
+from renpac.base.printv import *
 
 from configparser import ConfigParser
 

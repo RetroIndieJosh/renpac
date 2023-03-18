@@ -1,11 +1,11 @@
-from printv import *
-
 from dataclasses import dataclass
 from typing import Callable
 
-from Config import *
-from Script import *
-from VariableMap import *
+from renpac.base.printv import *
+
+from renpac.builder.Config import *
+from renpac.builder.Script import *
+from renpac.builder.VariableMap import *
 
 @dataclass(frozen=True)
 class Definition:

@@ -1,18 +1,24 @@
-import argparse
 import os
 
-from GeneratorFile import GeneratorFile
-from printv import *
+from renpac.base.printv import *
+
+from renpac.builder.GeneratorFile import GeneratorFile
+from renpac.builder.Path import Path
 
 def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
     if input_path is None or output_path is None:
         print("You must specify the input and output paths.")
         exit(0)
 
+    input_path = Path(input_path).get()
+    output_path = Path(output_path, check_exists=False).get()
+
     GeneratorFile.input_path = input_path
     GeneratorFile.output_path = output_path
 
-    def cleanup():
+    def cleanup() -> None:
+        if not os.path.exists(output_path):
+            return
         gen_files = list(filter(lambda file_name: 
             file_name.endswith(".gen.rpy"), os.listdir(output_path)))
         printv(f"cleaning up {len(gen_files)} .gen.rpy files from '{output_path}'")
@@ -42,7 +48,7 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
     filenames = list(filter(file_valid, all_filenames))
 
     if(len(filenames) == 0):
-        print(f"no files for generator in '{input_path}")
+        print(f"no files for generator in '{input_path}'")
         exit(0)
 
     printv(f"** loading files")

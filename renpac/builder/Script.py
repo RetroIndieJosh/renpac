@@ -1,8 +1,8 @@
-from printv import *
-
 import os
 
-from Config import *
+from renpac.base.printv import *
+
+from renpac.builder.Config import *
 
 class Script:
     _text = ""

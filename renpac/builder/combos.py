@@ -1,7 +1,7 @@
-from printv import *
+from renpac.base.printv import *
 
-from Game import *
-from VariableMap import *
+from renpac.builder.Game import *
+from renpac.builder.VariableMap import *
 
 TARGET_NONE = 0b00
 TARGET_SELF = 0b01

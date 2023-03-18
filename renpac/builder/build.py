@@ -1,25 +1,23 @@
+import argparse
 import filecmp
-import platform
 import shutil
-import subprocess
 
 from configparser import ConfigParser
 from datetime import datetime
-from generate import generate
+from renpac.builder.generate import generate
 
-from combos import *
-from exits import *
-from items import *
-from rooms import *
+from renpac.builder.combos import *
+from renpac.builder.exits import *
+from renpac.builder.items import *
+from renpac.builder.rooms import *
 
-from printv import *
+from renpac.base.printv import *
 
-from Config import Config
-from Game import Game
-from Path import Path
-from Script import Script
+from renpac.builder.Config import Config
+from renpac.builder.Game import Game
+from renpac.builder.Path import Path
+from renpac.builder.Script import Script
 
-import argparse
 parser = argparse.ArgumentParser()
  
 parser.add_argument("-f", "--force", action='store_true', help = "Force Overwrite: Copy all files, even if they match the destination.")
@@ -54,10 +52,11 @@ class Build:
         self.copy_resources()
         end_time = datetime.now()
         diff_time = (end_time - start_time).total_seconds()
+        print(f"Output: {self._output_path}")
         print(f"Build done at {datetime.now()} ({diff_time} seconds elapsed)")
 
     def build_engine(self) -> None:
-        generate(f"{self._engine_path}/game/renpac-engine", f"{self._engine_path}/game")
+        generate(f"../engine", f"../engine/rpy")
 
     # TODO move to Game - but causes circular deps!
     def build_game(self) -> None:
@@ -88,10 +87,7 @@ class Build:
         shutil.rmtree(path, ignore_errors=True)
 
     def copy_engine(self) -> None:
-        # this is weird but it gets us a clean-looking path; doesn't make sense
-        # to store the /game path and we need the base engine path to get the
-        # engine builder script
-        source_path = Path(f"{self._engine_path}/game").get()
+        source_path = Path(f"../engine/rpy").get()
         dest_path = self._output_path.get()
         printv(f"copying engine from '{source_path}' to '{dest_path}'")
         self.copy_files(source_path, dest_path)
