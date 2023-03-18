@@ -1,6 +1,8 @@
 import logging
 
-from . import Inventory, Room, StaticClass
+from base import StaticClass
+
+from . import Inventory, Room
 
 class Game(StaticClass):
     """! General game functionality (static class)

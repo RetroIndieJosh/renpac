@@ -18,15 +18,7 @@ from renpac.builder.Game import Game
 from renpac.builder.Path import Path
 from renpac.builder.Script import Script
 
-parser = argparse.ArgumentParser()
- 
-parser.add_argument("-f", "--force", action='store_true', help = "Force Overwrite: Copy all files, even if they match the destination.")
-parser.add_argument("-v", "--verbose", action='store_true', help = "Verbose Mode: Show additional process messages")
- 
-args = vars(parser.parse_args())
-FORCE_OVERWRITE = args['force']
-if args['verbose']:
-    enable_verbose()
+FORCE_OVERWRITE = False
 
 THIS_PATH = os.path.dirname(__file__)
 
@@ -160,6 +152,13 @@ class Build:
         else:
             gui_path_relative = "audio"
         self._gui_path = Path(f"{self._game_path}/{gui_path_relative}")
+
+        if parser.getboolean('build', 'verbose', fallback=False):
+            enable_verbose()
+
+        if parser.getboolean('build', 'overwrite', fallback=False):
+            global FORCE_OVERWRITE
+            FORCE_OVERWRITE = True
 
         if 'name' not in parser['game']:
             raise Exception(f"ERROR: No 'name' defined in 'game' section in build config {self._config_path}")

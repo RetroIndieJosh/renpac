@@ -1,5 +1,6 @@
 import logging
-from . import StaticClass
+
+from base import StaticClass
 
 ## Turn on to show magenta boxes where hotspots are located
 DEBUG_SHOW_HOTSPOTS = True

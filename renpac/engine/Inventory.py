@@ -1,6 +1,8 @@
 import logging
 
-from . import Item, Rect, StaticClass
+from base import StaticClass
+
+from . import Item, Rect
 
 ## THe number of items to show per row in the inventory (which becomes columns
 ## if the inventory is anchored to the left or right)

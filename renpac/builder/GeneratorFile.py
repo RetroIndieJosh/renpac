@@ -22,6 +22,7 @@ class GeneratorFile:
             self.lines = file.read().splitlines()
         self.priority = 0
         self.is_dependency = False
+        self.base_dependency_names = []
         self.dependencies = []
         self.dependency_names = []
 
@@ -31,9 +32,14 @@ class GeneratorFile:
         if self.lines[0].startswith("#priority"):
             self.set_max_priority(int(self.lines[0].split("#priority ", 1)[1]))
 
+    def add_base_dependency(self, line):
+        self.base_dependency_names = line.split("from base import ", 1)[1].split(", ")
+
     def find_dependencies(self):
         printv(f"{self.name}:")
         for line in self.lines:
+            if line.startswith("from base import"):
+                self.add_base_dependency(line)
             if not line.startswith("from . import"):
                 continue
             self.dependency_names = line.split("from . import ", 1)[1].split(", ")

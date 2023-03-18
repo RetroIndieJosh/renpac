@@ -25,6 +25,7 @@ def main():
 def enable_verbose():
     global verbose
     verbose = True
+    printv("Verbose mode enabled")
 
 def printv(msg="", end='\n'):
     if verbose:

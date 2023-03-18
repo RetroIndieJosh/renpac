@@ -38,6 +38,7 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
         exit(0)
 
     input_path = Path(input_path).get()
+    base_input_path = Path("../base").get()
     output_path = Path(output_path, check_exists=False).get()
 
     GeneratorFile.input_path = input_path
@@ -45,7 +46,7 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
 
     cleanup(output_path)
 
-    filenames = list(filter(file_valid, os.listdir(input_path)))
+    filenames = list(filter(file_valid, os.listdir(input_path))) 
     if(len(filenames) == 0):
         print(f"no files for generator in '{input_path}'")
         exit(0)
@@ -80,6 +81,18 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
     printv(f"** generating {len(GeneratorFile.files)} files")
     for key in GeneratorFile.files:
         GeneratorFile.files[key].write()
+
+    # TODO make this less hacky
+    # TODO check for name collisions
+    base_filenames = list(filter(file_valid, os.listdir(base_input_path)))
+    printv(f"** copying {len(base_filenames)} files from base")
+    GeneratorFile.input_path = base_input_path
+    for file in base_filenames:
+        gen_file = GeneratorFile(os.path.splitext(file)[0])
+        # TODO can probably set this to min among generated files but might not matter?
+        # TODO actually, might need to do full dependency/priority thing if anything in base relies on anything else in base
+        gen_file.set_priority(-999)
+        gen_file.write()
 
     print(f"{len(GeneratorFile.files)} files generated successfully")
 
