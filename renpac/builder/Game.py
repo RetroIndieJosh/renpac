@@ -55,11 +55,36 @@ class Game:
             raise Exception("ERROR game must have at least one room")
         self._script.add_header(f"ROOMS")
         self._script.add_lines(flatten(map(func, self._rooms)))
+
+    def default_exit_size(self) -> str:
+        return self._default_exit_size
+
+    def default_item_size(self) -> str:
+        return self._default_item_size
     
     def finalize(self) -> None:
         self._script.add_header("START ROOM")
         start_room = name_to_python("room", self._start_room)
         self._script.add_line(f"return {start_room}")
+    
+    def get_values(self, section_name: str, required: dict) -> dict:
+        section = Config.get_section(section_name)
+        values = {}
+        for key in section:
+            if key in required:
+                values[key] = section[key]
+            else:
+                printv(f"WARN: unknown {section_name} key '{key}'")
+        for key in required:
+            if key in values:
+                if required[key].is_numeric and not values[key].isnumeric():
+                    printv(f"ERROR: expected number for '{key}' but got value '{values[key]}'")
+            else:
+                if required[key].is_required:
+                    printv(f"ERROR: missing required key '{key}' in {section_name}")
+                else:
+                    printv(f"WARN: missing optional key '{key}' in {section_name}")
+        return values
     
     def has_combo(self, name: str) -> bool:
         return name in self._combos
@@ -103,32 +128,28 @@ class Game:
                 printv(f"WARN too many parts in section name '{section_name}")
                 continue
             self._parse_definition(parts[0], parts[1])
-    
+
+    def parse_defaults(self) -> None:
+        section = Config.get_section('exit')
+        for key in section:
+            if key == 'size':
+                self._default_exit_size = section[key]
+            else:
+                print(f"WARNING unknown exit key '{key}')")
+        section = Config.get_section('item')
+        for key in section:
+            if key == 'size':
+                self._default_item_size = section[key]
+            else:
+                print(f"WARNING unknown iitem key '{key}')")
+
     def parse_game(self) -> None:
         section = Config.get_section('game')
         for key in section:
-            if key == "start":
+            if key == 'start':
                 self._start_room = section[key]
-    
-    def get_values(self, section_name: str, required: dict) -> dict:
-        section = Config.get_section(section_name)
-        values = {}
-        for key in section:
-            if key in required:
-                values[key] = section[key]
             else:
-                printv(f"WARN: unknown {section_name} key '{key}'")
-        for key in required:
-            if key in values:
-                if required[key].is_numeric and not values[key].isnumeric():
-                    printv(f"ERROR: expected number for '{key}' but got value '{values[key]}'")
-            else:
-                if required[key].is_required:
-                    printv(f"ERROR: missing required key '{key}' in {section_name}")
-                else:
-                    printv(f"WARN: missing optional key '{key}' in {section_name}")
-        
-        return values
+                print(f"WARNING unknown game key '{key}')")
     
     def parse_inventory(self) -> None:
         required = {

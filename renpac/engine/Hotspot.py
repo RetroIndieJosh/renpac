@@ -80,7 +80,7 @@ class Hotspot:
         self.action_up = None
 
         ## The position and size of the hotspot for mouse detection in pixels
-        self.rect = Rect(0, 0, 256, 256)
+        self.rect = Rect(0, 0, 0, 0)
 
         ## Whether the hotspot is being hovered
         self.is_hovered = False

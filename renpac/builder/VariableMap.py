@@ -11,17 +11,21 @@ TYPE_SIZE = 4
 
 # TODO clean this up, combine with Definition in Game.py used for inventory/game
 class VariableMap:
-    def __init__(self, config_key: str, python_key: str = None, type: int = TYPE_STRING) -> None:
+    def __init__(self, config_key: str, python_key: str = None, type: int = TYPE_STRING, default: str = None) -> None:
         self.config_key = config_key
         self.python_key = python_key if python_key is not None else config_key
         self.type = type
+        self._default = default
 
     def process(self, section: dict, python_name: str) -> list[str]:
         lines = []
         if section is None or not self.config_key in section:
-            printv(f"WARN no '{self.config_key}' defined for {section}")
-            return None
-        raw_value = section[self.config_key]
+            if self._default is None: 
+                printv(f"WARN no '{self.config_key}' defined for {section}")
+                return None
+            raw_value = self._default
+        else:
+            raw_value = section[self.config_key]
         if self.type == TYPE_POSITION:
             (x, y) = raw_value.split(' ')
             lines.append(f"{python_name}.rect.set_pos({x}, {y})")
