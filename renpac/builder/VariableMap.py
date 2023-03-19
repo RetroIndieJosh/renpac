@@ -48,11 +48,11 @@ class VariableMap:
             lines.append(f"{python_name}.{self.python_key} = {value}")
         return lines
 
-def process_varmaps(varmaps: list, section_key: str, python_name: str) -> str:
+def process_varmaps(config: Config, varmaps: list, section_key: str, python_name: str) -> str:
     if varmaps is None:
         return
     lines = []
-    section = Config.get_section(section_key)
+    section = config.get_section(section_key)
     varmap: VariableMap
     for varmap in varmaps:
         new_lines = varmap.process(section, python_name)

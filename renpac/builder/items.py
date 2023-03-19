@@ -18,6 +18,6 @@ def parse_item(item_name: str) -> List[str]:
     python_name = python.item(item_name)
     lines.append(f"{python_name} = Item(\"{item_name}\")")
 
-    lines += process_varmaps(item_varmaps, config_key, python_name)
+    lines += process_varmaps(Game.instance().config(), item_varmaps, config_key, python_name)
 
     return lines

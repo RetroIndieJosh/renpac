@@ -11,11 +11,13 @@ from renpac.builder.VariableMap import *
 class Game:
     _instance = None
 
-    def __init__(self, output_path):
+    def __init__(self, output_path: str, config_path: str) -> None:
         if Game._instance is not None:
             raise Exception("Cannot create more than one Game object")
 
         Game._instance = self
+
+        self._config = Config(config_path)
 
         self._combos = []
         self._exits = []
@@ -30,6 +32,10 @@ class Game:
     @staticmethod
     def instance() -> 'Game':
         return Game._instance
+
+    # TODO ideally won't need this
+    def config(self) -> ConfigParser:
+        return self._config
 
     def items(self) -> List[str]:
         return self._items
@@ -104,7 +110,7 @@ class Game:
     
     def parse_definitions(self) -> None:
         printv("parsing definitions")
-        for section_name in Config.sections():
+        for section_name in self._config.sections():
             printv(f" -- '{section_name}'")
             if '.' not in section_name:
                 continue
@@ -119,15 +125,15 @@ class Game:
 
     def parse_defaults(self) -> None:
         # store as string to parse later when size is set
-        values = Config.parse_section('exit', {'size': ConfigEntry(TYPE_STRING, False)})
+        values = self._config.parse_section('exit', {'size': ConfigEntry(TYPE_STRING, False)})
         self._default_exit_size = values['size']
 
         # ditto above
-        values = Config.parse_section('item', {'size': ConfigEntry(TYPE_STRING, False)})
+        values = self._config.parse_section('item', {'size': ConfigEntry(TYPE_STRING, False)})
         self._default_item_size = values['size']
 
     def parse_game(self) -> None:
-        values = Config.parse_section('game', {'start': ConfigEntry(TYPE_STRING, True)})
+        values = self._config.parse_section('game', {'start': ConfigEntry(TYPE_STRING, True)})
         self._start_room = values['start']
     
     def parse_inventory(self) -> None:
@@ -137,7 +143,7 @@ class Game:
             'length': ConfigEntry(TYPE_NUMBER, True),
             'items': ConfigEntry(TYPE_LIST, False)
         }
-        values = Config.parse_section('inventory', entries)
+        values = self._config.parse_section('inventory', entries)
         valid_anchors = ["bottom", "left", "right", "top"]
         if values['anchor'] not in valid_anchors:
             anchor = f"INVENTORY_{anchor.upper()}"

@@ -56,8 +56,8 @@ class Build:
 
     # TODO move to Game - but causes circular deps!
     def build_game(self) -> None:
-        Config.load(f"{self._game_path}/{self._game_name}.cfg")
-        game = Game(self._output_file_path)
+        config_path = f"{self._game_path}/{self._game_name}.cfg"
+        game = Game(self._output_file_path, config_path)
 
         game.parse_defaults()
 

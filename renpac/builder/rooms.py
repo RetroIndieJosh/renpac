@@ -19,9 +19,9 @@ def parse_room(room_name: str) -> List[str]:
     python_name = python.room(room_name)
     lines.append(f"{python_name} = Room(\"{room_name}\")")
 
-    lines += process_varmaps(room_varmaps, section_key, python_name)
+    lines += process_varmaps(Game.instance().config(), room_varmaps, section_key, python_name)
 
-    section = Config.get_section(section_key)
+    section = Game.instance().config().get_section(section_key)
     if not 'items' in section:
         return lines
 

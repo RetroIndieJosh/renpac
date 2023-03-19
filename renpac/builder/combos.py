@@ -32,7 +32,7 @@ def parse_combo(section_key: str) -> List[str]:
     replace_flags = "TARGET_NONE"
     replace_with = None
 
-    section = Config.get_section(section_key)
+    section = Game.instance().config().get_section(section_key)
 
     # TODO change to a loop to catch repeats and illegal keys
     # TODO these could probably be done with varmaps? at least message

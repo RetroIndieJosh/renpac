@@ -18,7 +18,7 @@ def parse_exit(exit_name: str) -> List[str]:
     python_name = python.exit(exit_name)
     lines.append(f"{python_name} = Exit(\"{exit_name}\")")
 
-    section = Config.get_section(section_key)
+    section = Game.instance().config().get_section(section_key)
     if 'location' in section:
         location = section['location']
         if Game.instance().has_room(location):
@@ -34,6 +34,6 @@ def parse_exit(exit_name: str) -> List[str]:
         else:
             printv(f"WARN no room {target} for 'target' of {section_key}")
 
-    lines += process_varmaps(exit_varmaps, section_key, python_name)
+    lines += process_varmaps(Game.instance().config(), exit_varmaps, section_key, python_name)
 
     return lines
