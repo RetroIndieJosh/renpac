@@ -39,6 +39,27 @@
 
 ## Python
 
+- avoid lines longer than the preset minimum (use gql to check)
+    - if a single code line runs multiple lines, indent subsequent lines one deeper that the first
+        - remember in some casese parentheses are required to notify Python these are a single line
+    - always split *after* a token (paren, bracket, brace, comma)
+    - never put a function return type on its own line (treat it as "attached" to the last argument)
+    - never split a compound type like `Callable[[int, str], bool]`
+- strings
+    - use backslashes instead of parentheses for multiline string literals
+        - this helps avoid missing commas in a list (there will always be a comma or a backslash)
+        - bad if `foo` is a `str`:
+            foo = ("this is a string that "
+                "goes on to the next line")
+            - we could misinterpret it for the `list[str]`:
+                foo = ("this is a string that ",
+                    "goes on to the next line")
+        - instead:
+            foo = "this is a string that " \
+                "goes on to the next line"
+    - use `join()` instead of `+`
+        - bad: `"hello " + "world"`
+        - good: `' '.join("hello", "world")`
 - files should be ordered: global variables, class definitions, functions, loose script
     - loose script should be avoided if possible and put in the main() test function
 - every file must have at the end of the file:
