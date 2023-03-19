@@ -43,6 +43,18 @@ class VariableMap:
             lines.append(f"{python_name}.{self.python_key} = {value}")
         return lines
 
+def combo_to_python(name: str) -> str:
+    return name_to_python("combo", name)
+
+def exit_to_python(name: str) -> str:
+    return name_to_python("exit", name)
+    
+def item_to_python(name: str) -> str:
+    return name_to_python("item", name)
+
+def room_to_python(name: str) -> str:
+    return name_to_python("room", name)
+
 def name_to_python(type: str, name: str) -> str:
     return f"{type}_{name.strip()}".replace(' ', '_')
 

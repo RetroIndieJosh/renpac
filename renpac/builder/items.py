@@ -13,7 +13,7 @@ def parse_item(name: str) -> list[str]:
     lines = []
 
     config_key = f"item.{name}"
-    python_name = name_to_python("item", name)
+    python_name = item_to_python(name)
     lines.append(f"{python_name} = Item(\"{name}\")")
 
     lines += process_varmaps(item_varmaps, config_key, python_name)

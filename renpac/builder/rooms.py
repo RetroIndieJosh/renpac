@@ -14,7 +14,7 @@ def parse_room(name: str) -> list[str]:
     lines = []
 
     section_key = f"room.{name}"
-    python_name = name_to_python("room", name)
+    python_name = room_to_python(name)
     lines.append(f"{python_name} = Room(\"{name}\")")
 
     lines += process_varmaps(room_varmaps, section_key, python_name)
@@ -28,7 +28,7 @@ def parse_room(name: str) -> list[str]:
         if not Game.instance().has_hotspot(item):
             printv(f"ERROR: item '{item}' for room '{python_name}' not defined in game configuration")
             continue
-        item_python = name_to_python("item", item)
+        item_python = item_to_python(item)
         lines.append(f"{python_name}.hotspot_add({item_python})")
 
     return lines

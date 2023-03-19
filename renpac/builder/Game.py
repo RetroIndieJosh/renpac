@@ -64,7 +64,7 @@ class Game:
     
     def finalize(self) -> None:
         self._script.add_header("START ROOM")
-        start_room = name_to_python("room", self._start_room)
+        start_room = room_to_python(self._start_room)
         self._script.add_line(f"return {start_room}")
     
     def get_values(self, section_name: str, required: dict) -> dict:
@@ -175,7 +175,7 @@ class Game:
             for item in items:
                 if not self.has_item(item):
                     raise Exception(f"ERROR no item '{item}' for initial inventory")
-                item_python = name_to_python("item", item)
+                item_python = item_to_python(item)
                 self._script.add_line(f"Inventory.add({item_python})")
     
     def report_definitions(self) -> None:

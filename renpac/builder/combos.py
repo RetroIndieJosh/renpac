@@ -63,7 +63,7 @@ def parse_combo(section_key: str) -> list[str]:
             printv(f"ERROR: unknown value for 'replace' in combo: {replace_target}")
     
     if 'with' in section:
-        replace_with = name_to_python("item", section['with'])
+        replace_with = item_to_python(section['with'])
 
     # error checking
 
@@ -80,7 +80,7 @@ def parse_combo(section_key: str) -> list[str]:
     if message is None:
         printv(f"WARN: no message for combo '{section_key}")
 
-    python_name = name_to_python("combo", section_key).replace('.', '_').replace('+', 'plus')
+    python_name = combo_to_python(section_key).replace('.', '_').replace('+', 'plus')
 
     return [
         f"{python_name} = Combination(\"{message}\", {delete_flags}, {replace_flags}, {replace_with})",
