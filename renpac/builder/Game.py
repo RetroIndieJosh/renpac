@@ -112,13 +112,18 @@ class Game:
     
     def parse_definitions(self) -> None:
         printv("parsing definitions")
-        for section_name in self._config.sections():
+        section_names = self._config.sections()
+
+        # parse combos
+        self._combos = [section_name for section_name in section_names if '+' in section_name]
+        if verbose:
+            printv("combos:")
+            for combo in self._combos:
+                printv(f" -- '{combo}'")
+
+        # parse exits, items, and rooms
+        for section_name in [section_name for section_name in section_names if '.' in section_name]:
             printv(f" -- '{section_name}'")
-            if '.' not in section_name:
-                continue
-            if '+' in section_name:
-                self._combos.append(section_name)
-                continue
             parts = section_name.split('.')
             if len(parts) > 2:
                 printv(f"WARN too many parts in section name '{section_name}")

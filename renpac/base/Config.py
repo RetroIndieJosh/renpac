@@ -1,10 +1,7 @@
+from configparser import ConfigParser
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List
-
-from renpac.base.printv import *
-
-from configparser import ConfigParser
 
 class ConfigType(Enum):
     STRING = 0
@@ -40,11 +37,8 @@ class Config:
         self._name = Path(config_path).name
 
     def get_section(self, section_key: str) -> list:
-        if self._parser is None:
-            printv("ERROR: config not loaded, cannot get section")
-            return None
         if section_key not in self._parser:
-            printv(f"ERROR: no section '{section_key}' in config")
+            raise Exception(f"ERROR: no section '{section_key}' in config")
             return None
         return self._parser[section_key]
 
@@ -71,12 +65,10 @@ class Config:
             print(f"WARNING unknown {self.key_message(key, section_name)}")
 
         for key in [key for key in entries if key not in values]:
-            if key not in values:
-                if entries[key].fallback is None:
-                    if entries[key].is_required:
-                        raise Exception(f"ERROR missing required {self.key_message(key, section_name)}")
-                    else:
-                        print(f"WARNING missing optional with no fallback {self.key_message(key, section_name)}")
-                else:
-                    values[key] = entries[key].fallback
+            if entries[key].fallback is None:
+                if entries[key].is_required:
+                    raise Exception(f"ERROR missing required {self.key_message(key, section_name)}")
+                print(f"WARNING missing optional with no fallback {self.key_message(key, section_name)}")
+            else:
+                values[key] = entries[key].fallback
         return values

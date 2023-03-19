@@ -50,6 +50,8 @@ class Script:
     def is_empty(self) -> bool:
         return self._text is None or self._text == ""
 
+    # TODO should we genericize script to be able to write any script? and put
+    # the init [priority] python higher up? maybe RenpyScript(Script)
     def write(self) -> None:
         if len(self._text) == 0:
             return
