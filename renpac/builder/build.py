@@ -1,25 +1,25 @@
 # TODO rename to Build.py
-import filecmp
 import shutil
 import pathlib
 
 from configparser import ConfigParser
 from datetime import datetime
-from renpac.builder.generate import generate
+
+from renpac.base.printv import *
+
+from renpac.base import files
 
 from renpac.builder.combos import *
 from renpac.builder.exits import *
 from renpac.builder.items import *
 from renpac.builder.rooms import *
 
-from renpac.base.printv import *
-
 from renpac.builder.Config import Config
 from renpac.builder.Game import Game
 from renpac.builder.Path import Path
 from renpac.builder.Script import Script
 
-FORCE_OVERWRITE = False
+from renpac.builder.generate import generate
 
 THIS_PATH = os.path.dirname(__file__)
 
@@ -86,52 +86,7 @@ class Build:
         source_path = Path(f"../engine/rpy").get()
         dest_path = self._output_path.get()
         printv(f"copying engine from '{source_path}' to '{dest_path}'")
-        self.copy_files(source_path, dest_path)
-
-    # TODO should we have an exclude list as an arg, or pre-built exclude funcs?
-    # wasn't there a builtin for that?
-    def copy_files(self, source_dir: str, dest_dir: str, 
-                   check_func: Callable[[str], bool] = None, 
-                   relative_dir: str = "") -> int:
-        """! Recursively copy all files from the source directory to the target
-        directory, including all subdirectories.
-
-        @param source_dir The top-level directory containing files and
-            directories to copy
-        @param dest_dir The top-level destintation directory
-        @param check_func A function to check whether a given file is valid
-        @param relative_dir The directory relative to source_dir we are
-            currently copying (used for recursion)
-        @return The total number of files (excluding directories) copied
-        """
-        dir = os.path.join(source_dir, relative_dir)
-        count = 0
-        for file in os.listdir(dir):
-            source_file = os.path.join(source_dir, relative_dir, file)
-            if os.path.isdir(source_file):
-                count += self.copy_files(source_dir, dest_dir, check_func,
-                    os.path.join(relative_dir, file))
-            else:
-                # TODO use logging.debug
-                #printv(f"[{relative_dir}] ", end='')
-                dest_file = os.path.join(dest_dir, relative_dir, file)
-                if check_func is not None:
-                    if not check_func(dest_file):
-                        continue
-                if not FORCE_OVERWRITE:
-                    # skip copy if the destination file matches exactly
-                    if os.path.exists(dest_file):
-                        if os.path.getsize(source_file) == os.path.getsize(dest_file):
-                            if filecmp.cmp(source_file, dest_file, False):
-                                # TODO use logging.debug
-                                #printv(f"SKIP\n\t{source_file}")
-                                continue
-                # TODO use logging.debug
-                #printv(f"COPY\n\t{source_file}\n\tTO {dest_file}")
-                os.makedirs(os.path.dirname(dest_file), exist_ok=True)
-                shutil.copy2(source_file, dest_file)
-                count += 1
-        return count
+        files.copy_tree(source_path, dest_path)
 
     def copy_resources(self) -> None:
         mapping = {
@@ -163,7 +118,7 @@ class Build:
             resource_type = mapping[source_path]
             dest_path = Path(f"{self._output_path}/{resource_type}", False)
             printv(f"copying resources ({resource_type}) from '{source_path}' to '{dest_path}'")
-            self.copy_files(source_path.get(), dest_path.get(), check_resource)
+            files.copy_tree(source_path.get(), dest_path.get(), check_resource)
 
         for image in required_images:
             if not required_images[image]:
@@ -181,10 +136,6 @@ class Build:
 
         if parser.getboolean('build', 'verbose', fallback=False):
             enable_verbose()
-
-        if parser.getboolean('build', 'overwrite', fallback=False):
-            global FORCE_OVERWRITE
-            FORCE_OVERWRITE = True
 
         required_path_sections = ['engine', 'game']
         for section in required_path_sections:

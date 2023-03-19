@@ -1,5 +1,7 @@
 # RenPaC Development Standards
 
+- when no logical order is required, order alphabetically
+
 ## Config Design
 
 - user-facing scripts should be as simple as possible
@@ -39,6 +41,11 @@
 
 ## Python
 
+- imports
+    - order from less specific to more specific
+        - builtin python, renpac base, current project (i.e. renpac engine)
+        - within each: import, from X import *, from X import Y
+        - leave a blank line between each of these sections
 - avoid lines longer than the preset minimum (use gql to check)
     - if a single code line runs multiple lines, indent subsequent lines one deeper that the first
         - remember in some casese parentheses are required to notify Python these are a single line
