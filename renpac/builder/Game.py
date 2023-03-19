@@ -138,9 +138,9 @@ class Game:
     
     def parse_inventory(self) -> None:
         entries = {
-            'anchor': ConfigEntry(TYPE_NUMBER, True),
-            'depth': ConfigEntry(TYPE_NUMBER, True),
-            'length': ConfigEntry(TYPE_NUMBER, True),
+            'anchor': ConfigEntry(TYPE_STRING, True),
+            'depth': ConfigEntry(TYPE_INT, True),
+            'length': ConfigEntry(TYPE_INT, True),
             'items': ConfigEntry(TYPE_LIST, False)
         }
         values = self._config.parse_section('inventory', entries)

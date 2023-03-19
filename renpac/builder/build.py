@@ -126,73 +126,63 @@ class Build:
                 print(f"WARNING missing required image file '{image}'")
 
     def parse_config(self) -> None:
-        parser = ConfigParser()
-        if len(parser.read(self._config_path.get())) == 0:
-            raise Exception(f"could not open or no data in build config '{self._config_path}'")
+        config = Config(self._config_path.get())
+        root_values = config.parse_section('build', {
+            'root': ConfigEntry(TYPE_STRING, True),
+            'verbose': ConfigEntry(TYPE_BOOL, False, False),
+        })
 
-        if 'root' not in parser['build']:
-            raise Exception("Root path must be set in 'build' section of build.cfg")
-        # TODO validate root path is a valid path
-        root_path = parser['build']['root']
+        root_path = root_values['root']
         if root_path.startswith('/'):
             if platform.system() == "Windows":
                 raise Exception(f"Illegal root path for Windows.\n\tRoot: {root_path}")
         elif platform.system() != "Windows":
                 raise Exception(f"Illegal root path for Linux.\n\tRoot: {root_path}")
 
-        if parser.getboolean('build', 'verbose', fallback=False):
+        if root_values['verbose']:
             enable_verbose()
 
-        required_path_sections = ['engine', 'game']
-        for section in required_path_sections:
-            if section not in parser:
-                raise Exception(f"ERROR: No '{section}' section in build config {self._config_path}")
-            if 'path' not in parser[section]:
-                raise Exception(f"ERROR: No 'path' defined in '{section}' section in build config {self._config_path}")
+        game_values = config.parse_section('game', {
+            'audio': ConfigEntry(TYPE_STRING, True, "audio"),
+            'author': ConfigEntry(TYPE_STRING, False, "Anonymous"),
+            'gui': ConfigEntry(TYPE_STRING, True, "gui"),
+            'images': ConfigEntry(TYPE_STRING, True, "images"),
+            'name': ConfigEntry(TYPE_STRING, False, "Untitled RenPaC Game"),
+            'path': ConfigEntry(TYPE_STRING, True),
+        })
+        self._game_path = Path('/'.join([root_path, game_values['path']]))
 
-        # TODO rewrite to use variable mapping thingy (will first need some adjustments)
-        self._engine_path = Path('/'.join([root_path, parser['engine']['path']]))
-        self._game_path = Path('/'.join([root_path, parser['game']['path']]))
+        self._game_name = game_values['name']
+        self.generate_paths()
 
-        # TODO optional, so would flag as such in variable map (and also set default)
-        if 'audio' in parser['game']:
-            audio_path_relative = parser['game']['audio']
-        else:
-            audio_path_relative = "audio"
+        engine_values = config.parse_section('engine', {'path': ConfigEntry(TYPE_STRING, True)})
+        self._engine_path = Path('/'.join([root_path, engine_values['path']]))
+
+        audio_path_relative = game_values['audio']
         self._audio_path = Path(f"{self._game_path}/{audio_path_relative}")
 
-        # TODO ditto above
-        if 'images' in parser['game']:
-            images_path_relative = parser['game']['images']
-        else:
-            images_path_relative = "images"
-        self._images_path = Path(f"{self._game_path}/{images_path_relative}")
-
-        # TODO ditto above
-        if 'gui' in parser['game']:
-            gui_path_relative = parser['game']['gui']
-        else:
-            gui_path_relative = "audio"
+        gui_path_relative = game_values['gui']
         self._gui_path = Path(f"{self._game_path}/{gui_path_relative}")
 
-        if 'name' not in parser['game']:
-            raise Exception(f"ERROR: No 'name' defined in 'game' section in build config {self._config_path}")
+        images_path_relative = game_values['images']
+        self._images_path = Path(f"{self._game_path}/{images_path_relative}")
 
-        if 'debug' in parser:
-            self._debug_lines = [
-                f"DEBUG_SHOW_HOTSPOTS = {parser.getboolean('debug', 'hotspots', fallback=False)}"
-            ]
-            notify = "none"
-            if 'notify' in parser['debug']:
-                notify = parser['debug']['notify']
-            if notify not in ['none', 'warnings', 'errors', 'all']:
-                print(f"WARNING unknown value for debug.notify: '{notify}'")
-            self._debug_lines.append(f"DEBUG_NOTIFY_ALL = {'True' if notify == 'all' else 'False'}")
-            self._debug_lines.append(f"DEBUG_NOTIFY_WARNINGS = DEBUG_NOTIFY_ALL or {'True' if notify == 'warnings' else 'False'}")
-            self._debug_lines.append(f"DEBUG_NOTIFY_ERRORS = DEBUG_NOTIFY_ALL or {'True' if notify == 'errors' else 'False'}")
+        debug_values = config.parse_section('debug', {
+            'hotspots': ConfigEntry(TYPE_BOOL, True, False),
+            'notify': ConfigEntry(TYPE_STRING, True, "none"),
+        })
 
-        self._game_name = parser['game']['name']
-        self.generate_paths()
+        self._debug_lines = [
+            f"DEBUG_SHOW_HOTSPOTS = {debug_values['hotspots']}"
+        ]
+        notify = debug_values['notify']
+        if notify not in ['none', 'debug', 'info', 'warnings', 'errors', 'all']:
+            print(f"WARNING unknown value for debug.notify: '{notify}'")
+        self._debug_lines.append(f"DEBUG_NOTIFY_ALL = {'True' if notify == 'all' else 'False'}")
+        self._debug_lines.append("DEBUG_NOTIFY_WARNINGS = DEBUG_NOTIFY_ALL or " \
+            f"{'True' if notify == 'warnings' else 'False'}")
+        self._debug_lines.append("DEBUG_NOTIFY_ERRORS = DEBUG_NOTIFY_ALL or " \
+            f"{'True' if notify == 'errors' else 'False'}")
 
     def generate_debug_file(self) -> None:
         if self._debug_lines is None:

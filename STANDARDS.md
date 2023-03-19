@@ -56,6 +56,7 @@
 - strings
     - use backslashes instead of parentheses for multiline string literals
         - this helps avoid missing commas in a list (there will always be a comma or a backslash)
+        - do this even if the strings are wrapped in a required container (parentheses, brackets, etc.)
         - bad if `foo` is a `str`:
             ```py
             foo = ("this is a string that "

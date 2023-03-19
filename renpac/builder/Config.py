@@ -1,15 +1,28 @@
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, List
 
 from renpac.base.printv import *
 
-from configparser import ConfigParser
+from configparser import ConfigParser, NoOptionError
 
-@dataclass
+TYPE_STRING = 0
+TYPE_LITERAL = 1 # for numbers, functions, and references to other objects
+TYPE_BOOL = 2
+TYPE_POSITION = 3
+TYPE_SIZE = 4
+TYPE_INT = 5
+TYPE_FLOAT = 6
+TYPE_LIST = 7
+
 class ConfigEntry:
     expected_type: int
     is_required: bool
+    fallback = None
+
+    def __init__(self, expected_type: int, is_required: bool, fallback = None) -> None:
+        self.expected_type = expected_type
+        self.is_required = is_required
+        self.fallback = fallback
 
 # TODO if this isn't specific to the game config, reuse for build config and
 # make non-static; Game can contain the game config, Build can contain the build
@@ -39,19 +52,29 @@ class Config:
     def sections(self) -> list:
         return self._parser.sections()
 
-    def parse_section(self, section_name: str, entries: List[ConfigEntry]) -> Dict[str, str]:
+    def parse_section(self, section_name: str, entries: List[ConfigEntry]) -> Dict[str, any]:
         section = self.get_section(section_name)
-        values: Dict[str, str] = {}
-        for key in section:
-            if key in entries:
-                values[key] = section[key]
-                # TODO type validation
+        values: Dict[str, any] = {}
+        for key in [key for key in section if key in entries]:
+            if entries[key].expected_type == TYPE_BOOL:
+                values[key] = self._parser.getboolean(section_name, key)
+            elif entries[key].expected_type == TYPE_FLOAT:
+                values[key] = self._parser.getfloat(section_name, key)
+            elif entries[key].expected_type == TYPE_INT:
+                values[key] = self._parser.getint(section_name, key)
             else:
-                print(f"WARNING unknown {self.key_message(key, section_name)}")
-        for key in entries:
+                values[key] = section[key]
+
+        for key in [key for key in section if key not in entries]:
+            print(f"WARNING unknown {self.key_message(key, section_name)}")
+
+        for key in [key for key in entries if key not in values]:
             if key not in values:
-                if entries[key].is_required:
-                    raise Exception(f"ERROR missing required {self.key_message(key, section_name)}")
+                if entries[key].fallback is None:
+                    if entries[key].is_required:
+                        raise Exception(f"ERROR missing required {self.key_message(key, section_name)}")
+                    else:
+                        print(f"WARNING missing optional with no fallback {self.key_message(key, section_name)}")
                 else:
-                    print(f"WARNING missing optional {self.key_message(key, section_name)}")
+                    values[key] = entries[key].fallback
         return values
