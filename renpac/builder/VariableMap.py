@@ -1,3 +1,5 @@
+from typing import Callable, Dict, List
+
 from renpac.base.printv import *
 
 from renpac.builder.Config import *
@@ -8,6 +10,8 @@ TYPE_LITERAL = 1 # for numbers, functions, and references to other objects
 TYPE_BOOL = 2
 TYPE_POSITION = 3
 TYPE_SIZE = 4
+TYPE_NUMBER = 5
+TYPE_LIST = 6
 
 # TODO clean this up, combine with Definition in Game.py used for inventory/game
 class VariableMap:
@@ -17,6 +21,7 @@ class VariableMap:
         self.type = type
         self._default = default
 
+    # TODO separate the "write python script" logic from the "process config" logic
     def process(self, section: dict, python_name: str) -> List[str]:
         lines = []
         if section is None or not self.config_key in section:

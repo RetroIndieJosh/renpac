@@ -1,15 +1,9 @@
-from dataclasses import dataclass
-from typing import Callable, List
+from typing import Callable, Dict, List
 
 from renpac.base.printv import *
 from renpac.builder.Config import *
 from renpac.builder.Script import *
 from renpac.builder.VariableMap import *
-
-@dataclass(frozen=True)
-class Definition:
-    is_required: bool
-    is_numeric: bool
 
 class Game:
     _instance = None
@@ -77,25 +71,6 @@ class Game:
         start_room = room_to_python(self._start_room)
         self._script.add_line(f"return {start_room}")
     
-    def get_values(self, section_name: str, required: dict) -> dict:
-        section = Config.get_section(section_name)
-        values = {}
-        for key in section:
-            if key in required:
-                values[key] = section[key]
-            else:
-                printv(f"WARN: unknown {section_name} key '{key}'")
-        for key in required:
-            if key in values:
-                if required[key].is_numeric and not values[key].isnumeric():
-                    printv(f"ERROR: expected number for '{key}' but got value '{values[key]}'")
-            else:
-                if required[key].is_required:
-                    printv(f"ERROR: missing required key '{key}' in {section_name}")
-                else:
-                    printv(f"WARN: missing optional key '{key}' in {section_name}")
-        return values
-    
     def has_combo(self, name: str) -> bool:
         return name in self._combos
     
@@ -140,36 +115,27 @@ class Game:
             self._parse_definition(parts[0], parts[1])
 
     def parse_defaults(self) -> None:
-        section = Config.get_section('exit')
-        for key in section:
-            if key == 'size':
-                self._default_exit_size = section[key]
-            else:
-                print(f"WARNING unknown exit key '{key}')")
-        section = Config.get_section('item')
-        for key in section:
-            if key == 'size':
-                self._default_item_size = section[key]
-            else:
-                print(f"WARNING unknown iitem key '{key}')")
+        # store as string to parse later when size is set
+        values = Config.parse_section('exit', {'size': ConfigEntry(TYPE_STRING, False)})
+        self._default_exit_size = values['size']
+
+        # ditto above
+        values = Config.parse_section('item', {'size': ConfigEntry(TYPE_STRING, False)})
+        self._default_item_size = values['size']
 
     def parse_game(self) -> None:
-        section = Config.get_section('game')
-        for key in section:
-            if key == 'start':
-                self._start_room = section[key]
-            else:
-                print(f"WARNING unknown game key '{key}'")
+        values = Config.parse_section('game', {'start': ConfigEntry(TYPE_STRING, True)})
+        self._start_room = values['start']
     
     def parse_inventory(self) -> None:
-        required = {
-            'anchor': Definition(True, False),
-            'depth': Definition(True, True),
-            'length': Definition(True, True),
-            'items': Definition(False, False)
+        entries = {
+            'anchor': ConfigEntry(TYPE_NUMBER, True),
+            'depth': ConfigEntry(TYPE_NUMBER, True),
+            'length': ConfigEntry(TYPE_NUMBER, True),
+            'items': ConfigEntry(TYPE_LIST, False)
         }
-        values = self.get_values("inventory", required)
-        valid_anchors = {"bottom", "left", "right", "top"}
+        values = Config.parse_section('inventory', entries)
+        valid_anchors = ["bottom", "left", "right", "top"]
         if values['anchor'] not in valid_anchors:
             anchor = f"INVENTORY_{anchor.upper()}"
             printv(f"ERROR: illegal inventory anchor '{anchor}'")
