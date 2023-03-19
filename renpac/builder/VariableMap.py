@@ -17,7 +17,7 @@ class VariableMap:
         self.type = type
         self._default = default
 
-    def process(self, section: dict, python_name: str) -> list[str]:
+    def process(self, section: dict, python_name: str) -> List[str]:
         lines = []
         if section is None or not self.config_key in section:
             if self._default is None: 

@@ -174,6 +174,18 @@ class Build:
         if len(parser.read(self._config_path.get())) == 0:
             raise Exception(f"could not open or no data in build config '{self._config_path}'")
 
+        if 'root' not in parser['build']:
+            raise Exception("Root path must be set in 'build' section of build.cfg")
+        # TODO validate root path is a valid path
+        root_path = parser['build']['root']
+
+        if parser.getboolean('build', 'verbose', fallback=False):
+            enable_verbose()
+
+        if parser.getboolean('build', 'overwrite', fallback=False):
+            global FORCE_OVERWRITE
+            FORCE_OVERWRITE = True
+
         required_path_sections = ['engine', 'game']
         for section in required_path_sections:
             if section not in parser:
@@ -182,8 +194,8 @@ class Build:
                 raise Exception(f"ERROR: No 'path' defined in '{section}' section in build config {self._config_path}")
 
         # TODO rewrite to use variable mapping thingy (will first need some adjustments)
-        self._engine_path = Path(parser['engine']['path'])
-        self._game_path = Path(parser['game']['path'])
+        self._engine_path = Path('/'.join([root_path, parser['engine']['path']]))
+        self._game_path = Path('/'.join([root_path, parser['game']['path']]))
 
         # TODO optional, so would flag as such in variable map (and also set default)
         if 'audio' in parser['game']:
@@ -205,13 +217,6 @@ class Build:
         else:
             gui_path_relative = "audio"
         self._gui_path = Path(f"{self._game_path}/{gui_path_relative}")
-
-        if parser.getboolean('build', 'verbose', fallback=False):
-            enable_verbose()
-
-        if parser.getboolean('build', 'overwrite', fallback=False):
-            global FORCE_OVERWRITE
-            FORCE_OVERWRITE = True
 
         if 'name' not in parser['game']:
             raise Exception(f"ERROR: No 'name' defined in 'game' section in build config {self._config_path}")

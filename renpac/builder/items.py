@@ -1,7 +1,7 @@
 from renpac.builder.Game import Game
 from renpac.builder.VariableMap import *
 
-def parse_item(name: str) -> list[str]:
+def parse_item(name: str) -> List[str]:
     item_varmaps = [
         VariableMap("desc"),
         VariableMap("printed", "printed_name"),

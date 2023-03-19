@@ -10,7 +10,7 @@ room_varmaps = [
     VariableMap("printed", "printed_name")
 ]
 
-def parse_room(name: str) -> list[str]:
+def parse_room(name: str) -> List[str]:
     lines = []
 
     section_key = f"room.{name}"

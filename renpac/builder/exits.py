@@ -3,7 +3,7 @@ from renpac.base.printv import *
 from renpac.builder.Game import *
 from renpac.builder.VariableMap import *
 
-def parse_exit(name: str) -> list[str]:
+def parse_exit(name: str) -> List[str]:
     exit_varmaps = [
         VariableMap("message"),
         VariableMap("pos", type=TYPE_POSITION),

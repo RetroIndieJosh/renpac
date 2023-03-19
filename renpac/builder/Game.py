@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, List
+
 from renpac.base.printv import *
 from renpac.builder.Config import *
 from renpac.builder.Script import *
@@ -33,33 +34,33 @@ class Game:
     def instance() -> 'Game':
         return Game._instance
 
-    def items(self) -> list[str]:
+    def items(self) -> List[str]:
         return self._items
 
-    def rooms(self) -> list[str]:
+    def rooms(self) -> List[str]:
         return self._rooms
     
     # TODO these should be process_ or write_script for, not all_, since they
     # aren't fully genericized
-    def all_combos(self, func: Callable[[str], list[str]]) -> None:
+    def all_combos(self, func: Callable[[str], List[str]]) -> None:
         if self._combos is None:
             print("WARNING: no combinations in game")
         self._script.add_header(f"COMBOS")
         self._script.add_lines(flatten(map(func, self._combos)))
     
-    def all_exits(self, func: Callable[[str], list[str]]) -> None:
+    def all_exits(self, func: Callable[[str], List[str]]) -> None:
         if self._exits is None:
             print("WARNING: no exits in game")
         self._script.add_header(f"EXITS")
         self._script.add_lines(flatten(map(func, self._exits)))
 
-    def all_items(self, func: Callable[[str], list[str]]) -> None:
+    def all_items(self, func: Callable[[str], List[str]]) -> None:
         if self._items is None:
             print("WARNING: no items in game")
         self._script.add_header(f"ITEMS")
         self._script.add_lines(flatten(map(func, self._items)))
     
-    def all_rooms(self, func: Callable[[str], list[str]]) -> None:
+    def all_rooms(self, func: Callable[[str], List[str]]) -> None:
         if self._rooms is None:
             raise Exception("ERROR game must have at least one room")
         self._script.add_header(f"ROOMS")
@@ -180,7 +181,7 @@ class Game:
         self._script.add_line(f"Inventory.set_mode({anchor}, {length}, {depth})")
 
         if 'items' in values:
-            items: list[str] = values['items'].split(',')
+            items: List[str] = values['items'].split(',')
             for item in items:
                 if not self.has_item(item):
                     raise Exception(f"ERROR no item '{item}' for initial inventory")
@@ -197,7 +198,7 @@ class Game:
         printv(f"writing game file to '{self._script._output_path}'")
         self._script.write()
 
-def flatten(list: list[list]) -> list:
+def flatten(list: List[List]) -> List:
     if list is None:
         return None
     return [item for sublist in list for item in sublist]

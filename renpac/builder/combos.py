@@ -7,7 +7,7 @@ TARGET_NONE = 0b00
 TARGET_SELF = 0b01
 TARGET_OTHER = 0b10
 
-def parse_combo(section_key: str) -> list[str]:
+def parse_combo(section_key: str) -> List[str]:
     parts = section_key.split('+')
     if len(parts) > 2:
         printv("ERROR: too many parts in combo '{combo}'")

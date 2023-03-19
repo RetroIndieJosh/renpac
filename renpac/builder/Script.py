@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 from datetime import datetime
 
@@ -32,7 +33,7 @@ class Script:
             self._text += TAB
         self._text += f"{line}\n"
 
-    def add_lines(self, lines: list[str]) -> None:
+    def add_lines(self, lines: List[str]) -> None:
         for line in lines:
             self.add_line(line)
 

@@ -54,7 +54,7 @@
             foo = ("this is a string that "
                 "goes on to the next line")
             ```
-            - we could misinterpret it for the `list[str]`:
+            - we could misinterpret it for the `List[str]`:
                 ```py
                 foo = ("this is a string that ",
                     "goes on to the next line")
