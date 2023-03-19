@@ -49,22 +49,34 @@
     - use backslashes instead of parentheses for multiline string literals
         - this helps avoid missing commas in a list (there will always be a comma or a backslash)
         - bad if `foo` is a `str`:
+            ```py
             foo = ("this is a string that "
                 "goes on to the next line")
+            ```
             - we could misinterpret it for the `list[str]`:
+                ```py
                 foo = ("this is a string that ",
                     "goes on to the next line")
+                ```
         - instead:
             foo = "this is a string that " \
                 "goes on to the next line"
     - use `join()` instead of `+`
-        - bad: `"hello " + "world"`
-        - good: `' '.join("hello", "world")`
+        - bad: 
+            ```py
+            foo = "hello " + "world"
+            ```
+        - good: 
+            ```py
+            foo = ' '.join("hello", "world")
+            ```
 - files should be ordered: global variables, class definitions, functions, loose script
     - loose script should be avoided if possible and put in the main() test function
-- every file must have at the end of the file:
-        if __name__ == "__main__":
-            main()
+- every file must have at the end:
+    ```py
+    if __name__ == "__main__":
+        main()
+    ```
     - as a consequence, every file must define a main() function
     - the main() function should test all functionality in the file
     - as a temporary measure, the main function should print "no tests available" if tests have not been implemented
@@ -72,10 +84,9 @@
 - class names are ProperCase
 - all other variables and functions are lower_case_with_underscores
 - always use @staticmethod or @classmethod on relevant functions
-- only import local classes with `from . import X`
-    - NEVER import local classes with `import X`
-    - NEVER import local globals or functions with `from . import my_func`
-    - deviating from these guidelines will break the `*.py` => `*.gen.rpy` generator
+- specific to engine
+    - all imports must be `from base import X` for elements from `base` and `from . import X` for elements from `engine`
+    - deviating from this will break the generator
 - if a class is in pure python, create a `.py` file
 - one class per file
 - use classes for functions and variables accessible in other Python files or in Ren'Py
