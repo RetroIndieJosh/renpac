@@ -1,6 +1,7 @@
 import argparse
 import filecmp
 import shutil
+import pathlib
 
 from configparser import ConfigParser
 from datetime import datetime
@@ -87,16 +88,36 @@ class Build:
         printv(f"copying engine from '{source_path}' to '{dest_path}'")
         self.copy_files(source_path, dest_path)
 
-    def copy_files(self, source_dir: str, dest_dir: str, relative_dir: str = ""):
+    # TODO should we have an exclude list as an arg, or pre-built exclude funcs?
+    # wasn't there a builtin for that?
+    def copy_files(self, source_dir: str, dest_dir: str, 
+                   check_func: Callable[[str], bool] = None, 
+                   relative_dir: str = "") -> int:
+        """! Recursively copy all files from the source directory to the target
+        directory, including all subdirectories.
+
+        @param source_dir The top-level directory containing files and
+            directories to copy
+        @param dest_dir The top-level destintation directory
+        @param check_func A function to check whether a given file is valid
+        @param relative_dir The directory relative to source_dir we are
+            currently copying (used for recursion)
+        @return The total number of files (excluding directories) copied
+        """
         dir = os.path.join(source_dir, relative_dir)
+        count = 0
         for file in os.listdir(dir):
             source_file = os.path.join(source_dir, relative_dir, file)
             if os.path.isdir(source_file):
-                self.copy_files(source_dir, dest_dir, os.path.join(relative_dir, file))
+                count += self.copy_files(source_dir, dest_dir, check_func,
+                    os.path.join(relative_dir, file))
             else:
                 # TODO use logging.debug
                 #printv(f"[{relative_dir}] ", end='')
                 dest_file = os.path.join(dest_dir, relative_dir, file)
+                if check_func is not None:
+                    if not check_func(dest_file):
+                        continue
                 if not FORCE_OVERWRITE:
                     # skip copy if the destination file matches exactly
                     if os.path.exists(dest_file):
@@ -109,6 +130,8 @@ class Build:
                 #printv(f"COPY\n\t{source_file}\n\tTO {dest_file}")
                 os.makedirs(os.path.dirname(dest_file), exist_ok=True)
                 shutil.copy2(source_file, dest_file)
+                count += 1
+        return count
 
     def copy_resources(self) -> None:
         mapping = {
@@ -116,11 +139,35 @@ class Build:
             self._images_path: "images",
             self._gui_path: "gui",
         }
+
+        images = [f"{item}_idle" for item in Game.instance().items()] 
+        images += [f"{item}_hover" for item in Game.instance().items()] 
+        images += [f"bg {room}" for room in Game.instance().rooms()]
+        required_images = {resource: False for resource in images}
+
+        def check_resource(path) -> bool:
+            if "gui" in path:
+                return True
+            name = pathlib.Path(path).stem
+            extension = pathlib.Path(path).suffix
+            if extension == ".png" or extension == ".jpg" or extension == ".jpeg":
+                if name in required_images:
+                    required_images[name] = True
+                    return True
+                else:
+                    print(f"WARNING unused image file")
+            print(f"WARNING skipped resource (cannot be validated)\n\t'{path}'")
+            return False
+
         for source_path in mapping:
             resource_type = mapping[source_path]
             dest_path = Path(f"{self._output_path}/{resource_type}", False)
             printv(f"copying resources ({resource_type}) from '{source_path}' to '{dest_path}'")
-            self.copy_files(source_path.get(), dest_path.get())
+            self.copy_files(source_path.get(), dest_path.get(), check_resource)
+
+        for image in required_images:
+            if not required_images[image]:
+                print(f"WARNING missing required image file '{image}'")
 
     def parse_config(self) -> None:
         parser = ConfigParser()

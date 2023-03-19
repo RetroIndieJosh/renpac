@@ -29,9 +29,18 @@ class Game:
         self._script.add_line("def load_game():")
         self._script.indent()
 
+    @staticmethod
     def instance() -> 'Game':
         return Game._instance
+
+    def items(self) -> list[str]:
+        return self._items
+
+    def rooms(self) -> list[str]:
+        return self._rooms
     
+    # TODO these should be process_ or write_script for, not all_, since they
+    # aren't fully genericized
     def all_combos(self, func: Callable[[str], list[str]]) -> None:
         if self._combos is None:
             print("WARNING: no combinations in game")

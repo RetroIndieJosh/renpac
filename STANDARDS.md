@@ -42,7 +42,8 @@
 - avoid lines longer than the preset minimum (use gql to check)
     - if a single code line runs multiple lines, indent subsequent lines one deeper that the first
         - remember in some casese parentheses are required to notify Python these are a single line
-    - always split *after* a token (paren, bracket, brace, comma)
+    - always split *after* a paired token (paren, bracket, brace) or comma
+    - always split *before* a calculation operator (+ - * / %)
     - never put a function return type on its own line (treat it as "attached" to the last argument)
     - never split a compound type like `Callable[[int, str], bool]`
 - strings
