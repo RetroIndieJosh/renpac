@@ -1,6 +1,7 @@
 # TODO rename to Build.py
 import shutil
 import pathlib
+import platform
 
 from configparser import ConfigParser
 from datetime import datetime
@@ -133,6 +134,11 @@ class Build:
             raise Exception("Root path must be set in 'build' section of build.cfg")
         # TODO validate root path is a valid path
         root_path = parser['build']['root']
+        if root_path.startswith('/'):
+            if platform.system() == "Windows":
+                raise Exception(f"Illegal root path for Windows.\n\tRoot: {root_path}")
+        elif platform.system() != "Windows":
+                raise Exception(f"Illegal root path for Linux.\n\tRoot: {root_path}")
 
         if parser.getboolean('build', 'verbose', fallback=False):
             enable_verbose()
