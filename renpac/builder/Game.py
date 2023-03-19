@@ -1,6 +1,9 @@
 from typing import Callable, Dict, List
 
 from renpac.base.printv import *
+
+from renpac.builder import python
+
 from renpac.builder.Config import *
 from renpac.builder.Script import *
 from renpac.builder.VariableMap import *
@@ -68,7 +71,7 @@ class Game:
     
     def finalize(self) -> None:
         self._script.add_header("START ROOM")
-        start_room = room_to_python(self._start_room)
+        start_room = python.room(self._start_room)
         self._script.add_line(f"return {start_room}")
     
     def has_combo(self, name: str) -> bool:
@@ -148,10 +151,10 @@ class Game:
 
         if 'items' in values:
             items: List[str] = values['items'].split(',')
-            for item in items:
-                if not self.has_item(item):
-                    raise Exception(f"ERROR no item '{item}' for initial inventory")
-                item_python = item_to_python(item)
+            for item_name in items:
+                if not self.has_item(item_name):
+                    raise Exception(f"ERROR no item '{item_name}' for initial inventory")
+                item_python = python.item(item_name)
                 self._script.add_line(f"Inventory.add({item_python})")
     
     def report_definitions(self) -> None:

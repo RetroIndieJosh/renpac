@@ -1,5 +1,7 @@
 from renpac.base.printv import *
 
+from renpac.builder import python
+
 from renpac.builder.Game import *
 from renpac.builder.VariableMap import *
 
@@ -13,17 +15,17 @@ def parse_combo(section_key: str) -> List[str]:
         printv("ERROR: too many parts in combo '{combo}'")
         return
 
-    item = parts[0].split('.')[1].strip()
-    target = parts[1].split('.')[1].strip()
+    item_name = parts[0].split('.')[1].strip()
+    target_name = parts[1].split('.')[1].strip()
 
-    if not Game.instance().has_item(item):
-        printv(f"ERROR: for combo, no item '{item}' defined in game configuration")
-    if not Game.instance().has_hotspot(target):
-        printv(f"ERROR: for combo, no hotspot target '{target}' defined in game configuration")
+    if not Game.instance().has_item(item_name):
+        printv(f"ERROR: for combo, no item '{item_name}' defined in game configuration")
+    if not Game.instance().has_hotspot(target_name):
+        printv(f"ERROR: for combo, no hotspot target '{target_name}' defined in game configuration")
 
     # reuse parts here so we keep the prefix (item. => item_ or exit. => exit_)
-    item_python = parts[0].strip().replace('.', '_').replace(' ', '_')
-    target_python = parts[1].strip().replace('.', '_').replace(' ', '_')
+    item_python = python.name(None, parts[0])
+    target_python = python.name(None, parts[1])
 
     message = None
     delete_flags = "TARGET_NONE"
@@ -63,7 +65,7 @@ def parse_combo(section_key: str) -> List[str]:
             printv(f"ERROR: unknown value for 'replace' in combo: {replace_target}")
     
     if 'with' in section:
-        replace_with = item_to_python(section['with'])
+        replace_with = python.item(section['with'])
 
     # error checking
 
@@ -80,7 +82,7 @@ def parse_combo(section_key: str) -> List[str]:
     if message is None:
         printv(f"WARN: no message for combo '{section_key}")
 
-    python_name = combo_to_python(section_key).replace('.', '_').replace('+', 'plus')
+    python_name = python.combo(section_key).replace('.', '_').replace('+', 'plus')
 
     return [
         f"{python_name} = Combination(\"{message}\", {delete_flags}, {replace_flags}, {replace_with})",
