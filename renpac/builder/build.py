@@ -3,7 +3,6 @@ import shutil
 import pathlib
 import platform
 
-from configparser import ConfigParser
 from datetime import datetime
 
 from renpac.base.printv import *
@@ -15,7 +14,8 @@ from renpac.builder.exits import *
 from renpac.builder.items import *
 from renpac.builder.rooms import *
 
-from renpac.builder.Config import Config
+from renpac.base.Config import Config, ConfigEntry, ConfigType
+
 from renpac.builder.Game import Game
 from renpac.builder.Path import Path
 from renpac.builder.Script import Script
@@ -128,8 +128,8 @@ class Build:
     def parse_config(self) -> None:
         config = Config(self._config_path.get())
         root_values = config.parse_section('build', {
-            'root': ConfigEntry(TYPE_STRING, True),
-            'verbose': ConfigEntry(TYPE_BOOL, False, False),
+            'root': ConfigEntry(ConfigType.STRING, True),
+            'verbose': ConfigEntry(ConfigType.BOOL, False, False),
         })
 
         root_path = root_values['root']
@@ -143,19 +143,19 @@ class Build:
             enable_verbose()
 
         game_values = config.parse_section('game', {
-            'audio': ConfigEntry(TYPE_STRING, True, "audio"),
-            'author': ConfigEntry(TYPE_STRING, False, "Anonymous"),
-            'gui': ConfigEntry(TYPE_STRING, True, "gui"),
-            'images': ConfigEntry(TYPE_STRING, True, "images"),
-            'name': ConfigEntry(TYPE_STRING, False, "Untitled RenPaC Game"),
-            'path': ConfigEntry(TYPE_STRING, True),
+            'audio': ConfigEntry(ConfigType.STRING, True, "audio"),
+            'author': ConfigEntry(ConfigType.STRING, False, "Anonymous"),
+            'gui': ConfigEntry(ConfigType.STRING, True, "gui"),
+            'images': ConfigEntry(ConfigType.STRING, True, "images"),
+            'name': ConfigEntry(ConfigType.STRING, False, "Untitled RenPaC Game"),
+            'path': ConfigEntry(ConfigType.STRING, True),
         })
         self._game_path = Path('/'.join([root_path, game_values['path']]))
 
         self._game_name = game_values['name']
         self.generate_paths()
 
-        engine_values = config.parse_section('engine', {'path': ConfigEntry(TYPE_STRING, True)})
+        engine_values = config.parse_section('engine', {'path': ConfigEntry(ConfigType.STRING, True)})
         self._engine_path = Path('/'.join([root_path, engine_values['path']]))
 
         audio_path_relative = game_values['audio']
@@ -168,8 +168,8 @@ class Build:
         self._images_path = Path(f"{self._game_path}/{images_path_relative}")
 
         debug_values = config.parse_section('debug', {
-            'hotspots': ConfigEntry(TYPE_BOOL, True, False),
-            'notify': ConfigEntry(TYPE_STRING, True, "none"),
+            'hotspots': ConfigEntry(ConfigType.BOOL, True, False),
+            'notify': ConfigEntry(ConfigType.STRING, True, "none"),
         })
 
         self._debug_lines = [

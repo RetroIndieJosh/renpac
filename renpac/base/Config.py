@@ -1,18 +1,20 @@
+from enum import Enum
 from pathlib import Path
-from typing import Callable, Dict, List
+from typing import Dict, List
 
 from renpac.base.printv import *
 
-from configparser import ConfigParser, NoOptionError
+from configparser import ConfigParser
 
-TYPE_STRING = 0
-TYPE_LITERAL = 1 # for numbers, functions, and references to other objects
-TYPE_BOOL = 2
-TYPE_POSITION = 3
-TYPE_SIZE = 4
-TYPE_INT = 5
-TYPE_FLOAT = 6
-TYPE_LIST = 7
+class ConfigType(Enum):
+    STRING = 0
+    LITERAL = 1 # for numbers, functions, and references to other objects
+    BOOL = 2
+    POSITION = 3
+    SIZE = 4
+    INT = 5
+    FLOAT = 6
+    LIST = 7
 
 class ConfigEntry:
     expected_type: int
@@ -56,11 +58,11 @@ class Config:
         section = self.get_section(section_name)
         values: Dict[str, any] = {}
         for key in [key for key in section if key in entries]:
-            if entries[key].expected_type == TYPE_BOOL:
+            if entries[key].expected_type == ConfigType.BOOL:
                 values[key] = self._parser.getboolean(section_name, key)
-            elif entries[key].expected_type == TYPE_FLOAT:
+            elif entries[key].expected_type == ConfigType.FLOAT:
                 values[key] = self._parser.getfloat(section_name, key)
-            elif entries[key].expected_type == TYPE_INT:
+            elif entries[key].expected_type == ConfigType.INT:
                 values[key] = self._parser.getint(section_name, key)
             else:
                 values[key] = section[key]

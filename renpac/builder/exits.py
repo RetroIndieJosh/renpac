@@ -8,8 +8,8 @@ from renpac.builder.VariableMap import *
 def parse_exit(exit_name: str) -> List[str]:
     exit_varmaps = [
         VariableMap("message"),
-        VariableMap("pos", type=TYPE_POSITION),
-        VariableMap("size", type=TYPE_SIZE, default=Game.instance().default_exit_size())
+        VariableMap("pos", type=ConfigType.POSITION),
+        VariableMap("size", type=ConfigType.SIZE, default=Game.instance().default_exit_size())
     ]
 
     lines = []

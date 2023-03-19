@@ -1,13 +1,15 @@
-from typing import Callable, Dict, List
+from typing import List
 
 from renpac.base.printv import *
 
-from renpac.builder.Config import *
+from renpac.base.Config import Config, ConfigType
+
 from renpac.builder.Script import *
 
 # TODO clean this up, combine with Definition in Game.py used for inventory/game
 class VariableMap:
-    def __init__(self, config_key: str, python_key: str = None, type: int = TYPE_STRING, default: str = None) -> None:
+    def __init__(self, config_key: str, python_key: str = None, 
+            type: int = ConfigType.STRING, default: str = None) -> None:
         self.config_key = config_key
         self.python_key = python_key if python_key is not None else config_key
         self.type = type
@@ -23,16 +25,16 @@ class VariableMap:
             raw_value = self._default
         else:
             raw_value = section[self.config_key]
-        if self.type == TYPE_POSITION:
+        if self.type == ConfigType.POSITION:
             (x, y) = raw_value.split(' ')
             lines.append(f"{python_name}.rect.set_pos({x}, {y})")
-        elif self.type == TYPE_SIZE:
+        elif self.type == ConfigType.SIZE:
             (width, height) = raw_value.split(' ')
             lines.append(f"{python_name}.rect.set_size({width}, {height})")
         else:
-            if self.type == TYPE_LITERAL:
+            if self.type == ConfigType.LITERAL:
                 value = raw_value.replace(' ', '_')
-            elif self.type == TYPE_BOOL:
+            elif self.type == ConfigType.BOOL:
                 value = True if raw_value == "yes" else False
             else:
                 text = raw_value.replace('\n', ' ')

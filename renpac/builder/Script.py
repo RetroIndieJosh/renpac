@@ -5,8 +5,6 @@ from datetime import datetime
 
 from renpac.base.printv import *
 
-from renpac.builder.Config import *
-
 TAB = "    "
 
 class Script:

@@ -1,12 +1,14 @@
-from typing import Callable, Dict, List
+from configparser import ConfigParser
+from typing import Callable, List
 
 from renpac.base.printv import *
 
-from renpac.builder import python
+from renpac.base.Config import Config, ConfigEntry, ConfigType
 
-from renpac.builder.Config import *
 from renpac.builder.Script import *
 from renpac.builder.VariableMap import *
+
+from renpac.builder import python
 
 class Game:
     _instance = None
@@ -125,23 +127,23 @@ class Game:
 
     def parse_defaults(self) -> None:
         # store as string to parse later when size is set
-        values = self._config.parse_section('exit', {'size': ConfigEntry(TYPE_STRING, False)})
+        values = self._config.parse_section('exit', {'size': ConfigEntry(ConfigType.STRING, False)})
         self._default_exit_size = values['size']
 
         # ditto above
-        values = self._config.parse_section('item', {'size': ConfigEntry(TYPE_STRING, False)})
+        values = self._config.parse_section('item', {'size': ConfigEntry(ConfigType.STRING, False)})
         self._default_item_size = values['size']
 
     def parse_game(self) -> None:
-        values = self._config.parse_section('game', {'start': ConfigEntry(TYPE_STRING, True)})
+        values = self._config.parse_section('game', {'start': ConfigEntry(ConfigType.STRING, True)})
         self._start_room = values['start']
     
     def parse_inventory(self) -> None:
         entries = {
-            'anchor': ConfigEntry(TYPE_STRING, True),
-            'depth': ConfigEntry(TYPE_INT, True),
-            'length': ConfigEntry(TYPE_INT, True),
-            'items': ConfigEntry(TYPE_LIST, False)
+            'anchor': ConfigEntry(ConfigType.STRING, True),
+            'depth': ConfigEntry(ConfigType.INT, True),
+            'length': ConfigEntry(ConfigType.INT, True),
+            'items': ConfigEntry(ConfigType.LIST, False)
         }
         values = self._config.parse_section('inventory', entries)
         valid_anchors = ["bottom", "left", "right", "top"]
