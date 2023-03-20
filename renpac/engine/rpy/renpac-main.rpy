@@ -15,6 +15,6 @@ label renpac_start(game_name):
         python:
             if not Renpac.can_hover():
                 Hotspot.hover_clear()
-            who, what = Renpac.next_say()
-            renpy.say(who, what, interact=True)
+            message = Renpac.next_say()
+            renpy.say(message.who, message.what, interact=True)
     return

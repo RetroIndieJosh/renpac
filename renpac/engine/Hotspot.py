@@ -1,3 +1,5 @@
+from typing import Optional
+
 from . import Action, Rect, Renpac
 
 import logging
@@ -12,7 +14,7 @@ class Hotspot:
 
     ## Which hotspot is currently being hovered over. Ren'py doesn't have
     ## interaction layers, so this should be one item at a time.
-    _hovered = None
+    _hovered: Optional['Hotspot'] = None
 
     @staticmethod
     def hover_clear() -> None:
@@ -24,7 +26,7 @@ class Hotspot:
         Hotspot._hovered = None
 
     @staticmethod
-    def hover_get() -> 'Hotspot':
+    def hover_get() -> Optional['Hotspot']:
         """! Get the hotspot where the mouse is currently hovering
 
         @return The Hotspot over which the mouse is hovering, or None if there
@@ -33,7 +35,7 @@ class Hotspot:
         return Hotspot._hovered
     
     @staticmethod
-    def hover_set(hs: 'Hotspot') -> None:
+    def hover_set(hs: Optional['Hotspot']) -> None:
         """! Set the hotspot where the mouse is currently hovering. If there is
             already a hotspot in the one and only slot for storing a hovered
             hotspot, raise a warning and clear the hotspot before setting the new
@@ -105,7 +107,7 @@ class Hotspot:
         """! Get a path to the image to represent the hotspot. This is meant to
         be overridden by Hotspot-inheriting types that use images, such as Item.
         """
-        return None
+        raise Exception("Tried to get image path from a hotspot that doesn't override get_img_path")
 
     # TODO _deleted functionality should be in a more generalized base class
     def is_deleted(self) -> bool:

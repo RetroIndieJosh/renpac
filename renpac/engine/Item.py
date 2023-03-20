@@ -1,5 +1,9 @@
 import logging
 
+from typing import Dict, Optional
+
+from . import Cursor, Hotspot, Action, Combination, Renpac
+
 ## Flag for no target
 TARGET_NONE = 0b00
 
@@ -9,14 +13,12 @@ TARGET_SELF = 0b01
 ## Flag for targeting the target item (the hotspot the player "uses" the selected item on)
 TARGET_OTHER = 0b10
 
-from . import Cursor, Hotspot, Action, Combination, Renpac
-
 class Item(Hotspot):
     """! An item that the player can collect and use represented by an image and interacted through a Hotspot
     """
 
     ## The currently selected item for "use on" action
-    _selection: 'Item' = None
+    _selection: Optional['Item'] = None
 
     @staticmethod
     def selection_clear() -> None:
@@ -69,7 +71,7 @@ class Item(Hotspot):
 
         ## A mapping of item names to Combinations to trigger when used on a
         ## hotspot that matches the key name
-        self._combinations = {}
+        self._combinations: Dict[str, Combination] = {}
 
         ## A custom message for taking the item. If this is left as None, the
         ## default message "You take {name}" will be used.

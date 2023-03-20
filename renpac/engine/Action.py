@@ -1,5 +1,5 @@
 import logging
-from typing import Callable
+from typing import Callable, Dict, Optional
 
 from . import Renpac
 
@@ -10,19 +10,19 @@ class Action:
     """
 
     ## The list of registered actions.
-    _actions = {}
+    _actions: Dict[str, 'Action'] = {}
 
     ## Whether actions are locked, i.e. no more actions can be registered.
-    _locked = False
+    _locked: bool = False
 
     ## The current active action.
-    current = None
+    current: Optional['Action'] = None
 
     ## The default action for a given context.
-    default = None
+    default: Optional['Action'] = None
 
     @staticmethod
-    def get(name: str) -> 'Action':
+    def get(name: str) -> Optional['Action']:
         """! Get an action by name. If it doesn't exist, throw a warning and
         return nothing.
 
@@ -41,7 +41,7 @@ class Action:
         """
         Action._locked = True
 
-    def __init__(self, name: str, func: Callable[['Hotspot'], None]) -> None: #type: ignore
+    def __init__(self, name: Optional[str], func: Callable[['Hotspot'], None]) -> None: #type: ignore
         """! Create and register an action called \p name that executes function
         \p func. Throw an exception if actions are locked.
 
@@ -66,19 +66,10 @@ class Action:
             Action._actions[name] = self
     
     def execute(self, target: 'Hotspot') -> None: #type: ignore
-        """! Execute the action on the given \p target. If the action has an
-        allow_func defined, abort the action if it returns False. If the
-        allow_func fails and a not_allowed_func exists, call that before
-        returning.
+        """! Execute the action on the given target.
         
         @param target The hotspot on which the #Action.func will execute.
         """
-        if self.allow_func is not None:
-            if not self.allow_func():
-                if self.not_allowed_func is not None:
-                    self.not_allowed_func()
-                return
-
         if self.name is None:
             logging.info(f"execute default action on '{target.name}'")
         else:

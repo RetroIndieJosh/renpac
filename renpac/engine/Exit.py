@@ -1,3 +1,5 @@
+#from renpac.engine.Action import Action
+#from renpac.engine.Hotspot import Hotspot
 from . import Action, Hotspot
 
 class Exit(Hotspot):

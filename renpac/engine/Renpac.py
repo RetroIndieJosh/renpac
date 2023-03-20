@@ -1,14 +1,21 @@
 import logging
 
+from dataclasses import dataclass
+from typing import List, Optional
+
 from base import StaticClass
-from queue import SimpleQueue
+
+@dataclass(frozen = True)
+class Message:
+    who: Optional[str]
+    what: str
 
 class Renpac(StaticClass):
     """! Static methods for global RenPaC features. Includs redirects for Ren'Py
     methods to avoid needing to use "#type: ignore" in the code, which could
     dangerously hide some errors/warnings."""
 
-    _messages = []
+    _messages: List[Message] = []
 
     @staticmethod
     def init() -> None:
@@ -53,7 +60,7 @@ class Renpac(StaticClass):
     def say(who, what) -> None:
         """! renpy.say
         """
-        Renpac._messages.append((who, what))
+        Renpac._messages.append(Message(who, what))
 
     @staticmethod
     def can_hover() -> bool:
