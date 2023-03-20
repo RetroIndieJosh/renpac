@@ -189,7 +189,7 @@ class Build:
             return
         printv("generating debug file")
         debug_script = Script(f"{self._output_path}/debug.gen.rpy", 999, self._config_path)
-        debug_script.add_lines(self._debug_lines)
+        debug_script.add_line(*self._debug_lines)
         debug_script.write()
 
     def generate_paths(self) -> None:

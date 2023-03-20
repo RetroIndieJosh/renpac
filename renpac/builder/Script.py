@@ -16,24 +16,21 @@ class Script:
         self._indent = 0
 
     def add_header(self, header: str) -> None:
-        self.add_lines([
+        self.add_line(
             "",
             "#######################",
             f"# {header}",
             "#######################"
-        ])
+        )
 
-    def add_line(self, line: str) -> None:
-        line = line.rstrip()
-        if line is None or line == "":
-            return
-        for _ in range(self._indent):
-            self._text += TAB
-        self._text += f"{line}\n"
-
-    def add_lines(self, lines: List[str]) -> None:
-        for line in lines:
-            self.add_line(line)
+    def add_line(self, *args: str) -> None:
+        for line in args:
+            line = line.rstrip()
+            if line is None or line == "":
+                return
+            for _ in range(self._indent):
+                self._text += TAB
+            self._text += f"{line}\n"
 
     def clear(self) -> None:
         self._text = ""

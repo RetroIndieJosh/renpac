@@ -51,25 +51,25 @@ class Game:
         if self._combos is None:
             print("WARNING: no combinations in game")
         self._script.add_header(f"COMBOS")
-        self._script.add_lines(flatten(map(func, self._combos)))
+        self._script.add_line(*flatten(map(func, self._combos)))
     
     def all_exits(self, func: Callable[[str], List[str]]) -> None:
         if self._exits is None:
             print("WARNING: no exits in game")
         self._script.add_header(f"EXITS")
-        self._script.add_lines(flatten(map(func, self._exits)))
+        self._script.add_line(*flatten(map(func, self._exits)))
 
     def all_items(self, func: Callable[[str], List[str]]) -> None:
         if self._items is None:
             print("WARNING: no items in game")
         self._script.add_header(f"ITEMS")
-        self._script.add_lines(flatten(map(func, self._items)))
+        self._script.add_line(*flatten(map(func, self._items)))
     
     def all_rooms(self, func: Callable[[str], List[str]]) -> None:
         if self._rooms is None:
             raise Exception("ERROR game must have at least one room")
         self._script.add_header(f"ROOMS")
-        self._script.add_lines(flatten(map(func, self._rooms)))
+        self._script.add_line(*flatten(map(func, self._rooms)))
 
     def default_exit_size(self) -> str:
         return self._default_exit_size
