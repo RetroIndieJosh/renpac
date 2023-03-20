@@ -5,10 +5,6 @@ from renpac.base.printv import *
 from renpac.builder.GeneratorFile import GeneratorFile
 from renpac.builder.Path import Path
 
-def main():
-    enable_verbose()
-    generate("../engine", "../engine/rpy")
-
 def cleanup(output_path: str) -> None:
     if not os.path.exists(output_path):
         return
@@ -69,6 +65,7 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
     for key in GeneratorFile.files:
         if not GeneratorFile.files[key].is_dependency():
             root_files.append(GeneratorFile.files[key])
+    file: GeneratorFile
     for file in root_files:
         printv(f"  -- root file: {file.name()}")
     for file in root_files:
@@ -87,8 +84,9 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
     base_filenames = list(filter(file_valid, os.listdir(base_input_path)))
     printv(f"** copying {len(base_filenames)} files from base")
     GeneratorFile.input_path = base_input_path
-    for file in base_filenames:
-        gen_file = GeneratorFile(os.path.splitext(file)[0])
+    file_name: str
+    for file_name in base_filenames:
+        gen_file = GeneratorFile(os.path.splitext(file_name)[0])
         # TODO can probably set this to min among generated files but might not matter?
         # TODO actually, might need to do full dependency/priority thing if anything in base relies on anything else in base
         gen_file.extract_dependencies()
@@ -98,4 +96,5 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
     print(f"{len(GeneratorFile.files)} files generated successfully")
 
 if __name__ == "__main__":
-    main()
+    enable_verbose()
+    generate("../engine", "../engine/rpy")

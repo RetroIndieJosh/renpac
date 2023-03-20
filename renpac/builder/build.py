@@ -5,7 +5,7 @@ import platform
 
 from datetime import datetime
 
-from renpac.base.printv import *
+from renpac.base.printv import enable_verbose, printv
 
 from renpac.base import files
 
@@ -26,14 +26,15 @@ THIS_PATH = os.path.dirname(__file__)
 
 class Build:
     def __init__(self, config_path="build.cfg") -> None:
-        self._config_path = Path(config_path)
-        self._debug_lines = None
-        self._game_name = None
-        self._game_path = None
-        self._engine_path = None
-        self._audio_path = None
-        self._images_path = None
-        self._gui_path = None
+        self._config_path: Path = Path(config_path)
+
+        self._debug_lines: List[str]
+        self._game_name: str
+        self._game_path: Path
+        self._engine_path: Path
+        self._audio_path: Path
+        self._images_path: Path
+        self._gui_path: Path
 
     def build(self) -> None:
         self.parse_config()
@@ -132,7 +133,7 @@ class Build:
             'verbose': ConfigEntry(ConfigType.BOOL, False, False),
         })
 
-        root_path = root_values['root']
+        root_path: str = root_values['root']
         if root_path.startswith('/'):
             if platform.system() == "Windows":
                 raise Exception(f"Illegal root path for Windows.\n\tRoot: {root_path}")
@@ -175,7 +176,7 @@ class Build:
         self._debug_lines = [
             f"DEBUG_SHOW_HOTSPOTS = {debug_values['hotspots']}"
         ]
-        notify = debug_values['notify']
+        notify: str = debug_values['notify']
         if notify not in ['none', 'debug', 'info', 'warnings', 'errors', 'all']:
             print(f"WARNING unknown value for debug.notify: '{notify}'")
         self._debug_lines.append(f"DEBUG_NOTIFY_ALL = {'True' if notify == 'all' else 'False'}")
@@ -188,7 +189,7 @@ class Build:
         if self._debug_lines is None:
             return
         printv("generating debug file")
-        debug_script = Script(f"{self._output_path}/debug.gen.rpy", 999, self._config_path)
+        debug_script = Script(Path(f"{self._output_path}/debug.gen.rpy", check_exists=False), 999, self._config_path)
         debug_script.add_line(*self._debug_lines)
         debug_script.write()
 
@@ -207,9 +208,6 @@ class Build:
               f"\n\tOutput: '{self._output_path}'"
               f"\n\tOutput File: '{self._output_file_path}'\n\n")
 
-def main() -> None:
+if __name__ == "__main__":
     build = Build()
     build.build()
-
-if __name__ == "__main__":
-    main()

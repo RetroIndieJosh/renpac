@@ -1,5 +1,5 @@
 from configparser import ConfigParser
-from typing import Callable, List
+from typing import Callable, Dict, List, Iterable, Optional
 
 from renpac.base.printv import *
 
@@ -13,7 +13,7 @@ from renpac.builder import python
 class Game:
     _instance = None
 
-    def __init__(self, output_path: str, config_path: str) -> None:
+    def __init__(self, output_path: Path, config_path: str) -> None:
         if Game._instance is not None:
             raise Exception("Cannot create more than one Game object")
 
@@ -21,11 +21,11 @@ class Game:
 
         self._config = Config(config_path)
 
-        self._combos = []
-        self._exits = []
-        self._items = []
-        self._rooms = []
-        self._start_room = None
+        self._combos: List[str] = []
+        self._exits: List[str] = []
+        self._items: List[str] = []
+        self._rooms: List[str] = []
+        self._start_room: Optional[str] = None
 
         self._script = Script(output_path)
         self._script.add_line("def load_game():")
@@ -33,10 +33,12 @@ class Game:
 
     @staticmethod
     def instance() -> 'Game':
+        if Game._instance is None:
+            raise Exception("Tried to access game, but none defined")
         return Game._instance
 
     # TODO ideally won't need this
-    def config(self) -> ConfigParser:
+    def config(self) -> Config:
         return self._config
 
     def items(self) -> List[str]:
@@ -78,8 +80,9 @@ class Game:
         return self._default_item_size
     
     def finalize(self) -> None:
-        self._script.add_header("START ROOM")
-        start_room = python.room(self._start_room)
+        if self._start_room is not None:
+            self._script.add_header("START ROOM")
+            start_room = python.room(self._start_room)
         self._script.add_line(f"return {start_room}")
     
     def has_combo(self, name: str) -> bool:
@@ -96,9 +99,6 @@ class Game:
     
     def has_room(self, name: str) -> bool:
         return name.strip() in self._rooms
-    
-    def set_output_path(self, path: str) -> None:
-        self._script = Script(path)
     
     def _parse_definition(self, type_name: str, element_name: str):
         if type_name == "exit":
@@ -150,10 +150,10 @@ class Game:
             'length': ConfigEntry(ConfigType.INT, True),
             'items': ConfigEntry(ConfigType.LIST, False)
         }
-        values = self._config.parse_section('inventory', entries)
+        values: Dict[str, str] = self._config.parse_section('inventory', entries)
         valid_anchors = ["bottom", "left", "right", "top"]
         if values['anchor'] not in valid_anchors:
-            anchor = f"INVENTORY_{anchor.upper()}"
+            anchor: str = f"INVENTORY_{anchor.upper()}"
             printv(f"ERROR: illegal inventory anchor '{anchor}'")
             return
         anchor = f"INVENTORY_{values['anchor'].upper()}"
@@ -180,7 +180,7 @@ class Game:
         printv(f"writing game file to '{self._script._output_path}'")
         self._script.write()
 
-def flatten(list: List[List]) -> List:
+def flatten(list: Iterable[Iterable]) -> List:
     if list is None:
         return None
     return [item for sublist in list for item in sublist]

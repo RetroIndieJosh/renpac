@@ -1,15 +1,16 @@
 import os
 import platform
 
-THIS_PATH = os.path.dirname(__file__)
+THIS_PATH: str = os.path.dirname(__file__)
 
 # pathlib alone can probably do most of this, but feels like overkill
 class Path:
     _platform = None
 
-    def __init__(self, path, check_exists=True) -> None:
+    def __init__(self, path: str, check_exists: bool = True) -> None:
         if Path._platform is None:
             Path._platform = platform.system()
+        self._path: str = ""
         self.set(path)
 
         if check_exists and not os.path.exists(self._path):

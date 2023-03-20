@@ -14,9 +14,15 @@
     {
         "commands": [
             {
+                "match": "\\.py$",
+                "cmd": "mypy ${file}"
+            },
+            /*
+            {
                 "match": ".*",
                 "cmd": "build.bat"
             }
+            */
         ]
     }
 }

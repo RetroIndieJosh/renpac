@@ -1,19 +1,22 @@
 import os
-from typing import List
+from typing import Optional
 
 from datetime import datetime
 
 from renpac.base.printv import *
 
+from renpac.builder.Path import Path
+
 TAB = "    "
 
 class Script:
-    def __init__(self, output_path: str, priority: int = 0, source_path: str = None) -> None:
-        self._output_path = output_path
-        self._text = ""
-        self._priority = priority
-        self._source_path = source_path
-        self._indent = 0
+    def __init__(self, output_path: Path, priority: int = 0, source_path: Optional[Path] = None) -> None:
+        self._output_path: Path = output_path
+        self._text: str = ""
+        self._priority: int = priority
+        self._source_path: Optional[Path] = source_path
+
+        self._indent: int = 0
 
     def add_header(self, header: str) -> None:
         self.add_line(

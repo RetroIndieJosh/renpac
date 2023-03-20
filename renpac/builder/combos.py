@@ -12,16 +12,15 @@ TARGET_OTHER = 0b10
 def parse_combo(section_key: str) -> List[str]:
     parts = section_key.split('+')
     if len(parts) > 2:
-        printv("ERROR: too many parts in combo '{combo}'")
-        return
+        raise Exception("ERROR: too many parts in combo '{combo}'")
 
     item_name = parts[0].split('.')[1].strip()
     target_name = parts[1].split('.')[1].strip()
 
     if not Game.instance().has_item(item_name):
-        printv(f"ERROR: for combo, no item '{item_name}' defined in game configuration")
+        raise Exception(f"ERROR: for combo, no item '{item_name}' defined in game configuration")
     if not Game.instance().has_hotspot(target_name):
-        printv(f"ERROR: for combo, no hotspot target '{target_name}' defined in game configuration")
+        raise Exception(f"ERROR: for combo, no hotspot target '{target_name}' defined in game configuration")
 
     # reuse parts here so we keep the prefix (item. => item_ or exit. => exit_)
     item_python = python.name(None, parts[0])
@@ -60,9 +59,9 @@ def parse_combo(section_key: str) -> List[str]:
         elif replace_target == 'other':
             replace_flags = "TARGET_OTHER"
         elif replace_target == 'both':
-            printv("ERROR: 'both' is not valid for 'replace' in combo")
+            raise Exception("ERROR: 'both' is not valid for 'replace' in combo")
         else:
-            printv(f"ERROR: unknown value for 'replace' in combo: {replace_target}")
+            raise Exception(f"ERROR: unknown value for 'replace' in combo: {replace_target}")
     
     if 'with' in section:
         replace_with = python.item(section['with'])

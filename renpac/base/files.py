@@ -2,12 +2,13 @@ import filecmp
 import shutil
 import os
 
-from typing import Callable
+from typing import Callable, Optional
 
 # TODO should we have an exclude list as an arg, or pre-built exclude funcs?
 # wasn't there a builtin for that?
-def copy_tree(source_dir: str, dest_dir: str, check_func: Callable[[str], bool] = None, 
-                relative_dir: str = "") -> int:
+def copy_tree(source_dir: str, dest_dir: str, 
+        check_func: Optional[Callable[[str], bool]] = None, 
+        relative_dir: str = "") -> int:
     """! Recursively copy all files from the source directory to the target
     directory, including all subdirectories.
 

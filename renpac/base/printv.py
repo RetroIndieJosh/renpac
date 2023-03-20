@@ -1,5 +1,6 @@
 verbose = False
 
+# TODO move to __main__ section at bottom and remove this function
 def main():
     print("[Testing printv, no verbose]")
     printv("+ This is a message that should not appear")

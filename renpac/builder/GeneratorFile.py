@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 from renpac.builder.Path import Path
 from renpac.builder.Script import Script
 
@@ -7,26 +9,26 @@ class GeneratorFile(Script):
     # TODO clean this up by putting it in some other higher level thing that
     # handles the file load and navigation etc. (most of generate.py should be
     # wrapped in class code)
-    files = {}
+    files: Dict[str, 'GeneratorFile'] = {}
 
-    input_path = None
-    output_path = None
+    input_path: str
+    output_path: str
 
-    def __init__(self, name) -> None:
+    def __init__(self, name: str) -> None:
         if GeneratorFile.input_path is None or GeneratorFile.output_path is None:
             raise Exception("Must set input and output paths before creating a generator file")
 
-        self._name = name
-        source_path = f"{GeneratorFile.input_path}/{name}.py"
-        with open(source_path) as file:
-            self._input_lines = file.read().splitlines()
+        self._name: str = name
 
-        self._is_dependency = False
-        self._base_dependency_names = []
-        self._dependencies = []
-        self._dependency_names = []
+        self._is_dependency: bool = False
+        self._base_dependency_names: List[str] = []
+        self._dependencies: List['GeneratorFile'] = []
+        self._dependency_names: List[str] = []
 
-        output_path = Path(f"{GeneratorFile.output_path}/{name}.gen.rpy", check_exists=False).get()
+        source_path: Path = Path(f"{GeneratorFile.input_path}/{name}.py")
+        with open(source_path.get()) as file:
+            self._input_lines: List[str] = file.read().splitlines()
+        output_path: Path = Path(f"{GeneratorFile.output_path}/{name}.gen.rpy", check_exists=False)
         super().__init__(output_path, source_path=source_path)
 
     def add_base_dependency(self, line):

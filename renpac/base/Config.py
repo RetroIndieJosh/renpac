@@ -1,7 +1,7 @@
-from configparser import ConfigParser
+from configparser import ConfigParser, SectionProxy
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict
 
 class ConfigType(Enum):
     STRING = 0
@@ -14,11 +14,11 @@ class ConfigType(Enum):
     LIST = 7
 
 class ConfigEntry:
-    expected_type: int
+    expected_type: ConfigType
     is_required: bool
     fallback = None
 
-    def __init__(self, expected_type: int, is_required: bool, fallback = None) -> None:
+    def __init__(self, expected_type: ConfigType, is_required: bool, fallback = None) -> None:
         self.expected_type = expected_type
         self.is_required = is_required
         self.fallback = fallback
@@ -27,8 +27,8 @@ class ConfigEntry:
 # make non-static; Game can contain the game config, Build can contain the build
 # config
 class Config:
-    _name: str = None
-    _parser: ConfigParser = None
+    _name: str
+    _parser: ConfigParser
 
     def __init__(self, config_path: str) -> None:
         self._parser = ConfigParser()
@@ -36,10 +36,9 @@ class Config:
             raise Exception(f"could not read or no data in '{config_path}'")
         self._name = Path(config_path).name
 
-    def get_section(self, section_key: str) -> list:
+    def get_section(self, section_key: str) -> SectionProxy:
         if section_key not in self._parser:
             raise Exception(f"ERROR: no section '{section_key}' in config")
-            return None
         return self._parser[section_key]
 
     def key_message(self, key, section_name) -> str:
@@ -48,9 +47,9 @@ class Config:
     def sections(self) -> list:
         return self._parser.sections()
 
-    def parse_section(self, section_name: str, entries: List[ConfigEntry]) -> Dict[str, any]:
+    def parse_section(self, section_name: str, entries: Dict[str, ConfigEntry]) -> Dict[str, Any]:
         section = self.get_section(section_name)
-        values: Dict[str, any] = {}
+        values: Dict[str, Any] = {}
         for key in [key for key in section if key in entries]:
             if entries[key].expected_type == ConfigType.BOOL:
                 values[key] = self._parser.getboolean(section_name, key)
