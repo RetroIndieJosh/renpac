@@ -8,7 +8,7 @@ class Exit(Hotspot):
     """ A hotspot that leads to another room through "go" action
     """
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, has_image: bool = False) -> None:
         """ Create an Exit
 
         @param name The unique name (handle) for the exit
@@ -19,4 +19,11 @@ class Exit(Hotspot):
         self.target: Optional[Room] = None
 
         # init actions inherited from Hotspot
-        self.action_left = Action.get("go")
+        self.action_left: Action = Action.get("go")
+
+        self._has_image: bool = has_image
+
+    def get_img_path(self) -> Optional[str]:
+        if self._has_image:
+            return f"{self.name}.png"
+        return None

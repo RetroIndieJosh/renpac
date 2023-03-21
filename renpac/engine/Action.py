@@ -22,16 +22,15 @@ class Action:
     default: Optional['Action'] = None
 
     @staticmethod
-    def get(name: str) -> Optional['Action']:
+    def get(name: str) -> 'Action':
         """! Get an action by name. If it doesn't exist, throw a warning and
         return nothing.
 
         @return The Action of the given name, or None if it doesn't exist.
         """
         if name not in Action._actions:
-            Renpac.warn(f"attempted to retrieve action '{name}' before it was registered")
-            return None
-        return Action._actions[name] if name in Action._actions else None
+            raise Exception(f"tried to access unregistered action '{name}'")
+        return Action._actions[name]
 
     @staticmethod
     def lock() -> None:

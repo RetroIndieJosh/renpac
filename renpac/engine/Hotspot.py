@@ -64,6 +64,7 @@ class Hotspot:
         ## A description to show when the hotspot is examined
         self.desc = None
 
+        # TODO rename to action
         ## An action to trigger when the hotspot is left clicked
         self.action_left = Action.get("examine")
 
@@ -90,12 +91,6 @@ class Hotspot:
         """
         logging.info(f"delete hotspot {self.name}")
         self._deleted = True
-
-    def get_img_path(self) -> str:
-        """! Get a path to the image to represent the hotspot. This is meant to
-        be overridden by Hotspot-inheriting types that use images, such as Item.
-        """
-        raise Exception("Tried to get image path from a hotspot that doesn't override get_img_path")
 
     # TODO _deleted functionality should be in a more generalized base class
     def is_deleted(self) -> bool:

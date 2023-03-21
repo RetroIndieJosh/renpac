@@ -61,6 +61,7 @@ screen Hotspots():
         zorder ZORDER_HOTSPOTS
         $ Room.current.clear_deleted()
         for hs in Room.current.hotspots:
+            $ img = hs.get_img_path()
             $ x, y, width, height = hs.rect.get_xywh()
             if DEBUG_SHOW_HOTSPOTS:
                 frame:
@@ -69,9 +70,10 @@ screen Hotspots():
                         background "#F0FA"
                     else:
                         background "#F0F3"
-            frame:
-                area (x, y, width, height)
-                background hs.get_img_path() 
+            if img is not None:
+                frame:
+                    area (x, y, width, height)
+                    background img
             mousearea:
                 area (x, y, width, height)
                 hovered If(Renpac.can_hover(), Call("hotspot_hover", hs), None)

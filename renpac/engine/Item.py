@@ -101,10 +101,11 @@ class Item(Hotspot):
             Item.selection_clear()
         super().delete()
 
-    def get_img_path(self) -> str:
+    def get_img_path(self) -> Optional[str]:
         """! Get the path to the relevant image for the item, based on hover state
         
-        @returns The path to the image for the item"""
+        @return The path to the image for the item
+        """
         if self.is_hovered:
             return self.img_path_hover
         return self.img_path_idle
