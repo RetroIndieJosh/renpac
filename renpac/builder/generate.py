@@ -66,7 +66,9 @@ def generate(input_path: str, output_path: str, input_subdirs:
     else:
         subdir: str
         for subdir in input_subdirs:
-            filenames += map(lambda filename: f"{subdir}/{filename}", get_filenames(Path(f"{input_path}/{subdir}").get()))
+            path = Path(f"{input_path}/{subdir}").get()
+            subdir_filenames = get_filenames(path)
+            filenames += map(lambda filename: f"{subdir}/{filename}", subdir_filenames)
 
     if(len(filenames) == 0):
         print(f"no files for generator in '{input_path}'")
@@ -78,29 +80,21 @@ def generate(input_path: str, output_path: str, input_subdirs:
         GeneratorFile.files[str(f)] = f
 
     printv(f"** reading dependencies")
-    for key in GeneratorFile.files:
-        GeneratorFile.files[key].extract_dependencies()
+    for file in GeneratorFile.files.values():
+        file.extract_dependencies()
 
     printv(f"** linking dependencies")
-    for key in GeneratorFile.files:
-        GeneratorFile.files[key].link_dependencies()
+    for file in GeneratorFile.files.values():
+        file.link_dependencies()
 
     printv(f"** setting priorities")
-    root_files = []
-    for key in GeneratorFile.files:
-        if not GeneratorFile.files[key].is_dependency():
-            root_files.append(GeneratorFile.files[key])
-    file: GeneratorFile
-    for file in root_files:
-        printv(f"  -- root file: {file.name()}")
-    for file in root_files:
+    for file in filter(lambda file: not file.is_dependency(), GeneratorFile.files.values()):
+        printv(f"  -- root file: {file}")
         file.set_priority()
 
     printv(f"** checking manual priorities")
-    for key in GeneratorFile.files:
-        GeneratorFile.files[key].check_priority()
-
-    exit(0)
+    for file in GeneratorFile.files.values():
+        file.check_priority()
 
     printv(f"** generating {len(GeneratorFile.files)} files")
     for key in GeneratorFile.files:
