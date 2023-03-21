@@ -3,7 +3,7 @@ import logging
 from dataclasses import dataclass
 from typing import List, Optional
 
-from base import StaticClass
+from renpac.base.StaticClass import StaticClass
 
 @dataclass(frozen = True)
 class Message:

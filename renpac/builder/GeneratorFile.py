@@ -81,6 +81,7 @@ class GeneratorFile(Script):
                 tokens: List[str] = line.split(' ')
                 target: str = tokens[1]
                 self.add_dependency(target)
+                continue
             self.add_line(line)
         printv(f"{self}", end='')
         if len(self._dependency_names) == 0:
