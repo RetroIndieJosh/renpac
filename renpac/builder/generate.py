@@ -1,5 +1,7 @@
 import os
 
+from typing import List, Optional
+
 from renpac.base.printv import *
 
 from renpac.builder.GeneratorFile import GeneratorFile
@@ -27,14 +29,30 @@ def file_valid(filename: str) -> bool:
             return False
     return True
 
+def get_filenames(input_path: str) -> List[str]:
+    filenames = list(filter(file_valid, os.listdir(input_path))) 
+    if(len(filenames) == 0):
+        raise Exception(f"no files for generator in '{input_path}'")
+    return filenames
+
 # TODO split this up, it's massive!
-def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
+def generate(input_path: str, output_path: str, input_subdirs:
+    Optional[List[str]] = None) -> None:
+    """! Convert python files from input_path to Ren'py files in output_path
+        using dependency detection to calculate priority so Ren'py will load all
+        Python scripts in the correct order.
+
+    @param input_path The top-level input path containing all .py files.
+    @param output_path The output path for all created .rpy files.
+    @param input_subdirs If set, get all .py files from these subdirectories.
+        This does not include the top-level input_path unless "." is one of the
+        input_subdirs. If this is not set, only files from input_dir are
+        included and any subdirectories are ignored.
+    """
     if input_path is None or output_path is None:
-        print("You must specify the input and output paths.")
-        exit(0)
+        raise Exception("Generator requires both input and output paths.")
 
     input_path = Path(input_path).get()
-    base_input_path = Path("../base").get()
     output_path = Path(output_path, check_exists=False).get()
 
     GeneratorFile.input_path = input_path
@@ -42,15 +60,22 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
 
     cleanup(output_path)
 
-    filenames = list(filter(file_valid, os.listdir(input_path))) 
+    filenames: List[str] = []
+    if input_subdirs is None:
+        filenames = get_filenames(input_path)
+    else:
+        subdir: str
+        for subdir in input_subdirs:
+            filenames += map(lambda filename: f"{subdir}/{filename}", get_filenames(Path(f"{input_path}/{subdir}").get()))
+
     if(len(filenames) == 0):
         print(f"no files for generator in '{input_path}'")
         exit(0)
 
     printv(f"** loading files")
     for py_file_name in filenames:
-        name = os.path.splitext(py_file_name)[0]
-        GeneratorFile.files[name] = GeneratorFile(name)
+        f = GeneratorFile(py_file_name)
+        GeneratorFile.files[str(f)] = f
 
     printv(f"** reading dependencies")
     for key in GeneratorFile.files:
@@ -75,26 +100,14 @@ def generate(input_path: str, output_path: str, flatten: bool = True) -> None:
     for key in GeneratorFile.files:
         GeneratorFile.files[key].check_priority()
 
+    exit(0)
+
     printv(f"** generating {len(GeneratorFile.files)} files")
     for key in GeneratorFile.files:
         GeneratorFile.files[key].write()
-
-    # TODO make this less hacky
-    # TODO check for name collisions
-    base_filenames = list(filter(file_valid, os.listdir(base_input_path)))
-    printv(f"** copying {len(base_filenames)} files from base")
-    GeneratorFile.input_path = base_input_path
-    file_name: str
-    for file_name in base_filenames:
-        gen_file = GeneratorFile(os.path.splitext(file_name)[0])
-        # TODO can probably set this to min among generated files but might not matter?
-        # TODO actually, might need to do full dependency/priority thing if anything in base relies on anything else in base
-        gen_file.extract_dependencies()
-        gen_file.set_priority(-999)
-        gen_file.write()
 
     print(f"{len(GeneratorFile.files)} files generated successfully")
 
 if __name__ == "__main__":
     enable_verbose()
-    generate("../engine", "../engine/rpy")
+    generate("..", "../engine/rpy", ["base", "engine"])

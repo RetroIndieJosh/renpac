@@ -53,7 +53,7 @@ class Build:
         print(f"Build done at {datetime.now()} ({diff_time} seconds elapsed)")
 
     def generate_engine_rpy(self) -> None:
-        generate(f"../engine", f"../engine/rpy")
+        generate(f"..", f"../engine/rpy", ["base", "engine"])
 
     # TODO move to Game - but causes circular deps!
     def build_game(self) -> None:
