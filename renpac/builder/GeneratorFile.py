@@ -84,11 +84,11 @@ class GeneratorFile(Script):
             self.add_line(line)
         printv(f"{self}", end='')
         if len(self._dependency_names) == 0:
-            print()
+            printv()
         else:
-            print(":")
+            printv(":")
             for dep in self._dependency_names:
-                print(f" -- {dep}")
+                printv(f" -- {dep}")
 
     def is_dependency(self) -> bool:
         return self._is_dependency
