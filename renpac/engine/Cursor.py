@@ -1,4 +1,4 @@
-from . import Renpac
+from renpac.engine.Renpac import Renpac
 
 class Cursor:
     """! Helper class to set the Ren'py cursor image
@@ -9,7 +9,7 @@ class Cursor:
         """! Reset to the default cursor
         """
         global default_mouse
-        default_mouse = "default"
+        default_mouse = "default" #type: ignore
 
     @staticmethod
     def set(cursor_name: str) -> None:
@@ -18,8 +18,8 @@ class Cursor:
         @param cursor_name The name of the cursor defined in options.rpy to replace the current cursor
         """
         global config
-        if cursor_name not in config.mouse:
+        if cursor_name not in config.mouse: #type: ignore
             Renpac.warn(f"no mouse cursor '{cursor_name}' in config")
 
         global default_mouse
-        default_mouse = cursor_name
+        default_mouse = cursor_name #type: ignore

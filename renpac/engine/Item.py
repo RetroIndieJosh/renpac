@@ -2,7 +2,11 @@ import logging
 
 from typing import Dict, Optional
 
-from . import Cursor, Hotspot, Action, Combination, Renpac
+from renpac.engine.Action import Action
+from renpac.engine.Combination import Combination
+from renpac.engine.Cursor import Cursor
+from renpac.engine.Hotspot import Hotspot
+from renpac.engine.Renpac import Renpac
 
 ## Flag for no target
 TARGET_NONE = 0b00
@@ -29,7 +33,7 @@ class Item(Hotspot):
         Cursor.reset()
 
     @staticmethod
-    def selection_get() -> 'Item':
+    def selection_get() -> Optional['Item']:
         """! Get the currently selected item
 
         @return The currently selected Item, or None if no selection
@@ -121,7 +125,7 @@ class Item(Hotspot):
         @param other The target item for using, i.e. "use self on other"
         """
         logging.debug(f"combos in {self.name}: {self._combinations}")
-        combo = self._combinations[other.name] if other.name in self._combinations else None
+        combo: Optional[Combination] = self._combinations[other.name] if other.name in self._combinations else None
         if combo is None:
             logging.info(f"cannot use {self.name} on {other.name}")
             Renpac.narrate(f"You can't use {self.name} on {other.name}.")

@@ -1,6 +1,10 @@
 import logging
 
-from . import Hotspot, Item, Renpac
+from typing import List, Optional
+
+from renpac.engine.Hotspot import Hotspot
+from renpac.engine.Item import Item
+from renpac.engine.Renpac import Renpac
 
 class Room:
     """! A location containing Hotspots for the player to interact with and a background image
@@ -8,7 +12,7 @@ class Room:
 
     # TODO make private
     ## The current room where the player resides
-    current = None
+    current: Optional['Room'] = None
 
     @staticmethod
     def current_set(room: 'Room') -> None:
@@ -55,14 +59,14 @@ class Room:
         self.first_desc = None
 
         # TODO make private
-        self.hotspots = []
+        self.hotspots: List[Hotspot] = []
 
     def clear_deleted(self) -> None:
         """! Clear any hotspots in the room that have been deleted
         """
         self.hotspots = [item for item in self.hotspots if not item.is_deleted()]
 
-    def hotspot_add(self, hs: Hotspot) -> None:
+    def hotspot_add(self: 'Room', hs: Hotspot) -> None:
         """! Add a hotspot to the room
         
         @param hs The hotspot to add

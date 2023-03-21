@@ -13,10 +13,6 @@
     "emeraldwalk.runonsave": 
     {
         "commands": [
-            {
-                "match": "\\.py$",
-                "cmd": "mypy ${file}"
-            },
             /*
             {
                 "match": ".*",
@@ -24,5 +20,7 @@
             }
             */
         ]
-    }
+    },
+    "python.linting.mypyEnabled": true,
+    "python.linting.enabled": true
 }

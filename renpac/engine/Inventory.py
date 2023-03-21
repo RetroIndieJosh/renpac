@@ -1,8 +1,9 @@
 import logging
 
-from base import StaticClass
+from renpac.base.StaticClass import StaticClass
 
-from . import Item, Rect
+from renpac.engine.Item import Item
+from renpac.engine.Rect import Rect
 
 ## THe number of items to show per row in the inventory (which becomes columns
 ## if the inventory is anchored to the left or right)
@@ -66,7 +67,8 @@ class Inventory(StaticClass):
 
         logging.info(f"inventory viewer created with area {Inventory.rect}")
 
-    def add(item) -> None:
+    @staticmethod
+    def add(item: Item) -> None:
         """! Add an item to the inventory, first removing it from the current
         location. Raise a warning if the item is already in the inventory.
 
@@ -82,6 +84,7 @@ class Inventory(StaticClass):
 
         logging.info(f"add '{item.name}' to inventory")
 
+    @staticmethod
     def count() -> int:
         """! Get the number of items in the inventory.
         
@@ -89,17 +92,20 @@ class Inventory(StaticClass):
         """
         return len(Inventory._items)
 
+    @staticmethod
     def clear() -> None:
         """! Clear all items from the inventory
         """
         Inventory._items.clear()
         logging.info(f"clear inventory")
 
+    @staticmethod
     def clear_deleted() -> None:
         """! Clear any deleted items from the inventory
         """
         Inventory._items = [item for item in Inventory._items if not item.is_deleted()]
 
+    @staticmethod
     def get(index: int) -> Item:
         """! Get the inventory item at the given index. If the index is invalid
         for the inventory, raise an exception.
@@ -112,6 +118,7 @@ class Inventory(StaticClass):
             raise Exception(f"No item at index {index} in inventory")
         return Inventory._items[index]
 
+    @staticmethod
     def has(item: Item) -> bool:
         """! Determine whether the given item is in the inventory
         
@@ -121,6 +128,7 @@ class Inventory(StaticClass):
         """
         return item in Inventory._items
 
+    @staticmethod
     def remove(item: Item) -> None:
         """! Remove the given item from the inventory. Warn if the item is not
         in the inventory.

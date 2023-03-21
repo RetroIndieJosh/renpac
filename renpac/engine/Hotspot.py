@@ -1,6 +1,8 @@
-from typing import Optional
+from typing import Any, Optional
 
-from . import Action, Rect, Renpac
+from renpac.engine.Action import Action
+from renpac.engine.Rect import Rect
+from renpac.engine.Renpac import Renpac
 
 import logging
 
@@ -65,30 +67,16 @@ class Hotspot:
         ## An action to trigger when the hotspot is left clicked
         self.action_left = Action.get("examine")
 
-        # TODO clean up right/middle click if we aren't going to use them
-
-        ## An action to trigger when the hotspot is right clicked
-        self.action_right = None
-
-        ## An action to trigger when the hotspot is middle clicked
-        self.action_middle = None
-
-        ## An action to trigger when the user scrolls down on the mousewheel
-        ## over the hotspot
-        self.action_down = None
-
-        ## An action to trigger when the user scrolls up on the mousewheel
-        ## over the hotspot
-        self.action_up = None
-
         ## The position and size of the hotspot for mouse detection in pixels
         self.rect = Rect(0, 0, 0, 0)
 
         ## Whether the hotspot is being hovered
         self.is_hovered = False
 
-        ## The room where the hotspot exists
-        self.room = None
+        ## The room where the hotspot exists. This needs to be Any type to avoid
+        ## circular dependency on Room, which most definitely needs to reference
+        ## Hotspot.
+        self.room: Any = None
 
         # TODO _deleted functionality should be in a more generalized base class
         ## Whether the hotspot has been deleted

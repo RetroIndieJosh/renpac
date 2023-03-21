@@ -1,15 +1,18 @@
 import logging
 
-from base import StaticClass
+from typing import Optional
 
-from . import Inventory, Room
+from renpac.base.StaticClass import StaticClass
+
+from renpac.engine.Inventory import Inventory
+from renpac.engine.Room import Room
 
 class Game(StaticClass):
     """! General game functionality (static class)
     """
 
     ## The room where the game starts
-    _first_room: Room = None
+    _first_room: Optional[Room] = None
 
     ## Whether game data is loaded
     _loaded: bool = False
@@ -37,5 +40,6 @@ class Game(StaticClass):
         """
         if not Game._loaded:
             raise Exception("cannot start game, not loaded")
-        logging.info(f"start game in '{Game._first_room.name}'")
-        Room.current_set(Game._first_room)
+        if Game._first_room is not None:
+            logging.info(f"start game in '{Game._first_room.name}'")
+            Room.current_set(Game._first_room)

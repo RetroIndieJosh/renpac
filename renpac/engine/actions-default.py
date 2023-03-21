@@ -1,6 +1,12 @@
 import logging
 
-from . import Action, Exit, Hotspot, Inventory, Item, Renpac, Room
+from renpac.engine.Action import Action
+from renpac.engine.Exit import Exit
+from renpac.engine.Hotspot import Hotspot
+from renpac.engine.Inventory import Inventory
+from renpac.engine.Item import Item
+from renpac.engine.Renpac import Renpac
+from renpac.engine.Room import Room
 
 def action_examine(target: Hotspot) -> None:
     """! Action for looking at a hotspot (item or exit).
@@ -20,9 +26,10 @@ def action_go(target: Hotspot) -> None:
     
     @param target The hotspot the player is interacting with.
     """
-    if not action_go_allowed(target):
+    if type(target) is Exit and target.target is not None:
+        Room.current_set(target.target)
+    else:
         Renpac.narrate("You can't go there.")
-    Room.current_set(target.target)
 
 def action_go_allowed(target: Hotspot) -> bool:
     """! Whether the user is allowed to "go" on the given hotspot.
@@ -37,7 +44,7 @@ def action_take(target: Hotspot) -> None:
     
     @param target The hotspot the player is interacting with.
     """
-    if not action_take_allowed(target):
+    if target is None or type(target) is not Item or target.fixed:
         Renpac.narrate("You can't take that.")
         return
     Inventory.add(target)
@@ -53,7 +60,7 @@ def action_take_allowed(target: Hotspot) -> bool:
     
     @param target The hotspot the player is interacting with.
     """
-    return target is not None and type(target) is Item and target.fixed is False
+    return target is not None and type(target) is Item and not target.fixed
 
 def action_use(target: Hotspot) -> None:
     """! Action for using the selected item on the target hotspot. Fails if no

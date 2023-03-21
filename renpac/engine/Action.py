@@ -1,7 +1,7 @@
 import logging
 from typing import Callable, Dict, Optional
 
-from . import Renpac
+from renpac.engine.Renpac import Renpac
 
 class Action:
     """! An action the player can perform in the game targeting at most one
