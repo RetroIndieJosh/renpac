@@ -2,20 +2,13 @@ import logging
 
 from typing import Dict, Optional
 
+from renpac.base.target import *
+
 from renpac.engine.Action import Action
 from renpac.engine.Combination import Combination
 from renpac.engine.Cursor import Cursor
 from renpac.engine.Hotspot import Hotspot
 from renpac.engine.Renpac import Renpac
-
-## Flag for no target
-TARGET_NONE = 0b00
-
-## Flag for targeting the selected item (the one the player is using on a target hotspot)
-TARGET_SELF = 0b01
-
-## Flag for targeting the target item (the hotspot the player "uses" the selected item on)
-TARGET_OTHER = 0b10
 
 class Item(Hotspot):
     """! An item that the player can collect and use represented by an image and interacted through a Hotspot
@@ -81,7 +74,7 @@ class Item(Hotspot):
         ## default message "You take {name}" will be used.
         self.take_message = None
 
-    def add_combination(self, target: Hotspot, combo: Combination) -> None:
+    def add_combination(self, other: Hotspot, combo: Combination) -> None:
         """! Add a combination for reacting to "use on" action
         
         @param target The hotspot that this item will be "used on" for the
@@ -89,9 +82,9 @@ class Item(Hotspot):
         @param combo The Combination defining what happens when the "use on"
                      action occurs
         """
-        if target.name in self._combinations:
-            logging.warn(f"redefining combination for 'use {self.name} on {target.name}'")
-        self._combinations[target.name] = combo
+        if other.name in self._combinations:
+            logging.warn(f"redefining combination for 'use {self.name} on {other.name}'")
+        self._combinations[other.name] = combo
 
     def delete(self) -> None:
         """! Delete the item from the current game session. In addition to

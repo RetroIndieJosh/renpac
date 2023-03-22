@@ -76,7 +76,6 @@ class Build:
         game.parse_inventory()
 
         game.finalize()
-
         game.write()
 
     def clean(self) -> None:
