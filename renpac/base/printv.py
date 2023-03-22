@@ -23,14 +23,19 @@ def main():
     printv()
     printv("and this should have a blank line above it")
 
+    print("[Testing printv multiple elements]")
+    printv("One", "Two", "Three", "Four")
+    printv("1", "2", end=' ')
+    printv("3", "4")
+
 def enable_verbose():
     global verbose
     verbose = True
     printv("Verbose mode enabled")
 
-def printv(msg="", end='\n'):
+def printv(*args, **kwargs):
     if verbose:
-        print(msg, end=end)
+        print(*args, **kwargs)
 
 if __name__ == "__main__":
     main()
