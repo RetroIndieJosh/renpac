@@ -9,6 +9,8 @@ The user is presented with a room populated by clickable hotspots. Developer
 configurable actions apply to these hotspots to manipulate the world.
 Specialized hotspots include items and exits.
 
+RICE: Rooms, Items, Combinations, Exits
+
 ## RenPaC Structure
 
 **Ren'py Python Generator**: A tool to convert raw .py files into .rpy files
