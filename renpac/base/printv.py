@@ -1,7 +1,15 @@
 verbose = False
 
-# TODO move to __main__ section at bottom and remove this function
-def main():
+def enable_verbose():
+    global verbose
+    verbose = True
+    printv("Verbose mode enabled")
+
+def printv(*args, **kwargs):
+    if verbose:
+        print(*args, **kwargs)
+
+if __name__ == "__main__":
     print("[Testing printv, no verbose]")
     printv("+ This is a message that should not appear")
     print("+ This is a message that should appear")
@@ -27,15 +35,3 @@ def main():
     printv("One", "Two", "Three", "Four")
     printv("1", "2", end=' ')
     printv("3", "4")
-
-def enable_verbose():
-    global verbose
-    verbose = True
-    printv("Verbose mode enabled")
-
-def printv(*args, **kwargs):
-    if verbose:
-        print(*args, **kwargs)
-
-if __name__ == "__main__":
-    main()

@@ -9,16 +9,12 @@ from renpac.base.printv import *
 
 class GeneratorFile(Script):
     def __init__(self, input_root: Path, output_root: Path, relative_path: str) -> None:
-        # strip extension and tokenize
         tokens: List[str] = os.path.splitext(relative_path)[0].split('/')
-        self._module: Optional[str]
-        self._name: str
-        if len(tokens) == 1:
-            self._module = None
-            self._name = tokens[0]
-        else:
-            self._module = tokens[0]
-            self._name = tokens[1]
+        token_count: int = len(tokens)
+        if token_count == 0 or token_count > 2:
+            raise Exception(f"Expected 1 or 2 tokens in extensionless name of '{relative_path}' but got {token_count}")
+        self._module: Optional[str] = tokens[0] if token_count == 2 else None
+        self._name: str = tokens[1] if token_count == 2 else tokens[0]
 
         self._is_dependency: bool = False
         self._dependencies: List['GeneratorFile'] = []
@@ -28,11 +24,9 @@ class GeneratorFile(Script):
         with open(source_path) as file:
             self._input_lines: List[str] = file.read().splitlines()
         
-        if self._module is None:
-            rpy_filename = f"{self._name}.gen.rpy"
-        else:
-            rpy_filename = f"{self._module}/{self._name}.gen.rpy"
+        rpy_filename: str = f"{self._name}.gen.rpy" if self._module is None else f"{self._module}/{self._name}.gen.rpy"
         output_path: Path = output_root.joinpath(rpy_filename).absolute()
+
         super().__init__(output_path, source_path=source_path)
 
     def __repr__(self) -> str:

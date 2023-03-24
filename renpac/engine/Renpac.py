@@ -1,8 +1,10 @@
 import logging
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Optional
 
+from renpac.base.Log import Log
 from renpac.base.StaticClass import StaticClass
 
 @dataclass(frozen = True)
@@ -16,12 +18,13 @@ class Renpac(StaticClass):
     dangerously hide some errors/warnings."""
 
     _messages: List[Message] = []
+    _log: Log
 
     @staticmethod
     def init() -> None:
         """! Initialize RenPaC. This is mostly legacy, as it used to do a lot more. TODO remove
         """
-        logging.info(f"initialize RenPaC")
+        Log.init(Path(__file__, "renpac.log"), logging.DEBUG)
         renpy.show_screen("ClickArea") #type: ignore
 
     # Logging
@@ -30,7 +33,7 @@ class Renpac(StaticClass):
     def error(message: str) -> None:
         """! Helper method to log errors that also notifies in-game if desired
         """
-        logging.error(message)
+        Log.get("renpac").error(message)
         if DEBUG_NOTIFY_ERRORS: #type:ignore
             Renpac.notify(f"ERROR: {message}")
 
@@ -38,7 +41,7 @@ class Renpac(StaticClass):
     def warn(message: str) -> None:
         """! Helper method to log warnings that also notifies in-game if desired
         """
-        logging.warning(message)
+        Log.get("renpac").warning(message)
         if DEBUG_NOTIFY_WARNINGS: #type:ignore
             Renpac.notify(f"WARNING: {message}")
 
@@ -86,3 +89,6 @@ class Renpac(StaticClass):
         """! renpy.show
         """
         renpy.show(name, at_list, layer, what, zorder, tag, behind) #type: ignore
+
+if __name__ == "__main__":
+    print("no tests available")

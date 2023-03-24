@@ -10,6 +10,7 @@
 **/*.bak
 **/*.game.rpy
 **/*.gen.rpy
+**/*.log
 **/*.pyc
 **/*.pyc
 **/*.rpa

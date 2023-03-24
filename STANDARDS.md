@@ -41,6 +41,12 @@
 
 ## Python
 
+- avoid lambdas when possible
+    - they cannot be pickled (which Ren'py may need to do for saving game data)
+    - the mypy type checker can be overly strict with them and require weird typing
+    - syntax can get ugly quickly with all proper type hints in place
+- always use type hints for arguments and return types for better error checking
+- always use type hint with a new variable to avoid redefinition later
 - imports
     - order from less specific to more specific
         - builtin python, renpac base, current project (i.e. renpac engine)
@@ -81,15 +87,12 @@
             ```
 - files should be ordered: global variables, class definitions, functions, loose script
     - loose script should be avoided if possible and put in the main() test function
-- every file must have at the end:
+- every file must have tests in a block at the end starting:
     ```py
     if __name__ == "__main__":
-        main()
     ```
-    - as a consequence, every file must define a main() function
-    - the main() function should test all functionality in the file
-    - as a temporary measure, the main function should print "no tests available" if tests have not been implemented
-    - the main() function should be listed first in the functions section
+    - if no tests are currently implemented, print "no tests available"
+    - if tests are known to be incomplete, print "(tests incomplete)" after all testing concludes
 - class names are ProperCase
 - all other variables and functions are lower_case_with_underscores
 - always use @staticmethod or @classmethod on relevant functions
@@ -106,8 +109,6 @@
     - DO NOT use `#type: ignore` on any other line; instead, use the relevant `import` or `from . import`
     - this ensures the generator calculates the correct priorities for local dependencies
 - avoid handling animations, rendering, or dialogue in Python when possible; instead, call a Ren'Py label
-- avoid lambdas in game data (stored variables) as these cannot be pickles
-    - instead, make actual functions that live somewhere
 - use "double quotes" for strings except:
     - single character strings like 'm'
     - dictionary keys like `my_dict['my key']`
