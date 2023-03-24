@@ -1,4 +1,5 @@
 import filecmp
+import logging
 import shutil
 import os
 
@@ -6,15 +7,19 @@ from pathlib import Path
 from typing import Callable, List, Optional
 
 from renpac.base.printv import printv
+from renpac.base.utility import indent
+
+log = logging.getLogger("files")
 
 def clear_dir(dir_path: Path, extensions: Optional[List[str]] = None) -> None:
     if not dir_path.exists():
-        printv(f"Skip clearing dir '{dir_path}' - does not exist")
+        log.debug(f"Skip clearing dir '{dir_path}' - does not exist")
         return
+    log.info(f"Delete all {extensions} in {dir_path}")
     for file_name in os.listdir(dir_path):
         if extensions is None or is_type(file_name, extensions):
             path = dir_path.joinpath(file_name)
-            printv(f"DELETE '{path}'")
+            log.debug(f"DELETE '{path}'")
             os.remove(path)
 
 # TODO change to Path (not str)
@@ -22,7 +27,7 @@ def clear_dir(dir_path: Path, extensions: Optional[List[str]] = None) -> None:
 # wasn't there a builtin for that?
 def copy_tree(source_dir: str, dest_dir: str, 
         check_func: Optional[Callable[[str], bool]] = None, 
-        relative_dir: str = "") -> int:
+        relative_dir: str = "", depth: int = 0) -> int:
     """! Recursively copy all files from the source directory to the target
     directory, including all subdirectories.
 
@@ -34,18 +39,16 @@ def copy_tree(source_dir: str, dest_dir: str,
         currently copying (used for recursion)
     @return The total number of files (excluding directories) copied
     """
-    if relative_dir == "":
-        printv(f"copying from '{source_dir}' to '{dest_dir}'")
+    for line in indent(f"COPY DIR\n{source_dir}\n => {dest_dir}", depth, True).splitlines():
+        log.debug(line)
     dir = os.path.join(source_dir, relative_dir)
     count = 0
     for file in os.listdir(dir):
         source_file = os.path.join(source_dir, relative_dir, file)
         if os.path.isdir(source_file):
             count += copy_tree(source_dir, dest_dir, check_func,
-                os.path.join(relative_dir, file))
+                os.path.join(relative_dir, file), depth + 1)
         else:
-            # TODO use logging.debug
-            #printv(f"[{relative_dir}] ", end='')
             dest_file = os.path.join(dest_dir, relative_dir, file)
             if check_func is not None:
                 if not check_func(dest_file):
@@ -54,11 +57,11 @@ def copy_tree(source_dir: str, dest_dir: str,
             if os.path.exists(dest_file):
                 if os.path.getsize(source_file) == os.path.getsize(dest_file):
                     if filecmp.cmp(source_file, dest_file, False):
-                        # TODO use logging.debug
-                        #printv(f"SKIP\n\t{source_file}")
+                        for line in indent(f"SKIP\n\t{source_file}", depth, True).splitlines():
+                            log.debug(line)
                         continue
-            # TODO use logging.debug
-            #printv(f"COPY\n\t{source_file}\n\tTO {dest_file}")
+            for line in indent(f"COPY\n{source_file}\n => {dest_file}", depth, True).splitlines():
+                log.debug(line)
             os.makedirs(os.path.dirname(dest_file), exist_ok=True)
             shutil.copy2(source_file, dest_file)
             count += 1

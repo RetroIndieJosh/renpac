@@ -1,5 +1,12 @@
 from typing import List, Tuple
 
+def indent(message: str, depth: int, use_hyphens: bool = False) -> str:
+    tab = " -- " if use_hyphens else "    "
+    for _ in range(depth):
+        message = message.replace('\n', f"\n{tab}")
+        message = f"{tab}{message}"
+    return message
+
 def text_menu(prompt: str, options: List[Tuple[str, str]]):
     message = prompt + '\n'
     for i in range(1, len(options)+1):

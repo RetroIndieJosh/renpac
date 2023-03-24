@@ -1,7 +1,11 @@
+import logging
+
 from configparser import ConfigParser, SectionProxy
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict
+
+log = logging.getLogger("Config")
 
 class ConfigType(Enum):
     STRING = 0
@@ -61,13 +65,13 @@ class Config:
                 values[key] = section[key]
 
         for key in [key for key in section if key not in entries]:
-            print(f"WARNING unknown {self.key_message(key, section_name)}")
+            log.warning(f"unknown {self.key_message(key, section_name)}")
 
         for key in [key for key in entries if key not in values]:
             if entries[key].fallback is None:
                 if entries[key].is_required:
-                    raise Exception(f"ERROR missing required {self.key_message(key, section_name)}")
-                print(f"WARNING missing optional with no fallback {self.key_message(key, section_name)}")
+                    raise Exception(f"missing required {self.key_message(key, section_name)}")
+                log.warning(f"missing optional with no fallback {self.key_message(key, section_name)}")
             else:
                 values[key] = entries[key].fallback
         return values

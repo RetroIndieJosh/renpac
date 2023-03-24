@@ -1,12 +1,14 @@
+import logging
+
 from typing import List
 
 from configparser import SectionProxy
 
-from renpac.base.printv import *
-
 from renpac.base.Config import Config, ConfigType
 
 from renpac.builder.Script import *
+
+log = logging.getLogger("VariableMap")
 
 # TODO clean this up, combine with Definition in Game.py used for inventory/game
 class VariableMap:
@@ -23,7 +25,7 @@ class VariableMap:
         raw_value: str
         if section is None or not self.config_key in section:
             if self._default is None: 
-                printv(f"WARN no '{self.config_key}' defined for {section}")
+                log.warning(f"no '{self.config_key}' defined for {section}")
                 return []
             raw_value = self._default
         else:

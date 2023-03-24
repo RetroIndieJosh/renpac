@@ -8,6 +8,10 @@ from typing import List, Optional
 from renpac.base.printv import enable_verbose, printv
 from renpac.base.utility import text_menu
 
+## The baseline log, to be overridden by defining a new log in any file that
+## should have its own independent logger.
+log = logging.getLogger("renpac")
+
 class Log:
     """! Wrap initialization and writing raw messages to the log. Most log
     access should use the Python built-in `logging` instead of this class.
@@ -74,21 +78,18 @@ class Log:
         Log._initialized = False
 
     @staticmethod
-    def get(log_name: str) -> logging.Logger:
-        Log.check_init()
-        if log_name not in Log._log_list:
-            logging.error(f"Tried to get log named '{log_name}' but no such log registered")
-        return logging.getLogger(log_name)
-
-    @staticmethod
-    def register(log_name: str, level: Optional[int] = None) -> None:
-        Log.check_init()
-        if log_name  in Log._log_list:
-            return
-        Log._log_list.append(log_name)
-        if level is None:
-            level = Log._level
-        logging.getLogger(log_name).setLevel(level)
+    def level(level_string: str) -> int:
+        if(level_string == "debug"):
+            return logging.DEBUG
+        elif(level_string == "info"):
+            return logging.INFO
+        elif(level_string == "warning"):
+            return logging.WARNING
+        elif(level_string == "error"):
+            return logging.ERROR
+        elif(level_string == "critical"):
+            return logging.CRITICAL
+        return logging.NOTSET
 
     @staticmethod
     def write_header(message: str, timestamp: bool = False) -> None:

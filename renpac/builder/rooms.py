@@ -1,10 +1,12 @@
-from renpac.base.printv import *
+import logging
 
 from renpac.builder import python
 
 from renpac.builder.Game import *
 from renpac.builder.Script import *
 from renpac.builder.VariableMap import *
+
+log = logging.getLogger("rooms")
 
 room_varmaps = [
     VariableMap("desc"),
@@ -28,7 +30,7 @@ def parse_room(room_name: str) -> List[str]:
     for item_name in section['items'].split(','):
         item_name = item_name.strip()
         if not Game.instance().has_hotspot(item_name):
-            printv(f"ERROR: item '{item_name}' for room '{python_name}' not defined in game configuration")
+            log.error(f"item '{item_name}' for room '{python_name}' not defined in game configuration")
             continue
         item_python = python.item(item_name)
         lines.append(f"{python_name}.hotspot_add({item_python})")

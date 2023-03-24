@@ -1,7 +1,6 @@
-from configparser import ConfigParser
-from typing import Callable, Dict, List, Iterable, Optional
+import logging
 
-from renpac.base.printv import *
+from typing import Callable, Dict, List, Iterable, Optional
 
 from renpac.base.Config import Config, ConfigEntry, ConfigType
 
@@ -9,6 +8,8 @@ from renpac.builder.Script import *
 from renpac.builder.VariableMap import *
 
 from renpac.builder import python
+
+log = logging.getLogger("Game")
 
 class Game:
     _instance = None
@@ -51,19 +52,19 @@ class Game:
     # aren't fully genericized
     def all_combos(self, func: Callable[[str], List[str]]) -> None:
         if self._combos is None:
-            print("WARNING: no combinations in game")
+            log.warning("no combinations in game")
         self._script.add_header(f"COMBOS")
         self._script.add_line(*flatten(map(func, self._combos)))
     
     def all_exits(self, func: Callable[[str], List[str]]) -> None:
         if self._exits is None:
-            print("WARNING: no exits in game")
+            log.warning("no exits in game")
         self._script.add_header(f"EXITS")
         self._script.add_line(*flatten(map(func, self._exits)))
 
     def all_items(self, func: Callable[[str], List[str]]) -> None:
         if self._items is None:
-            print("WARNING: no items in game")
+            log.warning("no items in game")
         self._script.add_header(f"ITEMS")
         self._script.add_line(*flatten(map(func, self._items)))
     
@@ -108,25 +109,25 @@ class Game:
         elif type_name == "room":
             self._rooms.append(element_name)
         else:
-            printv(f"unknown type '{type_name}'")
+            log.warning(f"unknown type '{type_name}'")
     
     def parse_definitions(self) -> None:
-        printv("parsing definitions")
+        log.info("parsing definitions")
         section_names = self._config.sections()
 
         # parse combos
         self._combos = [section_name for section_name in section_names if '+' in section_name]
         if verbose:
-            printv("combos:")
+            log.info("combos:")
             for combo in self._combos:
-                printv(f" -- '{combo}'")
+                log.info(f" -- '{combo}'")
 
         # parse exits, items, and rooms
         for section_name in [section_name for section_name in section_names if '.' in section_name]:
-            printv(f" -- '{section_name}'")
+            log.info(f" -- '{section_name}'")
             parts = section_name.split('.')
             if len(parts) > 2:
-                printv(f"WARN too many parts in section name '{section_name}")
+                log.warning(f"too many parts in section name '{section_name}")
                 continue
             self._parse_definition(parts[0], parts[1])
 
@@ -154,7 +155,7 @@ class Game:
         valid_anchors = ["bottom", "left", "right", "top"]
         if values['anchor'] not in valid_anchors:
             anchor: str = f"INVENTORY_{anchor.upper()}"
-            printv(f"ERROR: illegal inventory anchor '{anchor}'")
+            log.error(f"illegal inventory anchor '{anchor}'")
             return
         anchor = f"INVENTORY_{values['anchor'].upper()}"
         length = int(values['length'])
@@ -171,13 +172,13 @@ class Game:
                 self._script.add_line(f"Inventory.add({item_python})")
     
     def report_definitions(self) -> None:
-        printv(f"{len(self._combos)} combos: {self._combos}")
-        printv(f"{len(self._exits)} exits: {self._exits}")
-        printv(f"{len(self._items)} items: {self._items}")
-        printv(f"{len(self._rooms)} rooms: {self._rooms}")
+        log.info(f"{len(self._combos)} combos: {self._combos}"
+            f"{len(self._exits)} exits: {self._exits}"
+            f"{len(self._items)} items: {self._items}"
+            f"{len(self._rooms)} rooms: {self._rooms}")
 
     def write(self) -> None:
-        printv(f"writing game file to '{self._script._output_path}'")
+        log.info(f"writing game file to '{self._script._output_path}'")
         self._script.write()
 
 def flatten(list: Iterable[Iterable]) -> List:

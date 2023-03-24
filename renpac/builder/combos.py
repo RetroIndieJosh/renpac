@@ -1,3 +1,5 @@
+import logging
+
 from renpac.base.printv import *
 from renpac.base.target import *
 
@@ -5,6 +7,8 @@ from renpac.builder import python
 
 from renpac.builder.Game import *
 from renpac.builder.VariableMap import *
+
+log = logging.getLogger("combo")
 
 def parse_combo(section_key: str) -> List[str]:
     parts = section_key.split('+')
@@ -66,17 +70,17 @@ def parse_combo(section_key: str) -> List[str]:
     # error checking
 
     if replace_with is not None and replace_flags == TARGET_NONE:
-        printv(f"WARN: 'with' defined in '{section_key}' but 'replace' is set to 'none'")
+        log.warning(f"'with' defined in '{section_key}' but 'replace' is set to 'none'")
 
     if replace_with is None and replace_flags != TARGET_NONE:
-        printv(f"WARN: 'replace' defined in '{section_key}' but no 'with' set")
+        log.warning(f"'replace' defined in '{section_key}' but no 'with' set")
 
     # ignore delete flag if it's the same as replace
     if replace_flags == delete_flags:
         delete_flags = TARGET_NONE
 
     if message is None:
-        printv(f"WARN: no message for combo '{section_key}")
+        log.warning(f"no message for combo '{section_key}")
 
     python_name = python.combo(section_key).replace('.', '_').replace('+', 'plus')
 

@@ -75,8 +75,7 @@ class Hotspot:
         self.is_hovered = False
 
         ## The room where the hotspot exists. This needs to be Any type to avoid
-        ## circular dependency on Room, which most definitely needs to reference
-        ## Hotspot.
+        ## circular dependency on Room, which needs to reference Hotspot.
         self.room: Any = None
 
         # TODO _deleted functionality should be in a more generalized base class

@@ -1,22 +1,24 @@
+import logging
 import os
+
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import renpac.base.files as files
 
-from renpac.base.printv import enable_verbose, printv
-
 from renpac.builder.GeneratorFile import GeneratorFile
+
+log = logging.getLogger("renpygen")
 
 class RenpyGen:
     def __init__(self, relative_input_path: str, relative_output_path: str, sub_dirs: List[str] = []):
         self.sub_dirs: List[str] = sub_dirs
 
         self.input_path = Path(relative_input_path).resolve(True)
-        printv("generator input:", self.input_path, self.sub_dirs)
+        log.info(f"generator input: {self.input_path} {self.sub_dirs}")
 
         self.output_path = Path(relative_output_path).resolve()
-        printv("generator output:", relative_output_path, self.sub_dirs)
+        log.info(f"generator output: {self.output_path} {self.sub_dirs}")
 
         self.file_map: Dict[str, GeneratorFile] = {}
 
@@ -32,7 +34,7 @@ class RenpyGen:
                 files.clear_dir(sub_path, [".gen.rpy"])
 
     def load(self) -> None:
-        printv(f"** loading files")
+        log.info(f"** loading files")
         filenames: List[str] = files.filter_files(os.listdir(self.input_path), [".py"], ["__init__.py"])
         if self.has_sub_dirs():
             subdir: str
@@ -47,15 +49,15 @@ class RenpyGen:
         for py_file_name in filenames:
             f = GeneratorFile(self.input_path, self.output_path, py_file_name)
             self.file_map[str(f)] = f
-        printv(f"loaded {len(self.file_map)} files")
+        log.info(f"loaded {len(self.file_map)} files")
 
     def scan_deps(self):
-        printv(f"** reading dependencies")
+        log.info(f"** reading dependencies")
         for file in self.file_map.values():
             file.extract_dependencies()
 
     def link_deps(self):
-        printv(f"** linking dependencies")
+        log.info(f"** linking dependencies")
         for file in self.file_map.values():
             for dependency_name in file.dependency_names():
                 if dependency_name not in self.file_map:
@@ -64,16 +66,16 @@ class RenpyGen:
                 file.link_dependency(dependency)
 
     def calc_priorities(self):
-        printv(f"** calculating priorities")
+        log.info(f"** calculating priorities")
         for file in filter(lambda file: not file.is_dependency(), self.file_map.values()):
-            printv(f"  -- root file: {file}")
+            log.info(f"  -- root file: {file}")
             file.set_priority()
-        printv(f"** checking manual priorities")
+        log.info(f"** checking manual priorities")
         for file in self.file_map.values():
             file.check_priority()
 
     def write_files(self):
-        printv(f"** generating {len(self.file_map)} files")
+        log.info(f"** generating {len(self.file_map)} files")
         files = list(self.file_map.values())
         files.sort(key=lambda file: file.priority())
         for file in files:
@@ -89,7 +91,6 @@ class RenpyGen:
         @param input_subdirs If set, get all .py files from these subdirectories
             in addition to the top level directory.
         """
-
         self.clean_up()
         self.load()
         self.scan_deps()
@@ -97,9 +98,8 @@ class RenpyGen:
         self.calc_priorities()
         self.write_files()
 
-        print(f"{len(self.file_map)} files generated")
+        log.info(f"{len(self.file_map)} files generated")
 
 if __name__ == "__main__":
-    enable_verbose()
     generator = RenpyGen("renpac", "renpac/engine/rpy", ["base", "engine"])
     generator.generate()

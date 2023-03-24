@@ -1,11 +1,9 @@
-# TODO rename to Build.py
+# TODO rename to Builder.py
+import logging
 import shutil
-import pathlib
-import platform
 
 from datetime import datetime
-
-from renpac.base.printv import enable_verbose, printv
+from pathlib import Path
 
 from renpac.base import files
 
@@ -24,6 +22,8 @@ from renpac.builder.renpygen import RenpyGen
 
 THIS_PATH = os.path.dirname(__file__)
 
+log = logging.getLogger("builder")
+
 class Builder:
     def __init__(self, root: Path, config_relative_path="build.cfg") -> None:
         self._config_path: Path = Path(root, config_relative_path)
@@ -35,6 +35,10 @@ class Builder:
         self._audio_path: Path
         self._images_path: Path
         self._gui_path: Path
+
+        path = Path(__file__).parent.joinpath("builder.log")
+        Log.init("Builder Log", path, logging.DEBUG)
+        Log.clear()
 
     def build(self) -> None:
         self.parse_config()
@@ -79,10 +83,11 @@ class Builder:
         game.write()
 
     def clean(self) -> None:
-        printv(f"cleaning '{self._output_path}'")
+        log.info(f"cleaning '{self._output_path}'")
         shutil.rmtree(self._output_path, ignore_errors=True)
 
     def copy_engine_files(self) -> None:
+        log.info(f"copying from '{self._engine_path}' to '{self._output_path}'")
         files.copy_tree(self._engine_path, self._output_path)
 
     def copy_resources(self) -> None:
@@ -92,51 +97,47 @@ class Builder:
             self._gui_path: "gui",
         }
 
-        images = [f"{item}_idle" for item in Game.instance().items()] 
-        images += [f"{item}_hover" for item in Game.instance().items()] 
-        images += [f"bg {room}" for room in Game.instance().rooms()]
+        images = ([f"{item}_idle" for item in Game.instance().items()] 
+            + [f"{item}_hover" for item in Game.instance().items()] 
+            + [f"bg {room}" for room in Game.instance().rooms()])
         required_images = {resource: False for resource in images}
 
         def check_resource(path) -> bool:
             if "gui" in path:
                 return True
-            name = pathlib.Path(path).stem
-            extension = pathlib.Path(path).suffix
+            name = Path(path).stem
+            extension = Path(path).suffix
             if extension == ".png" or extension == ".jpg" or extension == ".jpeg":
                 if name in required_images:
                     required_images[name] = True
                     return True
-                else:
-                    print(f"WARNING unused image file")
-            print(f"WARNING skipped resource (cannot be validated)\n\t'{path}'")
+                log.warning(f"unused image file")
+            log.debug(f"skipped resource (cannot be validated)\n\t'{path}'")
             return False
 
         for source_path in mapping:
             resource_type = mapping[source_path]
             dest_path = Path(self._output_path, resource_type).resolve()
-            printv(f"copying resources ({resource_type}) from '{source_path}' to '{dest_path}'")
+            log.info(f"copying resources ({resource_type}) from '{source_path}' to '{dest_path}'")
             files.copy_tree(source_path, dest_path, check_resource)
 
         for image in required_images:
             if not required_images[image]:
-                print(f"WARNING missing required image file '{image}'")
+                log.warning(f"missing required image file '{image}'")
 
     def parse_config(self) -> None:
         config = Config(self._config_path)
         root_values = config.parse_section('build', {
             'root': ConfigEntry(ConfigType.STRING, True),
-            'verbose': ConfigEntry(ConfigType.BOOL, False, False),
+            'level': ConfigEntry(ConfigType.STRING, False, "debug")
         })
 
-        root_path: str = root_values['root']
-        if root_path.startswith('/'):
-            if platform.system() == "Windows":
-                raise Exception(f"Illegal root path for Windows.\n\tRoot: {root_path}")
-        elif platform.system() != "Windows":
-                raise Exception(f"Illegal root path for Linux.\n\tRoot: {root_path}")
+        root_path: Path = Path(root_values['root'])
+        if not root_path.is_absolute():
+            raise Exception(f"Root path must be absolute ({root_path})")
+        root_path.resolve(True)
 
-        if root_values['verbose']:
-            enable_verbose()
+        log.setLevel(Log.level(root_values['level']))
 
         engine_values = config.parse_section('engine', {'path': ConfigEntry(ConfigType.STRING, True)})
         self._engine_path = Path(root_path, engine_values['path']).resolve(True)
@@ -169,7 +170,7 @@ class Builder:
         ]
         notify: str = debug_values['notify']
         if notify not in ['none', 'debug', 'info', 'warnings', 'errors', 'all']:
-            print(f"WARNING unknown value for debug.notify: '{notify}'")
+            log.warning(f"unknown value for debug.notify: '{notify}'")
         self._debug_lines.append(f"DEBUG_NOTIFY_ALL = {'True' if notify == 'all' else 'False'}")
         self._debug_lines.append("DEBUG_NOTIFY_WARNINGS = DEBUG_NOTIFY_ALL or " \
             f"{'True' if notify == 'warnings' else 'False'}")
@@ -179,7 +180,7 @@ class Builder:
     def generate_debug_file(self) -> None:
         if self._debug_lines is None:
             return
-        printv("generating debug file")
+        log.info("generating debug file")
         debug_script = Script(Path(f"{self._output_path}/debug.gen.rpy", check_exists=False), 999, self._config_path)
         debug_script.add_line(*self._debug_lines)
         debug_script.write()
@@ -190,16 +191,16 @@ class Builder:
         self._output_file_path = Path(self._output_path, f"{self._game_name}.game.rpy").resolve()
 
     def print(self) -> None:
-        printv(f"Paths:"
-              f"\n\tEngine: '{self._engine_path}'"
-              f"\n\tFiles: '{self._game_path}'"
-              f"\n\tGame Config: '{self._game_config_path}'"
-              f"\n\tGame Images: '{self._images_path}'"
-              f"\n\tGame Audio: '{self._audio_path}'"
-              f"\n\tOutput: '{self._output_path}'"
-              f"\n\tOutput File: '{self._output_file_path}'\n\n")
+        for line in f"PATHS" \
+            f"\n\tEngine: '{self._engine_path}'" \
+            f"\n\tFiles: '{self._game_path}'" \
+            f"\n\tGame Config: '{self._game_config_path}'" \
+            f"\n\tGame Images: '{self._images_path}'" \
+            f"\n\tGame Audio: '{self._audio_path}'" \
+            f"\n\tOutput: '{self._output_path}'" \
+            f"\n\tOutput File: '{self._output_file_path}'".splitlines():
+            log.info(line)
 
 if __name__ == "__main__":
-    enable_verbose()
     build = Builder(Path(__file__).parent)
     build.build()

@@ -1,11 +1,14 @@
+import logging
 import os
 
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from renpac.builder.Script import Script
 
 from renpac.base.printv import *
+
+log = logging.getLogger("GeneratorFile")
 
 class GeneratorFile(Script):
     def __init__(self, input_root: Path, output_root: Path, relative_path: str) -> None:
@@ -49,7 +52,7 @@ class GeneratorFile(Script):
         if len(self._input_lines) == 0 or not self._input_lines[0].startswith("#priority"):
             return
         self.set_max_priority(int(self._input_lines[0].split("#priority ", 1)[1]))
-        printv(f" -- manual priority for {self}: {self._priority}")
+        log.info(f" -- manual priority for {self}: {self._priority}")
 
     def clear(self) -> None:
         self._dependency_names = []
@@ -70,13 +73,11 @@ class GeneratorFile(Script):
                 self.add_dependency(target)
                 continue
             self.add_line(line)
-        printv(f"{self}", end='')
-        if len(self._dependency_names) == 0:
-            printv()
-        else:
-            printv(":")
+        dep_count: int = len(self._dependency_names)
+        log.info(f"{self} ({dep_count})")
+        if dep_count > 0:
             for dep in self._dependency_names:
-                printv(f" -- {dep}")
+                log.info(f" -- {dep}")
 
     def is_dependency(self) -> bool:
         return self._is_dependency
@@ -107,8 +108,8 @@ class GeneratorFile(Script):
 
     def write(self) -> None:
         if self.is_empty():
-            printv(f"WARNING no lines in GeneratorFile '{self._name}', file will not be created\n"
-                   "- did you extract dependencies?")
-        printv(f"{self}: {self._priority}")
+            log.warning(f"no lines in GeneratorFile '{self._name}', file will not be created\n"
+                   "- did you skip computing dependencies?")
+        log.info(f"{self}: {self._priority}")
         super().write()
-        printv(f"\t=> {self._output_path} ({len(self._input_lines)} lines)")
+        log.info(f" => {self._output_path} ({len(self._input_lines)} lines)")
