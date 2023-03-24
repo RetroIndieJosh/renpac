@@ -37,7 +37,7 @@ class RenpyGen:
         if self.has_sub_dirs():
             subdir: str
             for subdir in self.sub_dirs:
-                sub_path = Path(f"{self.input_path}/{subdir}").absolute()
+                sub_path = Path(f"{self.input_path}/{subdir}").resolve()
                 subdir_filenames = files.filter_files(os.listdir(sub_path), [".py"], ["__init__.py"])
                 filenames += map(lambda filename: f"{subdir}/{filename}", subdir_filenames)
 

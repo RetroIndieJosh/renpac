@@ -30,11 +30,11 @@ class Config:
     _name: str
     _parser: ConfigParser
 
-    def __init__(self, config_path: str) -> None:
+    def __init__(self, config_path: Path) -> None:
         self._parser = ConfigParser()
         if len(self._parser.read(config_path)) == 0:
             raise Exception(f"could not read or no data in '{config_path}'")
-        self._name = Path(config_path).name
+        self._name = config_path.name
 
     def get_section(self, section_key: str) -> SectionProxy:
         if section_key not in self._parser:

@@ -24,7 +24,7 @@ class Renpac(StaticClass):
     def init() -> None:
         """! Initialize RenPaC. This is mostly legacy, as it used to do a lot more. TODO remove
         """
-        Log.init(Path(__file__, "renpac.log"), logging.DEBUG)
+        Log.init("RenPaC Log", Path(__file__).parent.joinpath("renpac.log"), logging.DEBUG)
         renpy.show_screen("ClickArea") #type: ignore
 
     # Logging

@@ -3,7 +3,7 @@ import shutil
 import os
 
 from pathlib import Path
-from typing import Callable, List, Optional, TypeGuard
+from typing import Callable, List, Optional
 
 from renpac.base.printv import printv
 
@@ -34,6 +34,8 @@ def copy_tree(source_dir: str, dest_dir: str,
         currently copying (used for recursion)
     @return The total number of files (excluding directories) copied
     """
+    if relative_dir == "":
+        printv(f"copying from '{source_dir}' to '{dest_dir}'")
     dir = os.path.join(source_dir, relative_dir)
     count = 0
     for file in os.listdir(dir):

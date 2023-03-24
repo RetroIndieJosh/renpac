@@ -9,24 +9,24 @@ from renpac.base.printv import enable_verbose, printv
 
 from renpac.base import files
 
+from renpac.base.Config import Config, ConfigEntry, ConfigType
+from renpac.base.Log import Log
+
 from renpac.builder.combos import *
 from renpac.builder.exits import *
 from renpac.builder.items import *
 from renpac.builder.rooms import *
 
-from renpac.base.Config import Config, ConfigEntry, ConfigType
-
 from renpac.builder.Game import Game
-from renpac.builder.Path import Path
 from renpac.builder.Script import Script
 
-from renpac.builder.generate import generate
+from renpac.builder.renpygen import RenpyGen
 
 THIS_PATH = os.path.dirname(__file__)
 
-class Build:
-    def __init__(self, config_path="build.cfg") -> None:
-        self._config_path: Path = Path(config_path)
+class Builder:
+    def __init__(self, root: Path, config_relative_path="build.cfg") -> None:
+        self._config_path: Path = Path(root, config_relative_path)
 
         self._debug_lines: List[str]
         self._game_name: str
@@ -40,25 +40,25 @@ class Build:
         self.parse_config()
         start_time = datetime.now()
         print(f"Building {self._game_name} at {start_time}")
+
         self.print()
         self.clean()
-        self.generate_engine_rpy()
+
+        RenpyGen("renpac", "renpac/engine/rpy", ["base", "engine"]).generate()
         self.copy_engine_files()
+
         self.generate_debug_file()
         self.build_game()
         self.copy_resources()
+
         end_time = datetime.now()
         diff_time = (end_time - start_time).total_seconds()
         print(f"Output: {self._output_path}")
         print(f"Build done at {datetime.now()} ({diff_time} seconds elapsed)")
 
-    def generate_engine_rpy(self) -> None:
-        generate(f"..", f"../engine/rpy", ["base", "engine"])
-
     # TODO move to Game - but causes circular deps!
     def build_game(self) -> None:
-        config_path = f"{self._game_path}/{self._game_name}.cfg"
-        game = Game(self._output_file_path, config_path)
+        game = Game(self._output_file_path, self._game_config_path)
 
         game.parse_defaults()
 
@@ -79,15 +79,11 @@ class Build:
         game.write()
 
     def clean(self) -> None:
-        path = self._output_path.get()
-        printv(f"cleaning '{path}'")
-        shutil.rmtree(path, ignore_errors=True)
+        printv(f"cleaning '{self._output_path}'")
+        shutil.rmtree(self._output_path, ignore_errors=True)
 
     def copy_engine_files(self) -> None:
-        source_path = Path(f"../engine/rpy").get()
-        dest_path = self._output_path.get()
-        printv(f"copying engine from '{source_path}' to '{dest_path}'")
-        files.copy_tree(source_path, dest_path)
+        files.copy_tree(self._engine_path, self._output_path)
 
     def copy_resources(self) -> None:
         mapping = {
@@ -117,16 +113,16 @@ class Build:
 
         for source_path in mapping:
             resource_type = mapping[source_path]
-            dest_path = Path(f"{self._output_path}/{resource_type}", False)
+            dest_path = Path(self._output_path, resource_type).resolve()
             printv(f"copying resources ({resource_type}) from '{source_path}' to '{dest_path}'")
-            files.copy_tree(source_path.get(), dest_path.get(), check_resource)
+            files.copy_tree(source_path, dest_path, check_resource)
 
         for image in required_images:
             if not required_images[image]:
                 print(f"WARNING missing required image file '{image}'")
 
     def parse_config(self) -> None:
-        config = Config(self._config_path.get())
+        config = Config(self._config_path)
         root_values = config.parse_section('build', {
             'root': ConfigEntry(ConfigType.STRING, True),
             'verbose': ConfigEntry(ConfigType.BOOL, False, False),
@@ -142,6 +138,12 @@ class Build:
         if root_values['verbose']:
             enable_verbose()
 
+        engine_values = config.parse_section('engine', {'path': ConfigEntry(ConfigType.STRING, True)})
+        self._engine_path = Path(root_path, engine_values['path']).resolve(True)
+        # TODO additional validation - read Renpac.py and check known contents (validation string?)
+        if not Path(self._engine_path, "Renpac.py").exists:
+            raise Exception(f"Invalid engine path: no 'Renpac.py' in '{self._engine_path}'")
+
         game_values = config.parse_section('game', {
             'audio': ConfigEntry(ConfigType.STRING, True, "audio"),
             'author': ConfigEntry(ConfigType.STRING, False, "Anonymous"),
@@ -150,22 +152,12 @@ class Build:
             'name': ConfigEntry(ConfigType.STRING, False, "Untitled RenPaC Game"),
             'path': ConfigEntry(ConfigType.STRING, True),
         })
-        self._game_path = Path('/'.join([root_path, game_values['path']]))
-
         self._game_name = game_values['name']
+        self._game_path = Path(root_path, game_values['path']).resolve(True)
+        self._audio_path = Path(self._game_path, game_values['audio']).resolve(True)
+        self._gui_path = Path(self._game_path, game_values['gui']).resolve(True)
+        self._images_path = Path(self._game_path, game_values['images']).resolve(True)
         self.generate_paths()
-
-        engine_values = config.parse_section('engine', {'path': ConfigEntry(ConfigType.STRING, True)})
-        self._engine_path = Path('/'.join([root_path, engine_values['path']]))
-
-        audio_path_relative = game_values['audio']
-        self._audio_path = Path(f"{self._game_path}/{audio_path_relative}")
-
-        gui_path_relative = game_values['gui']
-        self._gui_path = Path(f"{self._game_path}/{gui_path_relative}")
-
-        images_path_relative = game_values['images']
-        self._images_path = Path(f"{self._game_path}/{images_path_relative}")
 
         debug_values = config.parse_section('debug', {
             'hotspots': ConfigEntry(ConfigType.BOOL, True, False),
@@ -193,9 +185,9 @@ class Build:
         debug_script.write()
 
     def generate_paths(self) -> None:
-        self._game_config_path = Path(f"{self._game_path}/{self._game_name}.cfg")
-        self._output_path = Path(f"build/{self._game_name}/game", False)
-        self._output_file_path = Path(f"{self._output_path}/{self._game_name}.game.rpy", False)
+        self._game_config_path = Path(self._game_path, f"{self._game_name}.cfg").resolve(True)
+        self._output_path = Path("build", self._game_name, "game").resolve()
+        self._output_file_path = Path(self._output_path, f"{self._game_name}.game.rpy").resolve()
 
     def print(self) -> None:
         printv(f"Paths:"
@@ -208,5 +200,6 @@ class Build:
               f"\n\tOutput File: '{self._output_file_path}'\n\n")
 
 if __name__ == "__main__":
-    build = Build()
+    enable_verbose()
+    build = Builder(Path(__file__).parent)
     build.build()
