@@ -4,23 +4,17 @@ import shutil
 
 from datetime import datetime
 from pathlib import Path
+from typing import List
 
 from renpac.base import files
 
 from renpac.base.Config import Config, ConfigEntry, ConfigType
 from renpac.base.Log import Log
 
-from renpac.builder.combos import *
-from renpac.builder.exits import *
-from renpac.builder.items import *
-from renpac.builder.rooms import *
-
 from renpac.builder.Game import Game
 from renpac.builder.Script import Script
 
 from renpac.builder.renpygen import RenpyGen
-
-THIS_PATH = os.path.dirname(__file__)
 
 log = logging.getLogger("builder")
 
@@ -65,12 +59,13 @@ class Builder:
         # gather a lits of elements in the script so it doesn't need to be in order
         game.collect_definitions()
         game.report_definitions()
+        exit(0)
 
         # must be in order items, rooms, exits, combos
-        game.all_items(parse_item)
-        game.all_rooms(parse_room)
-        game.all_exits(parse_exit)
-        game.all_combos(parse_combo)
+        #game.all_items(parse_item)
+        #game.all_rooms(parse_room)
+        #game.all_exits(parse_exit)
+        #game.all_combos(parse_combo)
 
         game.parse_game()
         game.parse_inventory()

@@ -1,8 +1,6 @@
 import logging
 
-from typing import Callable, Dict, List, Iterable, Optional, Tuple
-
-from renpac.base.Config import Config, ConfigEntry, ConfigType
+from typing import Callable, List, Optional, Tuple
 
 from renpac.builder.Script import *
 from renpac.builder.VariableMap import *
@@ -64,8 +62,6 @@ class Game:
         if len(errors) > 0:
             raise Exception("Errors in game source. Cannot proceed.")
 
-        exit(0)
-
     @staticmethod
     def instance() -> 'Game':
         if Game._instance is None:
@@ -84,25 +80,25 @@ class Game:
         if self._combos is None:
             log.warning("no combinations in game")
         self._script.add_header(f"COMBOS")
-        self._script.add_line(*flatten(map(func, self._combos)))
+        #self._script.add_line(*flatten(map(func, self._combos)))
     
     def all_exits(self, func: Callable[[str], List[str]]) -> None:
         if self._exits is None:
             log.warning("no exits in game")
         self._script.add_header(f"EXITS")
-        self._script.add_line(*flatten(map(func, self._exits)))
+        #self._script.add_line(*flatten(map(func, self._exits)))
 
     def all_items(self, func: Callable[[str], List[str]]) -> None:
         if self._items is None:
             log.warning("no items in game")
         self._script.add_header(f"ITEMS")
-        self._script.add_line(*flatten(map(func, self._items)))
+        #self._script.add_line(*flatten(map(func, self._items)))
     
     def all_rooms(self, func: Callable[[str], List[str]]) -> None:
         if self._rooms is None:
             raise Exception("ERROR game must have at least one room")
         self._script.add_header(f"ROOMS")
-        self._script.add_line(*flatten(map(func, self._rooms)))
+        #self._script.add_line(*flatten(map(func, self._rooms)))
 
     def default_exit_size(self) -> str:
         return self._default_exit_size
@@ -130,51 +126,32 @@ class Game:
     
     def has_room(self, name: str) -> bool:
         return name.strip() in self._rooms
-    
-    def _parse_definition(self, type_name: str, element_name: str):
-        if type_name == "exit":
-            self._exits.append(element_name)
-        elif type_name == "item":
-            self._items.append(element_name)
-        elif type_name == "room":
-            self._rooms.append(element_name)
-        else:
-            log.warning(f"unknown type '{type_name}'")
 
     def collect_definitions(self) -> None:
         log.info("** collecting definitions")
-        section_names = self._config.sections()
-
-        # parse combos
-        self._combos = [section_name for section_name in section_names if '+' in section_name]
-        if verbose:
-            log.info("combos:")
-            for combo in self._combos:
-                log.info(f" -- '{combo}'")
-
-        # parse exits, items, and rooms
-        for section_name in [section_name for section_name in section_names if '.' in section_name]:
-            log.info(f" -- '{section_name}'")
-            parts = section_name.split('.')
-            if len(parts) > 2:
-                log.warning(f"too many parts in section name '{section_name}")
-                continue
-            self._parse_definition(parts[0], parts[1])
+        self._combos = [block for block in self._blocks if block[0].startswith('combo')]
+        self._exits = [block for block in self._blocks if block[0].startswith('exit')]
+        self._items = [block for block in self._blocks if block[0].startswith('item')]
+        self._rooms = [block for block in self._blocks if block[0].startswith('room')]
 
     def parse_defaults(self) -> None:
         # store as string to parse later when size is set
-        values = self._config.parse_section('exit', {'size': ConfigEntry(ConfigType.STRING, False)})
-        self._default_exit_size = values['size']
+        #values = self._config.parse_section('exit', {'size': ConfigEntry(ConfigType.STRING, False)})
+        #self._default_exit_size = values['size']
 
         # ditto above
-        values = self._config.parse_section('item', {'size': ConfigEntry(ConfigType.STRING, False)})
-        self._default_item_size = values['size']
+        #values = self._config.parse_section('item', {'size': ConfigEntry(ConfigType.STRING, False)})
+        #self._default_item_size = values['size']
+        pass
 
     def parse_game(self) -> None:
-        values = self._config.parse_section('game', {'start': ConfigEntry(ConfigType.STRING, True)})
-        self._start_room = values['start']
+        #values = self._config.parse_section('game', {'start': ConfigEntry(ConfigType.STRING, True)})
+        #self._start_room = values['start']
+        pass
     
     def parse_inventory(self) -> None:
+        pass
+        """
         entries = {
             'anchor': ConfigEntry(ConfigType.STRING, True),
             'depth': ConfigEntry(ConfigType.INT, True),
@@ -200,18 +177,22 @@ class Game:
                     raise Exception(f"ERROR no item '{item_name}' for initial inventory")
                 item_python = python.item(item_name)
                 self._script.add_line(f"Inventory.add({item_python})")
+        """
     
     def report_definitions(self) -> None:
-        log.info(f"{len(self._combos)} combos: {self._combos}"
-            f"{len(self._exits)} exits: {self._exits}"
-            f"{len(self._items)} items: {self._items}"
-            f"{len(self._rooms)} rooms: {self._rooms}")
+        log.info(f"{len(self._combos)} combos")
+        for combo in self._combos:
+            log.debug(f" -- {combo[0]}")
+        log.info(f"{len(self._exits)} exits")
+        for exit in self._exits:
+            log.debug(f" -- {exit[0]}")
+        log.info(f"{len(self._items)} items")
+        for item in self._items:
+            log.debug(f" -- {item[0]}")
+        log.info(f"{len(self._rooms)} rooms")
+        for room in self._rooms:
+            log.debug(f" -- {room[0]}")
 
     def write(self) -> None:
         log.info(f"writing game file to '{self._script._output_path}'")
         self._script.write()
-
-def flatten(list: Iterable[Iterable]) -> List:
-    if list is None:
-        return None
-    return [item for sublist in list for item in sublist]
