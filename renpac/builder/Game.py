@@ -3,10 +3,14 @@ import logging
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Tuple
 
-from renpac.builder.Script import *
+# TODO remove
 from renpac.builder.VariableMap import *
 
 from renpac.builder import python
+
+from renpac.builder.Script import *
+
+from renpac.builder.room import room_to_python
 
 log = logging.getLogger("Game")
 
@@ -324,11 +328,11 @@ def to_json(game_data: Dict[str, Dict[str, Dict[str, str]]]):
 def to_python(game_data: Dict[str, Dict[str, Dict[str, str]]], game_file_path: Path):
     script: Script = Script(Path(__file__).parent.joinpath("build", "bardolf.rpy"), 999, game_file_path)
     for combo in game_data['combo']:
-        script.add_line(python.combo(combo))
+        script.add_line("# " + python.combo(combo.replace('+', 'and')))
     for exit in game_data['exit']:
-        script.add_line(python.exit(exit))
+        script.add_line("# " + python.exit(exit))
     for item in game_data['item']:
-        script.add_line(python.item(item))
-    for room in game_data['room']:
-        script.add_line(python.room(room))
+        script.add_line("# " + python.item(item))
+    for room, data in game_data['room'].items():
+        script.add_line(*room_to_python(room, data))
     script.write()

@@ -11,7 +11,7 @@ def parse_exit(exit_name: str) -> List[str]:
     exit_varmaps: List[VariableMap] = [
         VariableMap("message"),
         VariableMap("pos", config_type=ConfigType.POSITION),
-        VariableMap("size", config_type=ConfigType.SIZE, default=Game.instance().default_exit_size())
+        VariableMap("size", config_type=ConfigType.SIZE, fallback=Game.instance().default_exit_size())
     ]
 
     lines: List[str] = []

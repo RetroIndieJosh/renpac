@@ -56,8 +56,8 @@ class Builder:
         from pprint import pformat
         for line in pformat(game).splitlines():
             log.debug(line)
-        #Game.to_python(game, self._game_config_path)
-        Game.to_json(game)
+        Game.to_python(game, self._game_config_path)
+        #Game.to_json(game)
 
         #game.parse_defaults()
 

@@ -22,7 +22,8 @@ class ConfigEntry:
     is_required: bool
     fallback = None
 
-    def __init__(self, expected_type: ConfigType, is_required: bool, fallback = None) -> None:
+    def __init__(self, expected_type: ConfigType, is_required: bool, 
+            fallback = None) -> None:
         self.expected_type = expected_type
         self.is_required = is_required
         self.fallback = fallback
