@@ -8,6 +8,7 @@ label renpac_start(game_name):
 
     python:
         Renpac.init()
+        Log.init("RenPaC Log", Path(__file__).parent.joinpath("renpac.log"), logging.DEBUG)
         Game.load(game_name)
         Game.start()
 

@@ -18,13 +18,11 @@ class Renpac(StaticClass):
     dangerously hide some errors/warnings."""
 
     _messages: List[Message] = []
-    _log: Log
 
     @staticmethod
     def init() -> None:
         """! Initialize RenPaC. This is mostly legacy, as it used to do a lot more. TODO remove
         """
-        Log.init("RenPaC Log", Path(__file__).parent.joinpath("renpac.log"), logging.DEBUG)
         renpy.show_screen("ClickArea") #type: ignore
 
     # Logging
@@ -33,7 +31,7 @@ class Renpac(StaticClass):
     def error(message: str) -> None:
         """! Helper method to log errors that also notifies in-game if desired
         """
-        Log.get("renpac").error(message)
+        logging.error(message)
         if DEBUG_NOTIFY_ERRORS: #type:ignore
             Renpac.notify(f"ERROR: {message}")
 
@@ -41,7 +39,7 @@ class Renpac(StaticClass):
     def warn(message: str) -> None:
         """! Helper method to log warnings that also notifies in-game if desired
         """
-        Log.get("renpac").warning(message)
+        logging.warning(message)
         if DEBUG_NOTIFY_WARNINGS: #type:ignore
             Renpac.notify(f"WARNING: {message}")
 

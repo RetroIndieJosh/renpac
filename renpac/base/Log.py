@@ -30,16 +30,15 @@ class Log:
     _path: Optional[Path] = None
 
     @staticmethod
-    def init(title: Optional[str], path: Optional[Path] = None, 
-        log_level: int = logging.NOTSET, use_stdout: bool = False, 
-        stdout_log_level: Optional[int] = None):
+    def init(title: Optional[str], path: Path, log_level: int = logging.NOTSET,
+        use_stdout: bool = False, stdout_log_level: Optional[int] = None):
         """! Initialize a log. 
 
         @param path The file path where the log will be stored.
         @param log_level The lowest level of messages to be displayed in the log.
         """
         ## Store the log path so we can write raw messages to it
-        Log._path = None if path is None else path.absolute()
+        Log._path = path.resolve()
 
         Log._level = log_level
 
@@ -60,7 +59,7 @@ class Log:
         Log._initialized = True
         if title is not None:
             Log.write_header(f"{title}", timestamp=True)
-        printv(f"Started log '{title}' at {Log._path}")
+        print(f"Started log '{title}' at {Log._path}")
 
     @staticmethod
     def check_init():
