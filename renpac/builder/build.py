@@ -11,10 +11,10 @@ from renpac.base import files
 from renpac.base.Config import Config, ConfigEntry, ConfigType
 from renpac.base.Log import Log
 
-from renpac.builder.Game import parse_game
-from renpac.builder.Script import Script
+from renpac.builder import Game
 
 from renpac.builder.renpygen import RenpyGen
+from renpac.builder.Script import Script
 
 log = logging.getLogger("builder")
 
@@ -52,11 +52,12 @@ class Builder:
 
     # TODO move to Game - but causes circular deps!
     def build_game(self) -> None:
-        #game = Game(self._output_file_path, self._game_config_path)
-        game = parse_game(self._game_config_path)
+        game = Game.parse_game(self._game_config_path)
         from pprint import pformat
         for line in pformat(game).splitlines():
             log.debug(line)
+        #Game.to_python(game, self._game_config_path)
+        Game.to_json(game)
 
         #game.parse_defaults()
 

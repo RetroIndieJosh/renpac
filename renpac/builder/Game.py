@@ -315,3 +315,20 @@ def parse_game(source_path: Path) -> Dict[str, Dict[str, Dict[str, str]]]:
     lines: List[CodeLine] = get_lines(source_path)
     blocks: List[CodeBlock] = get_blocks(lines)
     return parse_blocks(blocks)
+
+def to_json(game_data: Dict[str, Dict[str, Dict[str, str]]]):
+    import json
+    with Path(__file__).parent.joinpath("build", "bardolf.json").open("w") as file:
+        json.dump(game_data, file, indent=4)
+
+def to_python(game_data: Dict[str, Dict[str, Dict[str, str]]], game_file_path: Path):
+    script: Script = Script(Path(__file__).parent.joinpath("build", "bardolf.rpy"), 999, game_file_path)
+    for combo in game_data['combo']:
+        script.add_line(python.combo(combo))
+    for exit in game_data['exit']:
+        script.add_line(python.exit(exit))
+    for item in game_data['item']:
+        script.add_line(python.item(item))
+    for room in game_data['room']:
+        script.add_line(python.room(room))
+    script.write()
