@@ -36,14 +36,10 @@ class Builder:
         self._images_path: Path
         self._gui_path: Path
 
-        path = Path(__file__).parent.joinpath("builder.log")
-        Log.init("Builder Log", path, logging.DEBUG)
-        Log.clear()
-
     def build(self) -> None:
         self.parse_config()
         start_time = datetime.now()
-        print(f"Building {self._game_name} at {start_time}")
+        log.critical(f"Building {self._game_name} at {start_time}")
 
         self.print()
         self.clean()
@@ -57,8 +53,8 @@ class Builder:
 
         end_time = datetime.now()
         diff_time = (end_time - start_time).total_seconds()
-        print(f"Output: {self._output_path}")
-        print(f"Build done at {datetime.now()} ({diff_time} seconds elapsed)")
+        log.critical(f"Output: {self._output_path}")
+        log.critical(f"Build done at {datetime.now()} ({diff_time} seconds elapsed)")
 
     # TODO move to Game - but causes circular deps!
     def build_game(self) -> None:
@@ -137,7 +133,10 @@ class Builder:
             raise Exception(f"Root path must be absolute ({root_path})")
         root_path.resolve(True)
 
-        log.setLevel(Log.level(root_values['level']))
+        log_level  = Log.level(root_values['level'])
+        path = Path(__file__).parent.joinpath("builder.log")
+        Log.init("Builder Log", path, log_level, True)
+        Log.clear()
 
         engine_values = config.parse_section('engine', {'path': ConfigEntry(ConfigType.STRING, True)})
         self._engine_path = Path(root_path, engine_values['path']).resolve(True)

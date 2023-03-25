@@ -1,9 +1,10 @@
 #priority -999
 import logging
+import sys
 
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, TextIO
 
 from renpac.base.printv import enable_verbose, printv
 from renpac.base.utility import text_menu
@@ -29,7 +30,9 @@ class Log:
     _path: Optional[Path] = None
 
     @staticmethod
-    def init(title: Optional[str], path: Optional[Path] = None, log_level: int = logging.NOTSET):
+    def init(title: Optional[str], path: Optional[Path] = None, 
+        log_level: int = logging.NOTSET, use_stdout: bool = False, 
+        stdout_log_level: Optional[int] = None):
         """! Initialize a log. 
 
         @param path The file path where the log will be stored.
@@ -40,20 +43,19 @@ class Log:
 
         Log._level = log_level
 
-        # TODO can we avoid repetition here?
-        if path is None:
-            logging.basicConfig(
-                format = '[%(asctime)s] %(levelname)s (%(levelno)s): %(message)s',
-                encoding = 'utf-8', 
-                level = log_level
-            )
-        else:
-            logging.basicConfig(
-                filename = Log._path,
-                format = '[%(asctime)s] %(levelname)s (%(levelno)s): %(message)s',
-                encoding = 'utf-8', 
-                level = log_level
-            )
+        logging.basicConfig(
+            filename = Log._path,
+            format = '[%(asctime)s] %(levelname)s (%(levelno)s): %(message)s',
+            encoding = 'utf-8', 
+            level = log_level
+        )
+
+        if use_stdout:
+            handler = logging.StreamHandler(sys.stdout)
+            handler.setLevel(logging.WARNING if stdout_log_level is None else stdout_log_level)
+            formatter = logging.Formatter("[%(name)s] %(levelname)s: %(message)s")
+            handler.setFormatter(formatter)
+            logging.getLogger().addHandler(handler)
 
         Log._initialized = True
         if title is not None:
