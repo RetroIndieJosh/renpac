@@ -15,10 +15,10 @@ class RenpyGen:
         self.sub_dirs: List[str] = sub_dirs
 
         self.input_path = Path(relative_input_path).resolve(True)
-        log.info(f"generator input: {self.input_path} {self.sub_dirs}")
+        log.debug(f"generator input: {self.input_path} {self.sub_dirs}")
 
         self.output_path = Path(relative_output_path).resolve()
-        log.info(f"generator output: {self.output_path} {self.sub_dirs}")
+        log.debug(f"generator output: {self.output_path} {self.sub_dirs}")
 
         self.file_map: Dict[str, GeneratorFile] = {}
 
@@ -68,7 +68,7 @@ class RenpyGen:
     def calc_priorities(self):
         log.info(f"** calculating priorities")
         for file in filter(lambda file: not file.is_dependency(), self.file_map.values()):
-            log.info(f"  -- root file: {file}")
+            log.debug(f"  -- root file: {file}")
             file.set_priority()
         log.info(f"** checking manual priorities")
         for file in self.file_map.values():

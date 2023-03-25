@@ -63,7 +63,7 @@ class Builder:
         game.parse_defaults()
 
         # gather a lits of elements in the script so it doesn't need to be in order
-        game.parse_definitions()
+        game.collect_definitions()
         game.report_definitions()
 
         # must be in order items, rooms, exits, combos
@@ -79,11 +79,11 @@ class Builder:
         game.write()
 
     def clean(self) -> None:
-        log.info(f"cleaning '{self._output_path}'")
+        log.info(f"** cleaning '{self._output_path}'")
         shutil.rmtree(self._output_path, ignore_errors=True)
 
     def copy_engine_files(self) -> None:
-        log.info(f"copying from '{self._engine_path}' to '{self._output_path}'")
+        log.info(f"** copying engine")
         files.copy_tree(self._engine_path, self._output_path)
 
     def copy_resources(self) -> None:
@@ -179,13 +179,13 @@ class Builder:
     def generate_debug_file(self) -> None:
         if self._debug_lines is None:
             return
-        log.info("generating debug file")
+        log.info("** generating debug file")
         debug_script = Script(Path(f"{self._output_path}/debug.gen.rpy", check_exists=False), 999, self._config_path)
         debug_script.add_line(*self._debug_lines)
         debug_script.write()
 
     def generate_paths(self) -> None:
-        self._game_config_path = Path(self._game_path, f"{self._game_name}.cfg").resolve(True)
+        self._game_config_path = Path(self._game_path, f"{self._game_name}.renpac").resolve(True)
         self._output_path = Path("build", self._game_name, "game").resolve()
         self._output_file_path = Path(self._output_path, f"{self._game_name}.game.rpy").resolve()
 

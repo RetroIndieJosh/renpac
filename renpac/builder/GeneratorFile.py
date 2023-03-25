@@ -52,7 +52,7 @@ class GeneratorFile(Script):
         if len(self._input_lines) == 0 or not self._input_lines[0].startswith("#priority"):
             return
         self.set_max_priority(int(self._input_lines[0].split("#priority ", 1)[1]))
-        log.info(f" -- manual priority for {self}: {self._priority}")
+        log.debug(f" -- manual priority for {self}: {self._priority}")
 
     def clear(self) -> None:
         self._dependency_names = []
@@ -74,10 +74,10 @@ class GeneratorFile(Script):
                 continue
             self.add_line(line)
         dep_count: int = len(self._dependency_names)
-        log.info(f"{self} ({dep_count})")
+        log.debug(f"{self} ({dep_count})")
         if dep_count > 0:
             for dep in self._dependency_names:
-                log.info(f" -- {dep}")
+                log.debug(f" -- {dep}")
 
     def is_dependency(self) -> bool:
         return self._is_dependency
@@ -110,6 +110,6 @@ class GeneratorFile(Script):
         if self.is_empty():
             log.warning(f"no lines in GeneratorFile '{self._name}', file will not be created\n"
                    "- did you skip computing dependencies?")
-        log.info(f"{self}: {self._priority}")
+        log.debug(f"{self}: {self._priority}")
         super().write()
-        log.info(f" => {self._output_path} ({len(self._input_lines)} lines)")
+        log.debug(f" => {self._output_path} ({len(self._input_lines)} lines)")

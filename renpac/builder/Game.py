@@ -1,6 +1,6 @@
 import logging
 
-from typing import Callable, Dict, List, Iterable, Optional
+from typing import Callable, Dict, List, Iterable, Optional, Tuple
 
 from renpac.base.Config import Config, ConfigEntry, ConfigType
 
@@ -14,13 +14,11 @@ log = logging.getLogger("Game")
 class Game:
     _instance = None
 
-    def __init__(self, output_path: Path, config_path: str) -> None:
+    def __init__(self, output_path: Path, source_path: Path) -> None:
         if Game._instance is not None:
             raise Exception("Cannot create more than one Game object")
 
         Game._instance = self
-
-        self._config = Config(config_path)
 
         self._combos: List[str] = []
         self._exits: List[str] = []
@@ -32,15 +30,47 @@ class Game:
         self._script.add_line("def load_game():")
         self._script.indent()
 
+        self._lines: List[Tuple[int, str]] = []
+        line_number: int = 0
+        for line in map(lambda line: line.rstrip(), source_path.read_text().splitlines()):
+            line_number += 1
+            if line.startswith('#') or len(line) == 0:
+                continue
+            self._lines.append((line_number, line))
+        log.info(f"Game script loaded with {len(self._lines)} loc ({line_number} with blank/comments)")
+
+        current_block: Optional[Tuple[str, List[str]]] = None
+        self._blocks: List[Tuple(str, List[str])] = []
+        errors: List[str] = []
+        for num, text in self._lines:
+            # TODO tab validation, allow more types of tabs as long as consistent
+            if current_block is not None:
+                if text.startswith("    "):
+                    current_block[1].append(text.lstrip())
+                    continue
+                else:
+                    self._blocks.append(current_block)
+                    current_block = None
+            if text.startswith(" "):
+                errors.append(f"[{num}] Unexpected indentation")
+                continue
+            current_block = (text, [])
+        log.info(f"{len(self._blocks)} blocks")
+        for block in self._blocks:
+            log.debug(f" -- {block[0]}")
+
+        for error in errors:
+            log.error(error)
+        if len(errors) > 0:
+            raise Exception("Errors in game source. Cannot proceed.")
+
+        exit(0)
+
     @staticmethod
     def instance() -> 'Game':
         if Game._instance is None:
             raise Exception("Tried to access game, but none defined")
         return Game._instance
-
-    # TODO ideally won't need this
-    def config(self) -> Config:
-        return self._config
 
     def items(self) -> List[str]:
         return self._items
@@ -110,9 +140,9 @@ class Game:
             self._rooms.append(element_name)
         else:
             log.warning(f"unknown type '{type_name}'")
-    
-    def parse_definitions(self) -> None:
-        log.info("parsing definitions")
+
+    def collect_definitions(self) -> None:
+        log.info("** collecting definitions")
         section_names = self._config.sections()
 
         # parse combos

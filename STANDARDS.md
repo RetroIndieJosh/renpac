@@ -2,6 +2,12 @@
 
 - when no logical order is required, order alphabetically
 
+## Logging
+
+- INFO: informing a technical user about what the software is doing
+- DEBUG: additional information to check things are working
+- begin messages lowercase unless specifying an operation in all caps i.e. DELETE
+
 ## Config Design
 
 - user-facing scripts should be as simple as possible

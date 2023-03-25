@@ -51,7 +51,7 @@ class Log:
 
         if use_stdout:
             handler = logging.StreamHandler(sys.stdout)
-            handler.setLevel(logging.WARNING if stdout_log_level is None else stdout_log_level)
+            handler.setLevel(logging.INFO if stdout_log_level is None else stdout_log_level)
             formatter = logging.Formatter("[%(name)s] %(levelname)s: %(message)s")
             handler.setFormatter(formatter)
             logging.getLogger().addHandler(handler)

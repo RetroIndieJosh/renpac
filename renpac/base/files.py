@@ -13,9 +13,9 @@ log = logging.getLogger("files")
 
 def clear_dir(dir_path: Path, extensions: Optional[List[str]] = None) -> None:
     if not dir_path.exists():
-        log.debug(f"Skip clearing dir '{dir_path}' - does not exist")
+        log.debug(f"skip clearing dir '{dir_path}' - does not exist")
         return
-    log.info(f"Delete all {extensions} in {dir_path}")
+    log.debug(f"delete all {extensions} in {dir_path}")
     for file_name in os.listdir(dir_path):
         if extensions is None or is_type(file_name, extensions):
             path = dir_path.joinpath(file_name)
