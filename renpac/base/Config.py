@@ -10,7 +10,10 @@ log = logging.getLogger("Config")
 # TODO move to a more centralized location
 class Type(Enum):
     STRING = 0
-    LITERAL = 1 # for numbers, functions, and references to other objects
+    # for anything printed literally, like a reference to another object
+    # should NOT be used for other types as it bypasses checks
+    # TODO add ROOM, ITEM, EXIT, COMBO types for checking vs game definitions
+    LITERAL = 1 
     BOOL = 2
     # TODO distinguish between COORD_INT and COORD_FLOAT and COORD_DOUBLE
     COORD = 3

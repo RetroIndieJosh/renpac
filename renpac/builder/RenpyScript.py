@@ -1,6 +1,6 @@
 import logging
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -13,18 +13,24 @@ from renpac.base.printv import *
 
 log = logging.getLogger("REnpyScript")
 
+@dataclass(frozen = True)
 class ScriptValue:
-    def __init__(self, type: Config.Type, value: str) -> None:
-        self._type: Config.Type = type
-        self.value: str = value
+    value: str
+    expected_type: Config.Type = Config.Type.STRING
+
+    def __repr__(self) -> str:
+        return self.to_python()
+
+    def __str__(self) -> str:
+        return self.__repr__()
 
     def to_python(self) -> str:
         # TODO additional types
-        match self._type:
+        match self.expected_type:
             case Config.Type.STRING:
                 return text.wrap(self.value, '"')
             case Config.Type.LITERAL:
-                return self.value
+                return self.value.strip()
             case Config.Type.BOOL:
                 if Config.is_true(self.value):
                     return "True"
@@ -33,34 +39,60 @@ class ScriptValue:
                 self.type_error()
             case Config.Type.COORD:
                 values = self.value.split(' ')
-                return text.wrap(f"{values[0]}, {values[1]}", '(', ')')
+                return text.wrap(f"{values[0].strip()}, {values[1].strip()}", '(', ')')
             case Config.Type.INT:
-                return str(int(self.value))
+                return str(int(self.value.strip()))
             case Config.Type.FLOAT:
-                return str(float(self.value))
+                return str(float(self.value.strip()))
             case Config.Type.LIST:
                 return text.wrap(self.value, '[', ']')
-        log.error(f"No match for type '{self._type}'")
+        log.error(f"No match for type '{self.expected_type}'")
         return ""
 
     def type_error(self) -> None:
-        log.error(f"Value '{self.value}' invalid for type '{self._type.name}'")
+        log.error(f"Value '{self.value}' invalid for type '{self.expected_type.name}'")
 
+@dataclass(frozen = True)
+class ScriptCall:
+    func: str
+    args: List[ScriptValue] = field(default_factory = list)
+
+    def arg_list(self) -> str:
+        return ', '.join([arg.to_python() for arg in self.args])
+
+    def add_arg(self, arg: ScriptValue):
+        self.args.append(arg)
+
+@dataclass(frozen = True)
 class ScriptObject:
-    def __init__(self, name: str, init: str) -> None:
-        self._name: str = name
-        self._init: str = init
+    name: str
+    init: str
+    calls: List[ScriptCall] = field(default_factory = list)
+    values: Dict[str, ScriptValue] = field(default_factory = dict)
 
-        self._values: Dict[str, ScriptValue] = {}
+    def __repr__(self) -> str:
+        return '\n'.join(self.to_python())
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def add_call(self, call: ScriptCall):
+        self.calls.append(call)
 
     def add_value(self, key: str, value: str, value_type: Config.Type = Config.Type.STRING) -> None:
-        if key in self._values:
-            log.error(f"Tried to add key {key} to {self._name} ScriptObject but it is already defined")
-        self._values[key] = ScriptValue(value_type, value)
+        if key in self.values:
+            log.error(f"Tried to add key {key} to {self.name} ScriptObject but it is already defined")
+        self.values[key] = ScriptValue(value, value_type)
 
     def to_python(self) -> List[str]:
-        sorted_values = dict(sorted(self._values.items())).items()
-        return [self._init] + [f"{self._name}.{key} = {value.to_python()}" for key, value in sorted_values]
+        init = f"{self.name} = {self.init}"
+        sorted_calls = sorted(self.calls, key = lambda call: call.func)
+        calls = [f"{self.name}.{call.func}({call.arg_list()})" for call in sorted_calls]
+
+        sorted_values = dict(sorted(self.values.items())).items()
+        values = [f"{self.name}.{key} = {value.to_python()}" for key, value in sorted_values]
+
+        return [init] + calls + values
 
 class RenpyScript:
     def __init__(self, output_path: Path, priority: int = 0, 
@@ -139,7 +171,7 @@ if __name__ == "__main__":
     script.add_python("test python line")
     script.add_renpy("test renpy line")
 
-    foo = ScriptObject("foo", "foo = Bar('foo')")
+    foo = ScriptObject("foo", "Bar('foo')")
     foo.add_value("num", "4", Config.Type.INT)
     foo.add_value("float", "45.872", Config.Type.FLOAT)
     foo.add_value("coord", "82 99", Config.Type.COORD)
@@ -150,6 +182,33 @@ if __name__ == "__main__":
     foo.add_value("lies", "no", Config.Type.BOOL)
     foo.add_value("lies2", "fAlSe", Config.Type.BOOL)
     foo.add_value("lies3", "0", Config.Type.BOOL)
+
+    foo.add_call(ScriptCall("print"))
+
+    call = ScriptCall("set_value")
+    call.add_arg(ScriptValue("394", Config.Type.INT))
+    foo.add_call(call)
+
+    x = ScriptValue("9.88", Config.Type.FLOAT)
+    y = ScriptValue("-18.2", Config.Type.FLOAT)
+    foo.add_call(ScriptCall("set_pos", [x, y]))
+
+    item_names = ScriptCall("add_names")
+    item_names.add_arg(ScriptValue("chicken"))
+    item_names.add_arg(ScriptValue("steak"))
+    item_names.add_arg(ScriptValue("tuna"))
+    item_names.add_arg(ScriptValue("banana"))
+    item_names.add_arg(ScriptValue("broccoli"))
+    foo.add_call(item_names)
+
+    items = ScriptCall("add_items")
+    items.add_arg(ScriptValue("chicken", Config.Type.LITERAL))
+    items.add_arg(ScriptValue("steak", Config.Type.LITERAL))
+    items.add_arg(ScriptValue("tuna", Config.Type.LITERAL))
+    items.add_arg(ScriptValue("banana", Config.Type.LITERAL))
+    items.add_arg(ScriptValue("broccoli", Config.Type.LITERAL))
+    foo.add_call(items)
+
     script.add_object(foo)
 
     script.write()
