@@ -7,9 +7,9 @@ def parse_item(item_name: str) -> List[str]:
     item_varmaps: List[VariableMap] = [
         VariableMap("desc"),
         VariableMap("printed", "printed_name"),
-        VariableMap("fixed", config_type=ConfigType.BOOL),
-        VariableMap("pos", config_type=ConfigType.POSITION),
-        VariableMap("size", config_type=ConfigType.SIZE, fallback=Game.instance().default_item_size())
+        VariableMap("fixed", config_type=Type.BOOL),
+        VariableMap("pos", config_type=Type.COORD),
+        VariableMap("size", config_type=Type.SIZE, fallback=Game.instance().default_item_size())
     ]
 
     lines: List[str]  = []

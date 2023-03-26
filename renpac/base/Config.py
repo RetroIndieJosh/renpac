@@ -7,22 +7,31 @@ from typing import Any, Dict
 
 log = logging.getLogger("Config")
 
-class ConfigType(Enum):
+# TODO move to a more centralized location
+class Type(Enum):
     STRING = 0
     LITERAL = 1 # for numbers, functions, and references to other objects
     BOOL = 2
-    POSITION = 3
-    SIZE = 4
-    INT = 5
-    FLOAT = 6
-    LIST = 7
+    # TODO distinguish between COORD_INT and COORD_FLOAT and COORD_DOUBLE
+    COORD = 3
+    INT = 4
+    FLOAT = 5
+    LIST = 6
+
+# TODO move these with type enum
+TRUE_BOOLS = ["true", "yes", "1"]
+def is_true(value: str) -> bool:
+    return value.lower() in TRUE_BOOLS
+FALSE_BOOLS = ["false", "no", "0"]
+def is_false(value: str) -> bool:
+    return value.lower() in FALSE_BOOLS
 
 class ConfigEntry:
-    expected_type: ConfigType
+    expected_type: Type
     is_required: bool
     fallback = None
 
-    def __init__(self, expected_type: ConfigType, is_required: bool, 
+    def __init__(self, expected_type: Type, is_required: bool, 
             fallback = None) -> None:
         self.expected_type = expected_type
         self.is_required = is_required
@@ -56,11 +65,11 @@ class Config:
         section = self.get_section(section_name)
         values: Dict[str, Any] = {}
         for key in [key for key in section if key in entries]:
-            if entries[key].expected_type == ConfigType.BOOL:
+            if entries[key].expected_type == Type.BOOL:
                 values[key] = self._parser.getboolean(section_name, key)
-            elif entries[key].expected_type == ConfigType.FLOAT:
+            elif entries[key].expected_type == Type.FLOAT:
                 values[key] = self._parser.getfloat(section_name, key)
-            elif entries[key].expected_type == ConfigType.INT:
+            elif entries[key].expected_type == Type.INT:
                 values[key] = self._parser.getint(section_name, key)
             else:
                 values[key] = section[key]

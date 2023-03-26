@@ -1,11 +1,66 @@
+import logging
+
+from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from datetime import datetime
 
+from renpac.base import Config
+from renpac.base import text
+
 from renpac.base.printv import *
 
-TAB = "    "
+log = logging.getLogger("REnpyScript")
+
+class ScriptValue:
+    def __init__(self, type: Config.Type, value: str) -> None:
+        self._type: Config.Type = type
+        self.value: str = value
+
+    def to_python(self) -> str:
+        # TODO additional types
+        match self._type:
+            case Config.Type.STRING:
+                return text.wrap(self.value, '"')
+            case Config.Type.LITERAL:
+                return self.value
+            case Config.Type.BOOL:
+                if Config.is_true(self.value):
+                    return "True"
+                elif Config.is_false(self.value):
+                    return "False"
+                self.type_error()
+            case Config.Type.COORD:
+                values = self.value.split(' ')
+                return text.wrap(f"{values[0]}, {values[1]}", '(', ')')
+            case Config.Type.INT:
+                return str(int(self.value))
+            case Config.Type.FLOAT:
+                return str(float(self.value))
+            case Config.Type.LIST:
+                return text.wrap(self.value, '[', ']')
+        log.error(f"No match for type '{self._type}'")
+        return ""
+
+    def type_error(self) -> None:
+        log.error(f"Value '{self.value}' invalid for type '{self._type.name}'")
+
+class ScriptObject:
+    def __init__(self, name: str, init: str) -> None:
+        self._name: str = name
+        self._init: str = init
+
+        self._values: Dict[str, ScriptValue] = {}
+
+    def add_value(self, key: str, value: str, value_type: Config.Type = Config.Type.STRING) -> None:
+        if key in self._values:
+            log.error(f"Tried to add key {key} to {self._name} ScriptObject but it is already defined")
+        self._values[key] = ScriptValue(value_type, value)
+
+    def to_python(self) -> List[str]:
+        sorted_values = dict(sorted(self._values.items())).items()
+        return [self._init] + [f"{self._name}.{key} = {value.to_python()}" for key, value in sorted_values]
 
 class RenpyScript:
     def __init__(self, output_path: Path, priority: int = 0, 
@@ -16,6 +71,7 @@ class RenpyScript:
         self._source_path: Optional[str] = source_path
         self._indent_str: str = ' ' * indent
 
+        self._script_objects: List[ScriptObject] = []
         self._python: List[str] = []
         self._renpy: List[str] = []
 
@@ -29,6 +85,9 @@ class RenpyScript:
             self.add_python(*header_lines)
         else:
             self.add_renpy(*header_lines)
+
+    def add_object(self, script_object: ScriptObject) -> None:
+        self.add_python(*script_object.to_python())
 
     def add_python(self, *args: str) -> None:
         self._python += [f"{line}\n" for line in list(args)]
@@ -80,9 +139,22 @@ if __name__ == "__main__":
     script.add_python("test python line")
     script.add_renpy("test renpy line")
 
+    foo = ScriptObject("foo", "foo = Bar('foo')")
+    foo.add_value("num", "4", Config.Type.INT)
+    foo.add_value("float", "45.872", Config.Type.FLOAT)
+    foo.add_value("coord", "82 99", Config.Type.COORD)
+    foo.add_value("string", "A foobar", Config.Type.STRING)
+    foo.add_value("truth", "yes", Config.Type.BOOL)
+    foo.add_value("truth2", "True", Config.Type.BOOL)
+    foo.add_value("truth3", "1", Config.Type.BOOL)
+    foo.add_value("lies", "no", Config.Type.BOOL)
+    foo.add_value("lies2", "fAlSe", Config.Type.BOOL)
+    foo.add_value("lies3", "0", Config.Type.BOOL)
+    script.add_object(foo)
+
     script.write()
 
-    EXPECTED_LINES = 19
+    EXPECTED_LINES = 23
     line_count = len(path.read_text().splitlines())
     if line_count == EXPECTED_LINES:
         print(f"Line count matches.")

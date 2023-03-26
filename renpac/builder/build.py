@@ -8,7 +8,7 @@ from typing import List
 
 from renpac.base import files
 
-from renpac.base.Config import Config, ConfigEntry, ConfigType
+from renpac.base.Config import Config, ConfigEntry, Type
 from renpac.base.Log import Log
 
 from renpac.builder import Game
@@ -124,8 +124,8 @@ class Builder:
     def parse_config(self) -> None:
         config = Config(self._config_path)
         root_values = config.parse_section('build', {
-            'root': ConfigEntry(ConfigType.STRING, True),
-            'level': ConfigEntry(ConfigType.STRING, False, "debug")
+            'root': ConfigEntry(Type.STRING, True),
+            'level': ConfigEntry(Type.STRING, False, "debug")
         })
 
         root_path: Path = Path(root_values['root'])
@@ -138,19 +138,19 @@ class Builder:
         Log.init("Builder Log", path, log_level, True)
         Log.clear()
 
-        engine_values = config.parse_section('engine', {'path': ConfigEntry(ConfigType.STRING, True)})
+        engine_values = config.parse_section('engine', {'path': ConfigEntry(Type.STRING, True)})
         self._engine_path = Path(root_path, engine_values['path']).resolve(True)
         # TODO additional validation - read Renpac.py and check known contents (validation string?)
         if not Path(self._engine_path, "Renpac.py").exists:
             raise Exception(f"Invalid engine path: no 'Renpac.py' in '{self._engine_path}'")
 
         game_values = config.parse_section('game', {
-            'audio': ConfigEntry(ConfigType.STRING, True, "audio"),
-            'author': ConfigEntry(ConfigType.STRING, False, "Anonymous"),
-            'gui': ConfigEntry(ConfigType.STRING, True, "gui"),
-            'images': ConfigEntry(ConfigType.STRING, True, "images"),
-            'name': ConfigEntry(ConfigType.STRING, False, "Untitled RenPaC Game"),
-            'path': ConfigEntry(ConfigType.STRING, True),
+            'audio': ConfigEntry(Type.STRING, True, "audio"),
+            'author': ConfigEntry(Type.STRING, False, "Anonymous"),
+            'gui': ConfigEntry(Type.STRING, True, "gui"),
+            'images': ConfigEntry(Type.STRING, True, "images"),
+            'name': ConfigEntry(Type.STRING, False, "Untitled RenPaC Game"),
+            'path': ConfigEntry(Type.STRING, True),
         })
         self._game_name = game_values['name']
         self._game_path = Path(root_path, game_values['path']).resolve(True)
@@ -160,8 +160,8 @@ class Builder:
         self.generate_paths()
 
         debug_values = config.parse_section('debug', {
-            'hotspots': ConfigEntry(ConfigType.BOOL, True, False),
-            'notify': ConfigEntry(ConfigType.STRING, True, "none"),
+            'hotspots': ConfigEntry(Type.BOOL, True, False),
+            'notify': ConfigEntry(Type.STRING, True, "none"),
         })
 
         self._debug_lines = [

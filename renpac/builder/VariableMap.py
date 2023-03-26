@@ -2,7 +2,7 @@ import logging
 
 from typing import Dict, List
 
-from renpac.base.Config import ConfigEntry, ConfigType
+from renpac.base.Config import ConfigEntry, Type
 
 from renpac.builder.RenpyScript import *
 
@@ -10,7 +10,7 @@ log = logging.getLogger("VariableMap")
 
 class VariableMap(ConfigEntry):
     def __init__(self, python_key: str,
-            expected_type: ConfigType = ConfigType.STRING, 
+            expected_type: Type = Type.STRING, 
             is_required: bool = False, fallback: Optional[str] = None) -> None:
         self.python_key: str = python_key
         super().__init__(expected_type, is_required, fallback)
