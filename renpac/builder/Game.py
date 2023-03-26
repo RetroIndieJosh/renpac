@@ -334,5 +334,5 @@ def to_python(game_data: Dict[str, Dict[str, Dict[str, str]]], game_file_path: P
     for item in game_data['item']:
         script.add_python("# " + python.item(item))
     for room, data in game_data['room'].items():
-        script.add_object(*room_to_python(room, data))
+        script.add_object(room_to_python(room, data))
     script.write()

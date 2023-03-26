@@ -25,27 +25,27 @@ class ScriptValue:
         return self.__repr__()
 
     def to_python(self) -> str:
-        # TODO additional types
+        value = self.value.strip()
         match self.expected_type:
             case Config.Type.STRING:
-                return text.wrap(self.value, '"')
+                return text.wrap(value, '"')
             case Config.Type.LITERAL:
-                return self.value.strip()
+                return value
             case Config.Type.BOOL:
-                if Config.is_true(self.value):
+                if Config.is_true(value):
                     return "True"
-                elif Config.is_false(self.value):
+                elif Config.is_false(value):
                     return "False"
                 self.type_error()
             case Config.Type.COORD:
-                values = self.value.split(' ')
-                return text.wrap(f"{values[0].strip()}, {values[1].strip()}", '(', ')')
+                values = value.split(' ')
+                return text.wrap(f"{values[0]}, {values[1]}", '(', ')')
             case Config.Type.INT:
-                return str(int(self.value.strip()))
+                return str(int(value))
             case Config.Type.FLOAT:
-                return str(float(self.value.strip()))
+                return str(float(value))
             case Config.Type.LIST:
-                return text.wrap(self.value, '[', ']')
+                return text.wrap(value, '[', ']')
         log.error(f"No match for type '{self.expected_type}'")
         return ""
 
