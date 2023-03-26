@@ -3,7 +3,7 @@ import logging
 from renpac.builder import python
 
 from renpac.builder.Game import *
-from renpac.builder.Script import *
+from renpac.builder.RenpyScript import *
 from renpac.builder.VariableMap import *
 
 log = logging.getLogger("rooms")

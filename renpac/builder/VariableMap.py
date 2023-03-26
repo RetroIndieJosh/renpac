@@ -4,7 +4,7 @@ from typing import Dict, List
 
 from renpac.base.Config import ConfigEntry, ConfigType
 
-from renpac.builder.Script import *
+from renpac.builder.RenpyScript import *
 
 log = logging.getLogger("VariableMap")
 

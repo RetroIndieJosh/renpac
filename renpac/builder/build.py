@@ -14,7 +14,7 @@ from renpac.base.Log import Log
 from renpac.builder import Game
 
 from renpac.builder.renpygen import RenpyGen
-from renpac.builder.Script import Script
+from renpac.builder.RenpyScript import RenpyScript
 
 log = logging.getLogger("builder")
 
@@ -180,8 +180,8 @@ class Builder:
         if self._debug_lines is None:
             return
         log.info("** generating debug file")
-        debug_script = Script(Path(f"{self._output_path}/debug.gen.rpy", check_exists=False), 999, self._config_path)
-        debug_script.add_line(*self._debug_lines)
+        debug_script = RenpyScript(Path(f"{self._output_path}/debug.gen.rpy", check_exists=False), 999, self._config_path)
+        debug_script.add_python(*self._debug_lines)
         debug_script.write()
 
     def generate_paths(self) -> None:

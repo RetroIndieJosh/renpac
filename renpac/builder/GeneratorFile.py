@@ -4,13 +4,13 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
-from renpac.builder.Script import Script
+from renpac.builder.RenpyScript import RenpyScript
 
 from renpac.base.printv import *
 
 log = logging.getLogger("GeneratorFile")
 
-class GeneratorFile(Script):
+class GeneratorFile(RenpyScript):
     def __init__(self, input_root: Path, output_root: Path, relative_path: str) -> None:
         tokens: List[str] = os.path.splitext(relative_path)[0].split('/')
         token_count: int = len(tokens)
@@ -72,7 +72,7 @@ class GeneratorFile(Script):
                 target: str = tokens[1]
                 self.add_dependency(target)
                 continue
-            self.add_line(line)
+            self.add_python(line)
         dep_count: int = len(self._dependency_names)
         log.debug(f"{self} ({dep_count})")
         if dep_count > 0:

@@ -8,7 +8,7 @@ from renpac.builder.VariableMap import *
 
 from renpac.builder import python
 
-from renpac.builder.Script import *
+from renpac.builder.RenpyScript import *
 
 from renpac.builder.room import room_to_python
 
@@ -86,8 +86,8 @@ class Game:
 
         self._start_room: Optional[str] = None
 
-        self._script = Script(output_path)
-        self._script.add_line("def load_game():")
+        self._script = RenpyScript(output_path)
+        self._script.add_python("def load_game():")
         self._script.indent()
 
         lines: List[CodeLine] = get_lines(source_path)
@@ -111,25 +111,25 @@ class Game:
     def all_combos(self, func: Callable[[str], List[str]]) -> None:
         if self._combo_blocks is None:
             log.warning("no combinations in game")
-        self._script.add_header(f"COMBOS")
+        self._script.add_header_python(f"COMBOS")
         #self._script.add_line(*flatten(map(func, self._combos)))
     
     def all_exits(self, func: Callable[[str], List[str]]) -> None:
         if self._exit_blocks is None:
             log.warning("no exits in game")
-        self._script.add_header(f"EXITS")
+        self._script.add_header_python(f"EXITS")
         #self._script.add_line(*flatten(map(func, self._exits)))
 
     def all_items(self, func: Callable[[str], List[str]]) -> None:
         if self._item_blocks is None:
             log.warning("no items in game")
-        self._script.add_header(f"ITEMS")
+        self._script.add_header_python(f"ITEMS")
         #self._script.add_line(*flatten(map(func, self._items)))
     
     def all_rooms(self, func: Callable[[str], List[str]]) -> None:
         if self._room_blocks is None:
             raise Exception("ERROR game must have at least one room")
-        self._script.add_header(f"ROOMS")
+        self._script.add_header_python(f"ROOMS")
         #self._script.add_line(*flatten(map(func, self._rooms)))
 
     def default_exit_size(self) -> str:
@@ -140,9 +140,9 @@ class Game:
     
     def finalize(self) -> None:
         if self._start_room is not None:
-            self._script.add_header("START ROOM")
+            self._script.add_header_python("START ROOM")
             start_room = python.room(self._start_room)
-        self._script.add_line(f"return {start_room}")
+        self._script.add_python(f"return {start_room}")
     
     def has_combo(self, name: str) -> bool:
         return name in self._combo_blocks
@@ -326,13 +326,13 @@ def to_json(game_data: Dict[str, Dict[str, Dict[str, str]]]):
         json.dump(game_data, file, indent=4)
 
 def to_python(game_data: Dict[str, Dict[str, Dict[str, str]]], game_file_path: Path):
-    script: Script = Script(Path(__file__).parent.joinpath("build", "bardolf.rpy"), 999, game_file_path)
+    script: RenpyScript = RenpyScript(Path(__file__).parent.joinpath("build", "bardolf.rpy"), 999, game_file_path)
     for combo in game_data['combo']:
-        script.add_line("# " + python.combo(combo.replace('+', 'and')))
+        script.add_python("# " + python.combo(combo.replace('+', 'and')))
     for exit in game_data['exit']:
-        script.add_line("# " + python.exit(exit))
+        script.add_python("# " + python.exit(exit))
     for item in game_data['item']:
-        script.add_line("# " + python.item(item))
+        script.add_python("# " + python.item(item))
     for room, data in game_data['room'].items():
-        script.add_line(*room_to_python(room, data))
+        script.add_python(*room_to_python(room, data))
     script.write()
