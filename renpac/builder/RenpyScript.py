@@ -220,5 +220,7 @@ if __name__ == "__main__":
     else:
         print(f"Something went wrong. Expected {EXPECTED_LINES} lines but wrote {line_count}.")
 
-    input(f"Test file written to {path}.\nPress enter to delete and end tests.")
+    print("** FILE BEGIN **")
+    print(path.read_text())
+    print("** FILE END **")
     path.unlink()

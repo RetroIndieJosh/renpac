@@ -4,6 +4,7 @@
 **/cache/
 **/doc/
 **/saves/
+**/.pytest_cache
 
 # file types
 **/*.bak

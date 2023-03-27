@@ -24,8 +24,8 @@ def parse_combo(section_key: str) -> List[str]:
         raise Exception(f"ERROR: for combo, no hotspot target '{target_name}' defined in game configuration")
 
     # reuse parts here so we keep the prefix (item. => item_ or exit. => exit_)
-    item_python = python.name(None, parts[0])
-    target_python = python.name(None, parts[1])
+    item_python = python.python_name(None, parts[0])
+    target_python = python.python_name(None, parts[1])
 
     message: Optional[str] = None
     delete_flags: int = TARGET_NONE
