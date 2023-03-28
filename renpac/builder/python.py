@@ -1,3 +1,4 @@
+import logging
 import string
 import re
 
@@ -9,6 +10,8 @@ from renpac.base import Config
 
 from renpac.builder.RenpyScript import ScriptCall, ScriptObject, ScriptValue
 from renpac.builder.VariableMap import VariableMap, process_varmaps
+
+log = logging.getLogger("python")
 
 def python_name(type: Optional[str], n: str) -> str:
     n = n.strip()
@@ -48,13 +51,18 @@ def parse_item(item_name: str, item_data: Dict[str, str]) -> ScriptObject:
     item = ScriptObject(python_name("item", item_name), f"item(\"{item_name}\")")
     map_varmaps(item, item_varmaps, item_data)
 
-    set_pos: ScriptCall = ScriptCall("rect.set_pos")
-    set_pos.add_arg(ScriptValue(item_data['pos'], Config.Type.COORD))
-    item.add_call(set_pos)
+    if 'pos' in item_data:
+        set_pos: ScriptCall = ScriptCall("rect.set_pos")
+        set_pos.add_arg(ScriptValue(item_data['pos'], Config.Type.COORD))
+        item.add_call(set_pos)
+    else:
+        # TODO only if not in 'nowhere' (need to leave through rooms to determine)
+        log.error(f"Item {item.name} has no position defined")
 
-    set_size: ScriptCall = ScriptCall("rect.set_size")
-    set_size.add_arg(ScriptValue(item_data['size'], Config.Type.COORD))
-    item.add_call(set_size)
+    if 'size' in item_data:
+        set_size: ScriptCall = ScriptCall("rect.set_size")
+        set_size.add_arg(ScriptValue(item_data['size'], Config.Type.COORD))
+        item.add_call(set_size)
 
     return item
 

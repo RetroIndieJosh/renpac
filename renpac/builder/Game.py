@@ -12,6 +12,11 @@ from renpac.builder.RenpyScript import *
 
 log = logging.getLogger("Game")
 
+# types
+BlockData = Dict[str, str]
+BlockMapData = Dict[str, BlockData]
+GameData = Dict[str, BlockMapData]
+
 class CodeBlock:
     def __init__(self, header, lines) -> None:
         self._header: str = header
@@ -260,9 +265,9 @@ def get_blocks(lines: List[CodeLine]) -> List[CodeBlock]:
         raise Exception("Errors in game source. Cannot proceed.")
     return blocks
 
-def parse_block(block: CodeBlock) -> Dict[str, str]:
+def parse_block(block: CodeBlock) -> BlockData:
     log.debug(f"parsing {block.type()} block '{block.name()}'")
-    parsed_values: Dict[str, str] = {}
+    parsed_values: BlockData = {}
     if not block.is_builtin():
         parsed_values['name'] = str(block.name())
     multiline = None
@@ -284,7 +289,7 @@ def parse_block(block: CodeBlock) -> Dict[str, str]:
         log.debug(f"|-- {key}: {val}")
     return parsed_values
 
-def parse_builtin_block(blocks: List[CodeBlock], block_type: str) -> Dict[str, str]:
+def parse_builtin_block(blocks: List[CodeBlock], block_type: str) -> BlockData:
     log.info(f"** parsing builtin {block_type}")
     blocks_of_type: List[CodeBlock] = [block for block in blocks if block.type() == block_type]
     if len(blocks_of_type) == 0 or not blocks_of_type[0].is_builtin():
@@ -295,16 +300,16 @@ def parse_builtin_block(blocks: List[CodeBlock], block_type: str) -> Dict[str, s
         return {}
     return parse_block(blocks_of_type[0])
 
-def parse_blocks_of_type(blocks: List[CodeBlock], block_type: str) -> Dict[str, Dict[str, str]]:
+def parse_blocks_of_type(blocks: List[CodeBlock], block_type: str) -> BlockMapData:
     log.info(f"** parsing {block_type}s")
     blocks_of_type: List[CodeBlock] = [block for block in blocks if block.type() == block_type]
-    values: Dict[str, Dict[str, str]] = {}
+    values: BlockMapData = {}
     block: CodeBlock
     for block in blocks_of_type:
         values[str(block.name())] = parse_block(block)
     return values
 
-def parse_blocks(blocks: List[CodeBlock]) -> Dict[str, Dict[str, Dict[str, str]]]:
+def parse_blocks(blocks: List[CodeBlock]) -> GameData:
     log.info("** parsing blocks")
     parsed_blocks: Dict[str, Dict[str, Dict[str, str]]] = {'engine': {}}
     for block_type in ['game', 'inventory', 'exits', 'items']:
@@ -313,7 +318,7 @@ def parse_blocks(blocks: List[CodeBlock]) -> Dict[str, Dict[str, Dict[str, str]]
         parsed_blocks[block_type] = parse_blocks_of_type(blocks, block_type)
     return parsed_blocks
 
-def parse_game(source_path: Path) -> Dict[str, Dict[str, Dict[str, str]]]:
+def parse_game(source_path: Path) -> GameData:
     if Game._instance is not None:
         raise Exception("Cannot create more than one Game object")
 
@@ -326,7 +331,7 @@ def to_json(game_data: Dict[str, Dict[str, Dict[str, str]]]):
     with Path(__file__).parent.joinpath("build", "bardolf.json").open("w") as file:
         json.dump(game_data, file, indent=4)
 
-def to_python(game_data: Dict[str, Dict[str, Dict[str, str]]], game_file_path: Path):
+def write_python(game_data: Dict[str, Dict[str, Dict[str, str]]], game_file_path: Path):
     script: RenpyScript = RenpyScript(Path(__file__).parent.joinpath("build", "bardolf.rpy"), 999, str(game_file_path))
     for combo in game_data['combo']:
         script.add_python("# " + python.python_name("combo", combo.replace('+', 'and')))

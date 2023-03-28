@@ -42,8 +42,10 @@ class Builder:
         self.copy_engine_files()
 
         self.generate_debug_file()
-        self.build_game()
-        self.copy_resources()
+
+        game_data = Game.parse_game(self._game_config_path)
+        self.build_game(game_data)
+        self.copy_resources(game_data)
 
         end_time = datetime.now()
         diff_time = (end_time - start_time).total_seconds()
@@ -51,20 +53,18 @@ class Builder:
         log.critical(f"Build done at {datetime.now()} ({diff_time} seconds elapsed)")
 
     # TODO move to Game - but causes circular deps!
-    def build_game(self) -> None:
-        game = Game.parse_game(self._game_config_path)
+    def build_game(self, game_data: Game.GameData) -> None:
         from pprint import pformat
-        for line in pformat(game).splitlines():
+        for line in pformat(game_data).splitlines():
             log.debug(line)
-        Game.to_python(game, self._game_config_path)
-        #Game.to_json(game)
+        Game.write_python(game_data, self._game_config_path)
+        Game.to_json(game_data)
 
         #game.parse_defaults()
 
         # gather a lits of elements in the script so it doesn't need to be in order
         #game.collect_definitions()
         #game.report_definitions()
-        exit(0)
 
         # must be in order items, rooms, exits, combos
         #game.all_items(parse_item)
@@ -72,11 +72,11 @@ class Builder:
         #game.all_exits(parse_exit)
         #game.all_combos(parse_combo)
 
-        game.parse_game()
-        game.parse_inventory()
+        #game.parse_game()
+        #game.parse_inventory()
 
-        game.finalize()
-        game.write()
+        #game.finalize()
+        #game.write()
 
     def clean(self) -> None:
         log.info(f"** cleaning '{self._output_path}'")
@@ -86,16 +86,19 @@ class Builder:
         log.info(f"** copying engine")
         files.copy_tree(str(self._engine_path), str(self._output_path))
 
-    def copy_resources(self) -> None:
+    def copy_resources(self, game_data: Game.GameData) -> None:
         mapping = {
             self._audio_path: "audio",
             self._images_path: "images",
             self._gui_path: "gui",
         }
 
-        images = ([f"{item}_idle" for item in Game.instance().items()] 
-            + [f"{item}_hover" for item in Game.instance().items()] 
-            + [f"bg {room}" for room in Game.instance().rooms()])
+        items: List[str] = [item for item in game_data['item']]
+        rooms: List[str] = [room for room in game_data['room']]
+
+        images = ([f"{item}_idle" for item in items] 
+            + [f"{item}_hover" for item in items]
+            + [f"bg {room}" for room in rooms])
         required_images = {resource: False for resource in images}
 
         def check_resource(path) -> bool:
