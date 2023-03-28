@@ -31,8 +31,6 @@ item_varmaps: List[VarMap] = [
     VarMap("desc"),
     VarMap("printed", "printed_name"),
     VarMap("fixed", expected_type=Config.Type.BOOL),
-    VarMap("pos", expected_type=Config.Type.COORD),
-    VarMap("size", expected_type=Config.Type.COORD),
 ]
 
 room_varmaps: List[VarMap] = [
@@ -46,7 +44,21 @@ def map_varmaps(obj: ScriptObject, varmaps: List[VarMap], data: Dict[str, str]):
         python_key: str = varmap.renpac_key if varmap.python_key is None else varmap.renpac_key
         obj.add_value(python_key, data[varmap.renpac_key], varmap.expected_type)
 
-def room_to_python(room_name: str, room_data: Dict[str, str]) -> ScriptObject:
+def parse_item(item_name: str, item_data: Dict[str, str]) -> ScriptObject:
+    item = ScriptObject(python_name("item", item_name), f"item(\"{item_name}\")")
+    map_varmaps(item, item_varmaps, item_data)
+
+    set_pos: ScriptCall = ScriptCall("rect.set_pos")
+    set_pos.add_arg(ScriptValue(item_data['pos'], Config.Type.COORD))
+    item.add_call(set_pos)
+
+    set_size: ScriptCall = ScriptCall("rect.set_size")
+    set_size.add_arg(ScriptValue(item_data['size'], Config.Type.COORD))
+    item.add_call(set_size)
+
+    return item
+
+def parse_room(room_name: str, room_data: Dict[str, str]) -> ScriptObject:
     room = ScriptObject(python_name("room", room_name), f"Room(\"{room_name}\")")
     map_varmaps(room, room_varmaps, room_data)
     
@@ -58,14 +70,47 @@ def room_to_python(room_name: str, room_data: Dict[str, str]) -> ScriptObject:
 
     return room
 
+def test_item():
+    data = {
+        'desc': "A test item.",
+        'printed': "Test Item",
+        'fixed': False,
+        'pos': "98 14",
+        'size': "100 150",
+    }
+    item = parse_item("test_item", data)
+
+    for key in ['desc', 'printed']:
+        assert item.values[key].value == data[key]
+        assert item.values[key].expected_type == Config.Type.STRING
+
+    assert item.values['fixed'].value == False
+    assert item.values['fixed'].expected_type == Config.Type.BOOL
+
+    assert item.calls[0].func == "rect.set_pos"
+    assert len(item.calls[0].args) == 1
+    assert item.calls[0].args[0].to_python() == '*(98, 14)'
+    assert item.calls[0].args[0].expected_type == Config.Type.COORD
+
+    assert item.calls[1].func == "rect.set_size"
+    assert len(item.calls[0].args) == 1
+    assert item.calls[1].args[0].to_python() == '*(100, 150)'
+    assert item.calls[1].args[0].expected_type == Config.Type.COORD
+
+def test_name():
+    assert python_name(None, "foo bar") == "foo_bar"
+    assert python_name(None, "shebang + bin/bash") == "shebang_bin_bash"
+    assert python_name("foo", "bar") ==  "foo_bar"
+    assert python_name("foo", "shebang + bin/bash") == "foo_shebang_bin_bash"
+
 def test_room():
     data = {
-        "desc": "A test room.",
-        "first": "You enter for the first time.",
-        "printed": "Test Room",
-        "items": "coin, dagger, bottle, bag",
+        'desc': "A test room.",
+        'first': "You enter for the first time.",
+        'printed': "Test Room",
+        'items': "coin, dagger, bottle, bag",
     }
-    room = room_to_python("test_room", data)
+    room = parse_room("test_room", data)
 
     for key in ['desc', 'first', 'printed']:
         assert room.values[key].value == data[key]
@@ -84,9 +129,3 @@ def test_room():
     assert room.calls[0].args[2].expected_type == Config.Type.LITERAL
     assert room.calls[0].args[3].to_python() == 'bag'
     assert room.calls[0].args[3].expected_type == Config.Type.LITERAL
-
-def test_name():
-    assert python_name(None, "foo bar") == "foo_bar"
-    assert python_name(None, "shebang + bin/bash") == "shebang_bin_bash"
-    assert python_name("foo", "bar") ==  "foo_bar"
-    assert python_name("foo", "shebang + bin/bash") == "foo_shebang_bin_bash"

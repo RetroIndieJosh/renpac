@@ -16,6 +16,8 @@ class Type(Enum):
     LITERAL = 1 
     BOOL = 2
     # TODO distinguish between COORD_INT and COORD_FLOAT and COORD_DOUBLE
+    # TODO also SIZE_INT, SIZE_FLOAT, SIZE_DOUBLE which must be non-negative
+    # (for now we only deal with positive integer coordinates)
     COORD = 3
     INT = 4
     FLOAT = 5

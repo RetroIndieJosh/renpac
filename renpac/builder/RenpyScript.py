@@ -39,7 +39,11 @@ class ScriptValue:
                 self.type_error()
             case Config.Type.COORD:
                 values = value.split(' ')
-                return text.wrap(f"{values[0]}, {values[1]}", '(', ')')
+                x = int(values[0])
+                y = int(values[1])
+                if x < 0 or y < 0:
+                    raise Exception("Coordinates may not be negative.")
+                return f"*({values[0]}, {values[1]})"
             case Config.Type.INT:
                 return str(int(value))
             case Config.Type.FLOAT:
@@ -185,9 +189,9 @@ if __name__ == "__main__":
 
     foo.add_call(ScriptCall("print"))
 
-    call = ScriptCall("set_value")
-    call.add_arg(ScriptValue("394", Config.Type.INT))
-    foo.add_call(call)
+    set_pos = ScriptCall("set_value")
+    set_pos.add_arg(ScriptValue("394", Config.Type.INT))
+    foo.add_call(set_pos)
 
     x = ScriptValue("9.88", Config.Type.FLOAT)
     y = ScriptValue("-18.2", Config.Type.FLOAT)
