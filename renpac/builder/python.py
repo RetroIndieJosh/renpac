@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 from renpac.base import Config
 
 from renpac.builder.RenpyScript import ScriptCall, ScriptObject, ScriptValue
-from renpac.builder.VariableMap import VarMap, map_varmaps
+from renpac.builder.VariableMap import VariableMap, map_varmaps
 
 log = logging.getLogger("python")
 
@@ -21,49 +21,6 @@ def python_name(type: Optional[str], n: str) -> str:
     if type is None:
         return n
     return f"{type}_{n}"
-
-item_varmaps: List[VarMap] = [
-    VarMap("desc"),
-    VarMap("printed", "printed_name"),
-    VarMap("fixed", expected_type=Config.Type.BOOL),
-]
-
-room_varmaps: List[VarMap] = [
-    VarMap("desc"),
-    VarMap("first", "first_desc"),
-    VarMap("printed", "printed_name"),
-]
-
-def parse_item(item_name: str, item_data: Dict[str, str]) -> ScriptObject:
-    item = ScriptObject(python_name("item", item_name), f"item(\"{item_name}\")")
-    map_varmaps(item, item_varmaps, item_data)
-
-    if 'pos' in item_data:
-        set_pos: ScriptCall = ScriptCall("rect.set_pos")
-        set_pos.add_arg(ScriptValue(item_data['pos'], Config.Type.COORD))
-        item.add_call(set_pos)
-    else:
-        # TODO only if not in 'nowhere' (need to leave through rooms to determine)
-        log.error(f"Item {item.name} has no position defined")
-
-    if 'size' in item_data:
-        set_size: ScriptCall = ScriptCall("rect.set_size")
-        set_size.add_arg(ScriptValue(item_data['size'], Config.Type.COORD))
-        item.add_call(set_size)
-
-    return item
-
-def parse_room(room_name: str, room_data: Dict[str, str]) -> ScriptObject:
-    room = ScriptObject(python_name("room", room_name), f"Room(\"{room_name}\")")
-    map_varmaps(room, room_varmaps, room_data)
-    
-    if 'items' in room_data:
-        call = ScriptCall("hotspot_add")
-        for item in room_data['items'].split(','):
-            call.add_arg(ScriptValue(item, Config.Type.LITERAL))
-        room.add_call(call)
-
-    return room
 
 def test_item():
     data = {

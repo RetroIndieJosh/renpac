@@ -174,7 +174,6 @@ class GameScript(RenpyScript):
             raise Exception("Cannot set return value in GameScript to " \
             f"'{return_value}' as it already has return value " \
             f"'{self._return_value}'")
-        print(f"***************************RETURN VALUE********************{return_value}")
         self._return_value = return_value
 
     def write(self) -> None:

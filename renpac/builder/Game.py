@@ -5,6 +5,7 @@ from typing import Dict, List, Optional
 from renpac.builder import python
 
 from renpac.builder.RenpyScript import *
+from renpac.builder.VariableMap import VariableMap, map_varmaps
 
 # types
 BlockData = Dict[str, str]
@@ -80,6 +81,12 @@ class Game:
         self.load_inventory()
         self.load_defaults()
 
+    def check_loaded(self, operation: str) -> bool:
+        is_loaded = len(self._data) > 0
+        if not is_loaded:
+            log.error(f"Cannot {operation}, game is not loaded")
+        return is_loaded
+
     def defaults(self, game_data: GameData) -> BlockData:
         return game_data['global']['defaults']
 
@@ -87,17 +94,12 @@ class Game:
         from pprint import pformat
         for line in pformat(self._data).splitlines():
             log.debug(line)
-        
-    # TODO migrate to new mode
-    def load_defaults(self) -> None:
-        # store as string to parse later when size is set
-        #values = self._config.parse_section('exit', {'size': ConfigEntry(ConfigType.STRING, False)})
-        #self._default_exit_size = values['size']
 
-        # ditto above
-        #values = self._config.parse_section('item', {'size': ConfigEntry(ConfigType.STRING, False)})
-        #self._default_item_size = values['size']
-        pass
+    # TODO None checks
+    # TODO parse as coord so width can != height 
+    def load_defaults(self) -> None:
+        self._default_exit_size = int(self.get_value('engine', 'exits', 'size'))
+        self._default_item_size = int(self.get_value('engine', 'items', 'size'))
 
     def get_value(self, section_key: str, block_key: str, value_key: str, required: bool = False) -> str:
         fail: str = ""
@@ -119,13 +121,12 @@ class Game:
         return ""
 
     def load_game(self) -> None:
-        log.info("**loading game definitions")
+        log.info("** loading game definitions")
         self._name = self.get_value('engine', 'game', 'desc')
         log.debug(f"Name: {self._name}")
         self._start_room = self.get_value('engine', 'game', 'start', True)
         log.debug(f"Start room: {self._start_room}")
 
-    # TODO migrate to new mode
     def load_inventory(self) -> None:
         pass
         """
@@ -155,18 +156,90 @@ class Game:
                 item_python = python.item(item_name)
                 self._script.add_line(f"Inventory.add({item_python})")
         """
-        
+
     def get_items(self) -> List[str]:
         return [item for item in self._data['item']]
 
     def get_rooms(self) -> List[str]:
         return [room for room in self._data['room']]
 
-    def check_loaded(self, operation: str) -> bool:
-        is_loaded = len(self._data) > 0
-        if not is_loaded:
-            log.error(f"Cannot {operation}, game is not loaded")
-        return is_loaded
+    def parse_exit(self, exit_name: str, exit_data: Dict[str, str]) -> ScriptObject:
+        exit_varmaps: List[VariableMap] = [
+            VariableMap("message"),
+            VariableMap("location", required=True),
+            VariableMap("target", required=True),
+        ]
+
+        exit = ScriptObject(python.python_name("exit", exit_name), f"exit(\"{exit_name}\")")
+        map_varmaps(exit, exit_varmaps, exit_data)
+
+        if 'pos' in exit_data:
+            set_pos: ScriptCall = ScriptCall("rect.set_pos")
+            set_pos.add_arg(ScriptValue(exit_data['pos'], Config.Type.COORD))
+            exit.add_call(set_pos)
+        else:
+            log.error(f"exit {exit.name} has no position defined")
+
+        if 'size' in exit_data:
+            set_size: ScriptCall = ScriptCall("rect.set_size")
+            set_size.add_arg(ScriptValue(exit_data['size'], Config.Type.COORD))
+            exit.add_call(set_size)
+
+        rooms = self.get_rooms()
+        if exit.values['location'] not in rooms:
+            log.error(f"no room '{exit.values['location']}' requested in {exit_name}.location")
+        if exit.values['target'] not in rooms:
+            log.error(f"no room '{exit.values['location']}' requested in {exit_name}.target")
+
+        return exit
+
+    def parse_item(self, item_name: str, item_data: Dict[str, str]) -> ScriptObject:
+        item_varmaps: List[VariableMap] = [
+            VariableMap("desc"),
+            VariableMap("printed", "printed_name"),
+            VariableMap("fixed", expected_type=Config.Type.BOOL),
+        ]
+
+        item = ScriptObject(python.python_name("item", item_name), f"item(\"{item_name}\")")
+        map_varmaps(item, item_varmaps, item_data)
+
+        if 'pos' in item_data:
+            set_pos: ScriptCall = ScriptCall("rect.set_pos")
+            set_pos.add_arg(ScriptValue(item_data['pos'], Config.Type.COORD))
+            item.add_call(set_pos)
+        else:
+            in_room = None
+            for room in self.get_rooms():
+                if item_name in self.get_value('room', room, 'items'):
+                    in_room = room
+                    break
+            if in_room is not None:
+                log.error(f"Item {item.name} has no position defined and is in room {in_room}")
+
+        if 'size' in item_data:
+            set_size: ScriptCall = ScriptCall("rect.set_size")
+            set_size.add_arg(ScriptValue(item_data['size'], Config.Type.COORD))
+            item.add_call(set_size)
+
+        return item
+
+    def parse_room(self, room_name: str, room_data: Dict[str, str]) -> ScriptObject:
+        room_varmaps: List[VariableMap] = [
+            VariableMap("desc"),
+            VariableMap("first", "first_desc"),
+            VariableMap("printed", "printed_name"),
+        ]
+
+        room = ScriptObject(python.python_name("room", room_name), f"Room(\"{room_name}\")")
+        map_varmaps(room, room_varmaps, room_data)
+
+        if 'items' in room_data:
+            call = ScriptCall("hotspot_add")
+            for item in room_data['items'].split(','):
+                call.add_arg(ScriptValue(item, Config.Type.LITERAL))
+            room.add_call(call)
+
+        return room
 
     def write_json(self, game_file_path: Path) -> None:
         import json
@@ -175,14 +248,14 @@ class Game:
 
     def write_python(self, game_file_path: Path):
         script: GameScript = GameScript(Path(__file__).parent.joinpath("build", "bardolf.rpy"), 999, str(game_file_path))
-        for combo in self._data['combo']:
+        for combo, data in self._data['combo'].items():
             script.add_python("# " + python.python_name("combo", combo.replace('+', 'and')))
-        for exit in self._data['exit']:
-            script.add_python("# " + python.python_name("exit", exit))
+        for exit, data in self._data['exit'].items():
+            script.add_object(self.parse_exit(exit, data))
         for item, data in self._data['item'].items():
-            script.add_object(python.parse_item(item, data))
+            script.add_object(self.parse_item(item, data))
         for room, data in self._data['room'].items():
-            script.add_object(python.parse_room(room, data))
+            script.add_object(self.parse_room(room, data))
 
         if self._start_room is not None:
             start_room = python.python_name("room", self._start_room)
