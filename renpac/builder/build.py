@@ -18,6 +18,7 @@ from renpac.builder.RenpyScript import RenpyScript
 
 log = logging.getLogger("builder")
 
+# TODO this doesn't need to be a class
 class Builder:
     def __init__(self, root: Path, config_relative_path="build.cfg") -> None:
         self._config_path: Path = Path(root, config_relative_path)
@@ -43,9 +44,9 @@ class Builder:
 
         self.generate_debug_file()
 
-        game_data = Game.parse_game(self._game_config_path)
-        self.build_game(game_data)
-        self.copy_resources(game_data)
+        game: Game.Game = Game.Game(self._game_config_path)
+        self.build_game(game)
+        self.copy_resources(game)
 
         end_time = datetime.now()
         diff_time = (end_time - start_time).total_seconds()
@@ -53,12 +54,10 @@ class Builder:
         log.critical(f"Build done at {datetime.now()} ({diff_time} seconds elapsed)")
 
     # TODO move to Game - but causes circular deps!
-    def build_game(self, game_data: Game.GameData) -> None:
-        from pprint import pformat
-        for line in pformat(game_data).splitlines():
-            log.debug(line)
-        Game.write_python(game_data, self._game_config_path)
-        Game.to_json(game_data)
+    def build_game(self, game: Game.Game) -> None:
+        game.dump_to_log()
+        game.write_python(self._game_config_path)
+        #Game.to_json()
 
         #game.parse_defaults()
 
@@ -86,15 +85,15 @@ class Builder:
         log.info(f"** copying engine")
         files.copy_tree(str(self._engine_path), str(self._output_path))
 
-    def copy_resources(self, game_data: Game.GameData) -> None:
+    def copy_resources(self, game: Game.Game) -> None:
         mapping = {
             self._audio_path: "audio",
             self._images_path: "images",
             self._gui_path: "gui",
         }
 
-        items: List[str] = [item for item in game_data['item']]
-        rooms: List[str] = [room for room in game_data['room']]
+        items: List[str] = game.get_items()
+        rooms: List[str] = game.get_rooms()
 
         images = ([f"{item}_idle" for item in items] 
             + [f"{item}_hover" for item in items]

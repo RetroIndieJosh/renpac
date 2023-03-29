@@ -10,12 +10,13 @@ from renpac.builder import python
 
 from renpac.builder.RenpyScript import *
 
-log = logging.getLogger("Game")
-
 # types
 BlockData = Dict[str, str]
-BlockMapData = Dict[str, BlockData]
-GameData = Dict[str, BlockMapData]
+SectionData = Dict[str, BlockData]
+GameData = Dict[str, SectionData]
+
+# globals
+log = logging.getLogger("Game")
 
 class CodeBlock:
     def __init__(self, header, lines) -> None:
@@ -74,98 +75,25 @@ class CodeLine:
         return self._text
 
 class Game:
-    _instance = None
-
-    def __init__(self, output_path: Path, source_path: Path) -> None:
-        if Game._instance is not None:
-            raise Exception("Cannot create more than one Game object")
-
-        Game._instance = self
-
-        self._combo_blocks: List[CodeBlock] = []
-        self._exit_blocks: List[CodeBlock] = []
-        self._item_blocks: List[CodeBlock] = []
-        self._room_blocks: List[CodeBlock] = []
-
-        self._default_exit_size = 256
-        self._default_item_size = 128
-
-        self._start_room: Optional[str] = None
-
-        self._script = RenpyScript(output_path)
-        self._script.add_python("def load_game():")
-        # TODO we need to indent here somehow
-
+    def __init__(self, source_path: Path) -> None:
         lines: List[CodeLine] = get_lines(source_path)
         blocks: List[CodeBlock] = get_blocks(lines)
-        parse_blocks(blocks)
+        self._data: GameData = parse_blocks(blocks)
 
-    @staticmethod
-    def instance() -> 'Game':
-        if Game._instance is None:
-            raise Exception("Tried to access game, but none defined")
-        return Game._instance
+        self.load_game()
+        self.load_inventory()
+        self.load_defaults()
 
-    def items(self) -> List[CodeBlock]:
-        return self._item_blocks
+    def defaults(self, game_data: GameData) -> BlockData:
+        return game_data['global']['defaults']
 
-    def rooms(self) -> List[CodeBlock]:
-        return self._room_blocks
-    
-    # TODO these should be process_ or write_script for, not all_, since they
-    # aren't fully genericized
-    def all_combos(self, func: Callable[[str], List[str]]) -> None:
-        if self._combo_blocks is None:
-            log.warning("no combinations in game")
-        self._script.add_header(f"COMBOS")
-        #self._script.add_line(*flatten(map(func, self._combos)))
-    
-    def all_exits(self, func: Callable[[str], List[str]]) -> None:
-        if self._exit_blocks is None:
-            log.warning("no exits in game")
-        self._script.add_header(f"EXITS")
-        #self._script.add_line(*flatten(map(func, self._exits)))
-
-    def all_items(self, func: Callable[[str], List[str]]) -> None:
-        if self._item_blocks is None:
-            log.warning("no items in game")
-        self._script.add_header(f"ITEMS")
-        #self._script.add_line(*flatten(map(func, self._items)))
-    
-    def all_rooms(self, func: Callable[[str], List[str]]) -> None:
-        if self._room_blocks is None:
-            raise Exception("ERROR game must have at least one room")
-        self._script.add_header(f"ROOMS")
-        #self._script.add_line(*flatten(map(func, self._rooms)))
-
-    def default_exit_size(self) -> int:
-        return self._default_exit_size
-
-    def default_item_size(self) -> int:
-        return self._default_item_size
-    
-    def finalize(self) -> None:
-        if self._start_room is not None:
-            self._script.add_header("START ROOM")
-            start_room = python.python_name("room", self._start_room)
-        self._script.add_python(f"return {start_room}")
-    
-    def has_combo(self, name: str) -> bool:
-        return name in self._combo_blocks
-    
-    def has_exit(self, name: str) -> bool:
-        return name in self._exit_blocks
-    
-    def has_hotspot(self, name: str) -> bool:
-        return self.has_exit(name.strip()) or self.has_item(name.strip())
-    
-    def has_item(self, name: str) -> bool:
-        return name.strip() in self._item_blocks
-    
-    def has_room(self, name: str) -> bool:
-        return name.strip() in self._room_blocks
-
-    def parse_defaults(self) -> None:
+    def dump_to_log(self) -> None:
+        from pprint import pformat
+        for line in pformat(self._data).splitlines():
+            log.debug(line)
+        
+    # TODO migrate to new mode
+    def load_defaults(self) -> None:
         # store as string to parse later when size is set
         #values = self._config.parse_section('exit', {'size': ConfigEntry(ConfigType.STRING, False)})
         #self._default_exit_size = values['size']
@@ -175,12 +103,34 @@ class Game:
         #self._default_item_size = values['size']
         pass
 
-    def parse_game(self) -> None:
-        #values = self._config.parse_section('game', {'start': ConfigEntry(ConfigType.STRING, True)})
-        #self._start_room = values['start']
-        pass
-    
-    def parse_inventory(self) -> None:
+    def get_value(self, section_key: str, block_key: str, value_key: str, required: bool = False) -> str:
+        fail: str = ""
+        if section_key in self._data:
+            section = self._data[section_key]
+            if block_key in section:
+                block = section[block_key]
+                if value_key in block:
+                    return block[value_key]
+                fail = f"value '{value_key}'"
+            else:
+                fail = f"block '{block_key}'"
+        else:
+            fail = f"section '{section_key}'"
+        if required:
+            log.error(f"Could not find required {fail} in game data")
+        else:
+            log.warning(f"Could not find optional {fail} in game data")
+        return ""
+
+    def load_game(self) -> None:
+        log.info("**loading game definitions")
+        self._name = self.get_value('engine', 'game', 'desc')
+        log.debug(f"Name: {self._name}")
+        self._start_room = self.get_value('engine', 'game', 'start', True)
+        log.debug(f"Start room: {self._start_room}")
+
+    # TODO migrate to new mode
+    def load_inventory(self) -> None:
         pass
         """
         entries = {
@@ -209,24 +159,40 @@ class Game:
                 item_python = python.item(item_name)
                 self._script.add_line(f"Inventory.add({item_python})")
         """
-    
-    def report_definitions(self) -> None:
-        log.info(f"{len(self._combo_blocks)} combos")
-        for combo in self._combo_blocks:
-            log.debug(f"|-- {combo.name}")
-        log.info(f"{len(self._exit_blocks)} exits")
-        for exit in self._exit_blocks:
-            log.debug(f"|-- {exit.name}")
-        log.info(f"{len(self._item_blocks)} items")
-        for item in self._item_blocks:
-            log.debug(f"|-- {item.name}")
-        log.info(f"{len(self._room_blocks)} rooms")
-        for room in self._room_blocks:
-            log.debug(f"|-- {room.name}")
+        
+    def get_items(self) -> List[str]:
+        return [item for item in self._data['item']]
 
-    def write(self) -> None:
-        log.info(f"writing game file to '{self._script._output_path}'")
-        self._script.write()
+    def get_rooms(self) -> List[str]:
+        return [room for room in self._data['room']]
+
+    def check_loaded(self, operation: str) -> bool:
+        is_loaded = len(self._data) > 0
+        if not is_loaded:
+            log.error(f"Cannot {operation}, game is not loaded")
+        return is_loaded
+
+    def write_json(self, game_file_path: Path) -> None:
+        import json
+        with Path(__file__).parent.joinpath("build", game_file_path).open("w") as file:
+            json.dump(self._data, file, indent=4)
+
+    def write_python(self, game_file_path: Path):
+        script: GameScript = GameScript(Path(__file__).parent.joinpath("build", "bardolf.rpy"), 999, str(game_file_path))
+        for combo in self._data['combo']:
+            script.add_python("# " + python.python_name("combo", combo.replace('+', 'and')))
+        for exit in self._data['exit']:
+            script.add_python("# " + python.python_name("exit", exit))
+        for item, data in self._data['item'].items():
+            script.add_object(python.parse_item(item, data))
+        for room, data in self._data['room'].items():
+            script.add_object(python.parse_room(room, data))
+
+        if self._start_room is not None:
+            start_room = python.python_name("room", self._start_room)
+            script.add_return(start_room)
+
+        script.write()
 
 def get_lines(source_path: Path) -> List[CodeLine]:
     lines: List[CodeLine] = []
@@ -249,16 +215,15 @@ def get_blocks(lines: List[CodeLine]) -> List[CodeBlock]:
             if line.is_indented():
                 current_block.add_line(line.text().lstrip())
                 continue
-            else:
-                blocks.append(current_block)
-                current_block = None
+            blocks.append(current_block)
+            current_block = None
         if line.is_indented():
             errors.append(f"[{line.number()}] Unexpected indentation")
             continue
         current_block = CodeBlock(line.text(), [])
     log.info(f"{len(blocks)} blocks")
     for block in blocks:
-        log.debug(f" -- {block.header}")
+        log.debug(f" -- {block.header()}")
     for error in errors:
         log.error(error)
     if len(errors) > 0:
@@ -289,7 +254,7 @@ def parse_block(block: CodeBlock) -> BlockData:
         log.debug(f"|-- {key}: {val}")
     return parsed_values
 
-def parse_builtin_block(blocks: List[CodeBlock], block_type: str) -> BlockData:
+def parse_block_builtin(blocks: List[CodeBlock], block_type: str) -> BlockData:
     log.info(f"** parsing builtin {block_type}")
     blocks_of_type: List[CodeBlock] = [block for block in blocks if block.type() == block_type]
     if len(blocks_of_type) == 0 or not blocks_of_type[0].is_builtin():
@@ -300,45 +265,20 @@ def parse_builtin_block(blocks: List[CodeBlock], block_type: str) -> BlockData:
         return {}
     return parse_block(blocks_of_type[0])
 
-def parse_blocks_of_type(blocks: List[CodeBlock], block_type: str) -> BlockMapData:
-    log.info(f"** parsing {block_type}s")
-    blocks_of_type: List[CodeBlock] = [block for block in blocks if block.type() == block_type]
-    values: BlockMapData = {}
-    block: CodeBlock
-    for block in blocks_of_type:
-        values[str(block.name())] = parse_block(block)
-    return values
-
 def parse_blocks(blocks: List[CodeBlock]) -> GameData:
     log.info("** parsing blocks")
     parsed_blocks: Dict[str, Dict[str, Dict[str, str]]] = {'engine': {}}
     for block_type in ['game', 'inventory', 'exits', 'items']:
-        parsed_blocks['engine'][block_type] = parse_builtin_block(blocks, block_type)
+        parsed_blocks['engine'][block_type] = parse_block_builtin(blocks, block_type)
     for block_type in ['combo', 'exit', 'item', 'room']:
         parsed_blocks[block_type] = parse_blocks_of_type(blocks, block_type)
     return parsed_blocks
 
-def parse_game(source_path: Path) -> GameData:
-    if Game._instance is not None:
-        raise Exception("Cannot create more than one Game object")
-
-    lines: List[CodeLine] = get_lines(source_path)
-    blocks: List[CodeBlock] = get_blocks(lines)
-    return parse_blocks(blocks)
-
-def to_json(game_data: Dict[str, Dict[str, Dict[str, str]]]):
-    import json
-    with Path(__file__).parent.joinpath("build", "bardolf.json").open("w") as file:
-        json.dump(game_data, file, indent=4)
-
-def write_python(game_data: Dict[str, Dict[str, Dict[str, str]]], game_file_path: Path):
-    script: RenpyScript = RenpyScript(Path(__file__).parent.joinpath("build", "bardolf.rpy"), 999, str(game_file_path))
-    for combo in game_data['combo']:
-        script.add_python("# " + python.python_name("combo", combo.replace('+', 'and')))
-    for exit in game_data['exit']:
-        script.add_python("# " + python.python_name("exit", exit))
-    for item, data in game_data['item'].items():
-        script.add_object(python.parse_item(item, data))
-    for room, data in game_data['room'].items():
-        script.add_object(python.parse_room(room, data))
-    script.write()
+def parse_blocks_of_type(blocks: List[CodeBlock], block_type: str) -> SectionData:
+    log.info(f"** parsing {block_type}s")
+    blocks_of_type: List[CodeBlock] = [block for block in blocks if block.type() == block_type]
+    values: SectionData = {}
+    block: CodeBlock
+    for block in blocks_of_type:
+        values[str(block.name())] = parse_block(block)
+    return values
