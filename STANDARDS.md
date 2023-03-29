@@ -58,6 +58,8 @@
         - builtin python, renpac base, current project (i.e. renpac engine)
         - within each: import, from X import *, from X import Y
         - leave a blank line between each of these sections
+    - within a single line of imports, list alphabetically with classes grouped first
+        - from foo import Bar, Duck, Zoo, add_foo, set_size
 - avoid lines longer than the preset minimum (use gql to check)
     - if a single code line runs multiple lines, indent subsequent lines one deeper that the first
         - remember in some casese parentheses are required to notify Python these are a single line

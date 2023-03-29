@@ -1,10 +1,6 @@
 import logging
 
-from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional, Tuple
-
-# TODO remove
-from renpac.builder.VariableMap import *
+from typing import Dict, List, Optional
 
 from renpac.builder import python
 

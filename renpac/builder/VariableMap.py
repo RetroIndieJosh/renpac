@@ -1,24 +1,22 @@
 import logging
 
-from typing import Dict, List
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 
-from renpac.base.Config import ConfigEntry, Type
+from renpac.base import Config
 
-from renpac.builder.RenpyScript import *
+from renpac.builder.RenpyScript import ScriptObject
 
 log = logging.getLogger("VariableMap")
 
-class VariableMap(ConfigEntry):
-    def __init__(self, python_key: str,
-            expected_type: Type = Type.STRING, 
-            is_required: bool = False, fallback: Optional[str] = None) -> None:
-        self.python_key: str = python_key
-        super().__init__(expected_type, is_required, fallback)
+@dataclass(frozen = True)
+class VarMap:
+    renpac_key: str
+    python_key: Optional[str] = None
+    expected_type: Config.Type = Config.Type.STRING
+    required: bool = False
 
-def process_varmaps(python_name: str, varmaps: Dict[str, VariableMap], data: Dict[str, str]) -> List[str]:
-    lines: List[str] = []
-    key: str
-    for key in [key for key in varmaps if key in data]:
-        lines.append(f"{python_name}.{key} = {varmaps[key].python_key}")
-    print(lines)
-    return lines
+def map_varmaps(obj: ScriptObject, varmaps: List[VarMap], data: Dict[str, str]):
+    for varmap in [varmap for varmap in varmaps if varmap.renpac_key in data]:
+        python_key: str = varmap.renpac_key if varmap.python_key is None else varmap.renpac_key
+        obj.add_value(python_key, data[varmap.renpac_key], varmap.expected_type)
