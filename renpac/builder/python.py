@@ -3,12 +3,9 @@ import string
 import re
 
 from typing import Optional
-from typing import Dict, List, Optional
+from typing import Optional
 
 from renpac.base import Config
-
-from renpac.builder.RenpyScript import ScriptCall, ScriptObject, ScriptValue
-from renpac.builder.VariableMap import VariableMap, map_varmaps
 
 log = logging.getLogger("python")
 

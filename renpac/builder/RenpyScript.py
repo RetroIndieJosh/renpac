@@ -7,99 +7,11 @@ from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 
 from renpac.base import Config
-from renpac.base import text
+from renpac.builder import scripting
 
 from renpac.base.printv import *
 
-log = logging.getLogger("REnpyScript")
-
-@dataclass(frozen = True)
-class ScriptValue:
-    value: str
-    expected_type: Config.Type = Config.Type.STRING
-
-    def __repr__(self) -> str:
-        return self.to_python()
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-    def to_python(self) -> str:
-        value = self.value.strip()
-        match self.expected_type:
-            case Config.Type.STRING:
-                return text.wrap(value, '"')
-            case Config.Type.LITERAL:
-                return value
-            case Config.Type.BOOL:
-                if Config.is_true(value):
-                    return "True"
-                elif Config.is_false(value):
-                    return "False"
-                self.type_error()
-            case Config.Type.COORD:
-                values = value.split(' ')
-                x = int(values[0])
-                y = int(values[1])
-                if x < 0 or y < 0:
-                    raise Exception("Coordinates may not be negative.")
-                return f"*({values[0]}, {values[1]})"
-            case Config.Type.INT:
-                return str(int(value))
-            case Config.Type.FLOAT:
-                return str(float(value))
-            case Config.Type.LIST:
-                return text.wrap(value, '[', ']')
-        log.error(f"No match for type '{self.expected_type}'")
-        return ""
-
-    def type_error(self) -> None:
-        log.error(f"Value '{self.value}' invalid for type '{self.expected_type.name}'")
-
-@dataclass(frozen = True)
-class ScriptCall:
-    func: str
-    args: List[ScriptValue] = field(default_factory = list)
-
-    def arg_list(self) -> str:
-        return ', '.join([arg.to_python() for arg in self.args])
-
-    def add_arg(self, arg: ScriptValue):
-        self.args.append(arg)
-
-@dataclass(frozen = True)
-class ScriptObject:
-    python_name: str
-    init: str
-    calls: List[ScriptCall] = field(default_factory = list)
-    values: Dict[str, ScriptValue] = field(default_factory = dict)
-
-    def __repr__(self) -> str:
-        return '\n'.join(self.to_python())
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-    def add_call(self, call: ScriptCall):
-        self.calls.append(call)
-
-    def add_value(self, key: str, value: str, value_type: Config.Type = Config.Type.STRING) -> None:
-        if key in self.values:
-            log.error(f"Tried to add key {key} to {self.python_name} ScriptObject but it is already defined")
-        self.values[key] = ScriptValue(value, value_type)
-    
-    def get_value(self, key: str) -> Optional[str]:
-        return self.values[key].value if key in self.values else None
-
-    def to_python(self) -> List[str]:
-        init = f"{self.python_name} = {self.init}"
-        sorted_calls = sorted(self.calls, key = lambda call: call.func)
-        calls = [f"{self.python_name}.{call.func}({call.arg_list()})" for call in sorted_calls]
-
-        sorted_values = dict(sorted(self.values.items())).items()
-        values = [f"{self.python_name}.{key} = {value.to_python()}" for key, value in sorted_values]
-
-        return [init] + calls + values
+log = logging.getLogger("RenpyScript")
 
 class RenpyScript:
     def __init__(self, output_path: Path, priority: int = 0, 
@@ -110,7 +22,7 @@ class RenpyScript:
         self._source_path: Optional[str] = source_path
         self._indent_str: str = ' ' * indent
 
-        self._script_objects: List[ScriptObject] = []
+        self._script_objects: List[scripting.ScriptObject] = []
         self._python: List[str] = []
         self._renpy: List[str] = []
 
@@ -125,7 +37,7 @@ class RenpyScript:
         else:
             self.add_renpy(*header_lines)
 
-    def add_object(self, script_object: ScriptObject) -> None:
+    def add_object(self, script_object: scripting.ScriptObject) -> None:
         self.add_python(*script_object.to_python())
 
     def add_python(self, *args: str) -> None:
@@ -165,27 +77,6 @@ class RenpyScript:
             file.write(f"\ninit {self._priority} python:\n")
             file.writelines([f"{self._indent_str}{line}" for line in self._python])
 
-class GameScript(RenpyScript):
-    def __init__(self, output_path: Path, priority: int = 0, 
-                source_path: Optional[str] = None, 
-                indent = 4) -> None:
-        self._return_value: str = ""
-        super().__init__(output_path, priority, source_path, indent)
-
-    def add_return(self, return_value: str) -> None:
-        if len(self._return_value) > 0:
-            raise Exception("Cannot set return value in GameScript to " \
-            f"'{return_value}' as it already has return value " \
-            f"'{self._return_value}'")
-        self._return_value = return_value
-
-    def write(self) -> None:
-        self._python = ["def load_game():\n"]  \
-            + [f"{self._indent_str}{line}" for line in self._python]
-        if len(self._return_value) > 0:
-            self._python += [f"{self._indent_str}return {self._return_value}"]
-        super().write()
-
 if __name__ == "__main__":
     path: Path = Path(__file__).parent.joinpath("test.gen.rpy")
 
@@ -199,7 +90,7 @@ if __name__ == "__main__":
     script.add_python("test python line")
     script.add_renpy("test renpy line")
 
-    foo = ScriptObject("foo", "Bar('foo')")
+    foo = scripting.ScriptObject("foo", "Bar('foo')")
     foo.add_value("num", "4", Config.Type.INT)
     foo.add_value("float", "45.872", Config.Type.FLOAT)
     foo.add_value("coord", "82 99", Config.Type.COORD)
@@ -211,30 +102,30 @@ if __name__ == "__main__":
     foo.add_value("lies2", "fAlSe", Config.Type.BOOL)
     foo.add_value("lies3", "0", Config.Type.BOOL)
 
-    foo.add_call(ScriptCall("print"))
+    foo.add_call(scripting.ScriptCall("print"))
 
-    set_pos = ScriptCall("set_value")
-    set_pos.add_arg(ScriptValue("394", Config.Type.INT))
+    set_pos = scripting.ScriptCall("set_value")
+    set_pos.add_arg(scripting.ScriptValue("394", Config.Type.INT))
     foo.add_call(set_pos)
 
-    x = ScriptValue("9.88", Config.Type.FLOAT)
-    y = ScriptValue("-18.2", Config.Type.FLOAT)
-    foo.add_call(ScriptCall("set_pos", [x, y]))
+    x = scripting.ScriptValue("9.88", Config.Type.FLOAT)
+    y = scripting.ScriptValue("-18.2", Config.Type.FLOAT)
+    foo.add_call(scripting.ScriptCall("set_pos", [x, y]))
 
-    item_names = ScriptCall("add_names")
-    item_names.add_arg(ScriptValue("chicken"))
-    item_names.add_arg(ScriptValue("steak"))
-    item_names.add_arg(ScriptValue("tuna"))
-    item_names.add_arg(ScriptValue("banana"))
-    item_names.add_arg(ScriptValue("broccoli"))
+    item_names = scripting.ScriptCall("add_names")
+    item_names.add_arg(scripting.ScriptValue("chicken"))
+    item_names.add_arg(scripting.ScriptValue("steak"))
+    item_names.add_arg(scripting.ScriptValue("tuna"))
+    item_names.add_arg(scripting.ScriptValue("banana"))
+    item_names.add_arg(scripting.ScriptValue("broccoli"))
     foo.add_call(item_names)
 
-    items = ScriptCall("add_items")
-    items.add_arg(ScriptValue("chicken", Config.Type.LITERAL))
-    items.add_arg(ScriptValue("steak", Config.Type.LITERAL))
-    items.add_arg(ScriptValue("tuna", Config.Type.LITERAL))
-    items.add_arg(ScriptValue("banana", Config.Type.LITERAL))
-    items.add_arg(ScriptValue("broccoli", Config.Type.LITERAL))
+    items = scripting.ScriptCall("add_items")
+    items.add_arg(scripting.ScriptValue("chicken", Config.Type.LITERAL))
+    items.add_arg(scripting.ScriptValue("steak", Config.Type.LITERAL))
+    items.add_arg(scripting.ScriptValue("tuna", Config.Type.LITERAL))
+    items.add_arg(scripting.ScriptValue("banana", Config.Type.LITERAL))
+    items.add_arg(scripting.ScriptValue("broccoli", Config.Type.LITERAL))
     foo.add_call(items)
 
     script.add_object(foo)

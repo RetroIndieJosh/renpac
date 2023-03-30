@@ -47,6 +47,32 @@
 
 ## Python
 
+- files:
+    - files with lowercase name should be a collection of functions under a single concept
+        - i.e. `files.py` defines file operations like `copy_tree()`
+        - import these files as a module namespace, i.e. `from renpac.base import files`
+            - in this case, you would call `files.copy_tree()`
+        - do not import like `import renpac.base.files`
+            - this would require `renpac.base.copy_tree()` for each call
+        - do not import like `from renpac.base.files import copy_tree`
+            - this makes imports difficult to maintain and puts `copy_tree()`
+              into the global namespace
+        - do not import like `from renpac.base.files import *`
+            - this is extra terrible because it puts *everything* from the
+              module into the global namespace and it is difficult to see what
+              is available
+    - files wil uppercase name should contain *only* a single class matching that name
+        - i.e. `StaticClass.py` defines `StaticClass`
+        - import the class, not the module
+            - never `from renpac.base.StaticClass import StaticClass` 
+            - or `from renpac.base.StaticClass import *` 
+        - do not import like `import renpac.base.StaticClass`
+            - this requires `StaticClass.StaticClass` for every reference
+    - when multiple classes form a cohesive collection, it is acceptable to use
+      a lowercase namespace module to group them: i.e. `scripting`
+        - in this case, follow the rules for importing lowercase modules
+            - i.e. `from renpac.base import scripting`
+            - then `scripting.Value`, `scripting.Object`, etc.
 - avoid lambdas when possible
     - they cannot be pickled (which Ren'py may need to do for saving game data)
     - the mypy type checker can be overly strict with them and require weird typing
