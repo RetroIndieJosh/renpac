@@ -3,6 +3,7 @@ import logging
 from typing import Dict, List, Optional
 
 from renpac.builder import python
+from renpac.base import target
 
 from renpac.builder.RenpyScript import *
 from renpac.builder.VariableMap import VariableMap, map_varmaps
@@ -157,11 +158,68 @@ class Game:
                 self._script.add_line(f"Inventory.add({item_python})")
         """
 
+    def get_exits(self) -> List[str]:
+        return [exit for exit in self._data['exit']]
+
+    def get_hotspots(self) -> List[str]:
+        return self.get_exits() + self.get_hotspots()
+
     def get_items(self) -> List[str]:
         return [item for item in self._data['item']]
 
     def get_rooms(self) -> List[str]:
         return [room for room in self._data['room']]
+
+    def has_exit(self, exit_name: str) -> bool:
+        return exit_name in self.get_exits()
+
+    def has_hotspot(self, hotspot_name: str) -> bool:
+        return hotspot_name in self.get_hotspots()
+
+    def has_item(self, item_name: str) -> bool:
+        return item_name in self.get_items()
+
+    def has_room(self, room_name: str) -> bool:
+        return room_name in self.get_rooms()
+
+    def parse_combo(self, combo_name: str, combo_data: Dict[str, str]) -> ScriptObject:
+        combo_varmaps: List[VariableMap] = [
+            VariableMap('message'),
+            VariableMap('with', 'replace_with'),
+        ]
+
+        combo_name_python = python.python_name('combo', combo_name.replace('+', 'and'))
+        combo: ScriptObject = ScriptObject(combo_name_python, "Combination()")
+        map_varmaps(combo, combo_varmaps, combo_data)
+
+        flags: int = target.TARGET_NONE
+        key: str
+        for key in ['delete', 'replace']:
+            if key in combo_data:
+                key_target = combo_data[key]
+                if key_target == 'none':
+                    flags = target.TARGET_NONE
+                elif key_target == 'self':
+                    flags = target.TARGET_SELF
+                elif key_target == 'other':
+                    flags = target.TARGET_OTHER
+                elif key_target == 'both':
+                    flags = target.TARGET_SELF | target.TARGET_OTHER
+            combo.add_value(key, str(flags), value_type=Config.Type.INT)
+
+        # error checking
+
+        if combo.get_value('replace_with') is not None and combo.get_value('replace') == target.TARGET_NONE:
+            log.warning(f"'with' defined in '{combo_name}' but 'replace' is set to 'none'")
+
+        if combo.get_value('replace_with') is None and combo.get_value('replace') != target.TARGET_NONE:
+            log.warning(f"'replace' defined in '{combo_name}' but no 'with' set")
+
+        # ignore delete flag if it's the same as replace
+        if combo.get_value('delete') == combo.get_value('replace'):
+            combo.values['delete'] = ScriptValue(str(target.TARGET_NONE), Config.Type.INT)
+
+        return combo
 
     def parse_exit(self, exit_name: str, exit_data: Dict[str, str]) -> ScriptObject:
         exit_varmaps: List[VariableMap] = [
@@ -178,7 +236,7 @@ class Game:
             set_pos.add_arg(ScriptValue(exit_data['pos'], Config.Type.COORD))
             exit.add_call(set_pos)
         else:
-            log.error(f"exit {exit.name} has no position defined")
+            log.error(f"exit {exit.python_name} has no position defined")
 
         if 'size' in exit_data:
             set_size: ScriptCall = ScriptCall("rect.set_size")
@@ -214,7 +272,7 @@ class Game:
                     in_room = room
                     break
             if in_room is not None:
-                log.error(f"Item {item.name} has no position defined and is in room {in_room}")
+                log.error(f"Item {item.python_name} has no position defined and is in room {in_room}")
 
         if 'size' in item_data:
             set_size: ScriptCall = ScriptCall("rect.set_size")
@@ -246,16 +304,43 @@ class Game:
         with Path(__file__).parent.joinpath("build", game_file_path).open("w") as file:
             json.dump(self._data, file, indent=4)
 
+    def parse_item_add_combo(self, combo_name: str, combo_data: Dict[str, str]) -> str:
+        parts = [n.strip() for n in combo_name.split('+')]
+        if len(parts) != 2:
+            raise Exception(f"ERROR: incorrect parts in combo '{combo_name}'; expected 2, got {len(parts)}")
+
+        item_name: str = parts[0]
+        if not self.has_item(item_name):
+            raise Exception(f"ERROR: combo '{combo_name}', no item '{item_name}' defined")
+        item_name_python: str = python.python_name('item', item_name)
+
+        target_name: str = parts[1]
+        target_name_python: str
+        if self.has_item(target_name):
+            target_name_python = python.python_name('item', target_name)
+        elif self.has_exit(target_name):
+            target_name_python = python.python_name('exit', target_name)
+        else:
+            raise Exception(f"ERROR: for combo, no hotspot target '{target_name}' defined in game configuration")
+
+        python_name = python.python_name('combo', combo_data['name'])
+        return f"{item_name_python}.add_combination({target_name_python}, {python_name})"
+
     def write_python(self, game_file_path: Path):
         script: GameScript = GameScript(Path(__file__).parent.joinpath("build", "bardolf.rpy"), 999, str(game_file_path))
-        for combo, data in self._data['combo'].items():
-            script.add_python("# " + python.python_name("combo", combo.replace('+', 'and')))
-        for exit, data in self._data['exit'].items():
-            script.add_object(self.parse_exit(exit, data))
-        for item, data in self._data['item'].items():
-            script.add_object(self.parse_item(item, data))
-        for room, data in self._data['room'].items():
-            script.add_object(self.parse_room(room, data))
+
+        for item_name, item_data in self._data['item'].items():
+            script.add_object(self.parse_item(item_name, item_data))
+
+        for exit_name, exit_data in self._data['exit'].items():
+            script.add_object(self.parse_exit(exit_name, exit_data))
+
+        for room_name, room_data in self._data['room'].items():
+            script.add_object(self.parse_room(room_name, room_data))
+
+        for combo_name, combo_data in self._data['combo'].items():
+            script.add_object(self.parse_combo(combo_name, combo_data))
+            script.add_python(self.parse_item_add_combo(combo_name, combo_data))
 
         if self._start_room is not None:
             start_room = python.python_name("room", self._start_room)

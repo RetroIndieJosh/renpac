@@ -69,7 +69,7 @@ class ScriptCall:
 
 @dataclass(frozen = True)
 class ScriptObject:
-    name: str
+    python_name: str
     init: str
     calls: List[ScriptCall] = field(default_factory = list)
     values: Dict[str, ScriptValue] = field(default_factory = dict)
@@ -85,16 +85,19 @@ class ScriptObject:
 
     def add_value(self, key: str, value: str, value_type: Config.Type = Config.Type.STRING) -> None:
         if key in self.values:
-            log.error(f"Tried to add key {key} to {self.name} ScriptObject but it is already defined")
+            log.error(f"Tried to add key {key} to {self.python_name} ScriptObject but it is already defined")
         self.values[key] = ScriptValue(value, value_type)
+    
+    def get_value(self, key: str) -> Optional[str]:
+        return self.values[key].value if key in self.values else None
 
     def to_python(self) -> List[str]:
-        init = f"{self.name} = {self.init}"
+        init = f"{self.python_name} = {self.init}"
         sorted_calls = sorted(self.calls, key = lambda call: call.func)
-        calls = [f"{self.name}.{call.func}({call.arg_list()})" for call in sorted_calls]
+        calls = [f"{self.python_name}.{call.func}({call.arg_list()})" for call in sorted_calls]
 
         sorted_values = dict(sorted(self.values.items())).items()
-        values = [f"{self.name}.{key} = {value.to_python()}" for key, value in sorted_values]
+        values = [f"{self.python_name}.{key} = {value.to_python()}" for key, value in sorted_values]
 
         return [init] + calls + values
 

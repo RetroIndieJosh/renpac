@@ -1,3 +1,5 @@
+# TODO remove TARGET_ from constants and refer to as target.NONE etc
+
 ## Flag for no target
 TARGET_NONE = 0b00
 
