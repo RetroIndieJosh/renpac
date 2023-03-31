@@ -1,11 +1,17 @@
 import logging
+import os
 
+from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from renpac.base import Config
-from renpac.builder import python
 from renpac.base import target
+
+from renpac.base.StaticClass import StaticClass
+
+from renpac.builder import python
 
 from renpac.builder.GameScript import GameScript
 from renpac.builder.VariableMap import VariableMap, map_varmaps
@@ -18,7 +24,70 @@ GameData = Dict[str, SectionData]
 # globals
 log = logging.getLogger("Game")
 
-class Block:
+class MessageType(Enum):
+    INFO = 0,
+    WARNING = 1,
+    ERROR = 2
+
+class BuildMessages(StaticClass):
+    _issues: List[Tuple[str, MessageType]] = []
+
+    @staticmethod
+    def add_error(error: str):
+        BuildMessages._issues.append((error, MessageType.ERROR))
+        log.error(error)
+
+    @staticmethod
+    def add_issue(issue: str, level: MessageType):
+        BuildMessages._issues.append((issue, level))
+
+    @staticmethod
+    def add_info(info: str):
+        BuildMessages._issues.append((info, MessageType.INFO))
+        log.warn(info)
+
+    @staticmethod
+    def add_warning(warning: str):
+        BuildMessages._issues.append((warning, MessageType.WARNING))
+        log.warn(warning)
+
+    @staticmethod
+    def count_errors() -> int:
+        return len([issue for issue in BuildMessages._issues if issue[1] == MessageType.ERROR])
+
+    @staticmethod
+    def count_warnings() -> int:
+        return len([issue for issue in BuildMessages._issues if issue[1] == MessageType.WARNING])
+
+    @staticmethod
+    def has_error():
+        return BuildMessages.count_errors() > 0
+
+    @staticmethod
+    def has_warning():
+        return BuildMessages.count_warnings() > 0
+
+    @staticmethod
+    def print() -> None:
+        os.system("color")
+        print("************ BUILD MESSAGES ************")
+        for issue in BuildMessages._issues:
+            color: str = ""
+            if issue[1] == MessageType.WARNING:
+                color = "\033[93m"
+            elif issue[1] == MessageType.ERROR:
+                color = "\033[91m"
+            elif issue[1] == MessageType.INFO:
+                color = "\033[96m"
+            print(f"{color}[{issue[1].name}] {issue[0]}")
+
+        print("\033[0m")
+        error_count = BuildMessages.count_errors()
+        warning_count = BuildMessages.count_warnings()
+        print(f"{error_count} errors, {warning_count} warnings")
+        print("************ END BUILD MESSAGES ************")
+
+class CodeBlock:
     def __init__(self, header, lines) -> None:
         self._header: str = header
         self._lines: List[str] = lines
@@ -47,7 +116,7 @@ class Block:
     def type(self) -> str:
         return self._type
 
-class Line:
+class CodeLine:
     def __init__(self, number: int, text: str) -> None:
         self._number: int = number
         self._text: str = text.rstrip()
@@ -76,8 +145,8 @@ class Line:
 
 class Game:
     def __init__(self, source_path: Path) -> None:
-        lines: List[Line] = get_lines(source_path)
-        blocks: List[Block] = get_blocks(lines)
+        lines: List[CodeLine] = get_lines(source_path)
+        blocks: List[CodeBlock] = get_blocks(lines)
         self._data: GameData = parse_game(blocks)
 
         self.load_game()
@@ -87,7 +156,7 @@ class Game:
     def check_loaded(self, operation: str) -> bool:
         is_loaded = len(self._data) > 0
         if not is_loaded:
-            log.error(f"Cannot {operation}, game is not loaded")
+            BuildMessages.add_error(f"Cannot {operation}, game is not loaded")
         return is_loaded
 
     def defaults(self, game_data: GameData) -> BlockData:
@@ -118,9 +187,9 @@ class Game:
         else:
             fail = f"section '{section_key}'"
         if required:
-            log.error(f"Could not find required {fail} in game data")
+            BuildMessages.add_error(f"Could not find required {fail} in game data")
         else:
-            log.warning(f"Could not find optional {fail} in game data")
+            BuildMessages.add_error(f"Could not find optional {fail} in game data")
         return ""
 
     def load_game(self) -> None:
@@ -212,10 +281,10 @@ class Game:
         # error checking
 
         if combo.get_value('replace_with') is not None and combo.get_value('replace') == target.TARGET_NONE:
-            log.warning(f"'with' defined in '{combo_name}' but 'replace' is set to 'none'")
+            BuildMessages.add_warning(f"'with' defined in '{combo_name}' but 'replace' is set to 'none'")
 
         if combo.get_value('replace_with') is None and combo.get_value('replace') != target.TARGET_NONE:
-            log.warning(f"'replace' defined in '{combo_name}' but no 'with' set")
+            BuildMessages.add_warning(f"'replace' defined in '{combo_name}' but no 'with' set")
 
         # ignore delete flag if it's the same as replace
         if combo.get_value('delete') == combo.get_value('replace'):
@@ -238,7 +307,7 @@ class Game:
             set_pos.add_arg(python.Value(exit_data['pos'], Config.Type.COORD))
             exit.add_call(set_pos)
         else:
-            log.error(f"exit {exit.python_name} has no position defined")
+            BuildMessages.add_error(f"exit {exit.python_name} has no position defined")
 
         if 'size' in exit_data:
             set_size: python.Call = python.Call("rect.set_size")
@@ -247,9 +316,9 @@ class Game:
 
         rooms = self.get_rooms()
         if exit.values['location'] not in rooms:
-            log.error(f"no room '{exit.values['location']}' requested in {exit_name}.location")
+            BuildMessages.add_error(f"no room '{exit.values['location']}' requested in {exit_name}.location")
         if exit.values['target'] not in rooms:
-            log.error(f"no room '{exit.values['location']}' requested in {exit_name}.target")
+            BuildMessages.add_error(f"no room '{exit.values['location']}' requested in {exit_name}.target")
 
         return exit
 
@@ -274,7 +343,7 @@ class Game:
                     in_room = room
                     break
             if in_room is not None:
-                log.error(f"Item {item.python_name} has no position defined and is in room {in_room}")
+                BuildMessages.add_error(f"Item {item.python_name} has no position defined and is in room {in_room}")
 
         if 'size' in item_data:
             set_size: python.Call = python.Call("rect.set_size")
@@ -301,11 +370,6 @@ class Game:
 
         return room
 
-    def write_json(self, game_file_path: Path) -> None:
-        import json
-        with Path(__file__).parent.joinpath("build", game_file_path).open("w") as file:
-            json.dump(self._data, file, indent=4)
-
     def parse_item_add_combo(self, combo_name: str, combo_data: BlockData) -> str:
         parts = [n.strip() for n in combo_name.split('+')]
         if len(parts) != 2:
@@ -328,7 +392,12 @@ class Game:
         python_name = python.python_name('combo', combo_data['name'])
         return f"{item_name_python}.add_combination({target_name_python}, {python_name})"
 
-    def write_python(self, game_file_path: Path):
+    def write_json(self, game_file_path: Path) -> None:
+        import json
+        with Path(__file__).parent.joinpath("build", game_file_path).open("w") as file:
+            json.dump(self._data, file, indent=4)
+
+    def write_python(self, game_file_path: Path) -> bool:
         script: GameScript = GameScript(Path(__file__).parent.joinpath("build", "bardolf.rpy"), 999, str(game_file_path))
 
         for item_name, item_data in self._data['item'].items():
@@ -348,23 +417,27 @@ class Game:
             start_room = python.python_name("room", self._start_room)
             script.add_return(start_room)
 
+        BuildMessages.print()
+        if BuildMessages.has_error():
+            return False
         script.write()
+        return True
 
-def get_lines(source_path: Path) -> List[Line]:
-    lines: List[Line] = []
+def get_lines(source_path: Path) -> List[CodeLine]:
+    lines: List[CodeLine] = []
     line_number: int = 0
     for line_text in source_path.read_text().splitlines():
         line_number += 1
-        line = Line(line_number, line_text)
+        line = CodeLine(line_number, line_text)
         line.strip_comment()
         if not line.is_empty():
             lines.append(line)
     log.info(f"Game script loaded with {len(lines)} loc ({line_number} with blank/comments)")
     return lines
 
-def get_blocks(lines: List[Line]) -> List[Block]:
-    current_block: Optional[Block] = None
-    blocks: List[Block] = []
+def get_blocks(lines: List[CodeLine]) -> List[CodeBlock]:
+    current_block: Optional[CodeBlock] = None
+    blocks: List[CodeBlock] = []
     errors: List[str] = []
     for line in lines:
         if current_block is not None:
@@ -376,17 +449,17 @@ def get_blocks(lines: List[Line]) -> List[Block]:
         if line.is_indented():
             errors.append(f"[{line.number()}] Unexpected indentation")
             continue
-        current_block = Block(line.text(), [])
+        current_block = CodeBlock(line.text(), [])
     log.info(f"{len(blocks)} blocks")
     for block in blocks:
         log.debug(f" -- {block.header()}")
     for error in errors:
-        log.error(error)
+        BuildMessages.add_error(error)
     if len(errors) > 0:
         raise Exception("Errors in game source. Cannot proceed.")
     return blocks
 
-def parse_block(block: Block) -> BlockData:
+def parse_block(block: CodeBlock) -> BlockData:
     log.debug(f"parsing {block.type()} block '{block.name()}'")
     parsed_values: BlockData = {}
     if not block.is_builtin():
@@ -410,18 +483,18 @@ def parse_block(block: Block) -> BlockData:
         log.debug(f"|-- {key}: {val}")
     return parsed_values
 
-def parse_block_builtin(blocks: List[Block], block_type: str) -> BlockData:
+def parse_block_builtin(blocks: List[CodeBlock], block_type: str) -> BlockData:
     log.info(f"** parsing builtin {block_type}")
-    blocks_of_type: List[Block] = [block for block in blocks if block.type() == block_type]
+    blocks_of_type: List[CodeBlock] = [block for block in blocks if block.type() == block_type]
     if len(blocks_of_type) == 0 or not blocks_of_type[0].is_builtin():
-        log.error(f"'{block_type}' is not builtin, or no blocks of that type found")
+        BuildMessages.add_error(f"'{block_type}' is not builtin, or no blocks of that type found")
         return {}
     if len(blocks_of_type) > 1:
-        log.error(f"Can only define '{block_type}' once, but it is defined {len(blocks_of_type)} times.")
+        BuildMessages.add_error(f"Can only define '{block_type}' once, but it is defined {len(blocks_of_type)} times.")
         return {}
     return parse_block(blocks_of_type[0])
 
-def parse_game(blocks: List[Block]) -> GameData:
+def parse_game(blocks: List[CodeBlock]) -> GameData:
     log.info("** parsing blocks")
     game_data: GameData = {'engine': {}}
     for block_type in ['game', 'inventory', 'exits', 'items']:
@@ -430,11 +503,11 @@ def parse_game(blocks: List[Block]) -> GameData:
         game_data[block_type] = parse_blocks_of_type(blocks, block_type)
     return game_data
 
-def parse_blocks_of_type(blocks: List[Block], block_type: str) -> SectionData:
+def parse_blocks_of_type(blocks: List[CodeBlock], block_type: str) -> SectionData:
     log.info(f"** parsing {block_type}s")
-    blocks_of_type: List[Block] = [block for block in blocks if block.type() == block_type]
+    blocks_of_type: List[CodeBlock] = [block for block in blocks if block.type() == block_type]
     values: SectionData = {}
-    block: Block
+    block: CodeBlock
     for block in blocks_of_type:
         values[str(block.name())] = parse_block(block)
     return values

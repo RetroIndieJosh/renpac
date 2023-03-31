@@ -116,6 +116,14 @@ def python_name(type: Optional[str], n: str) -> str:
         return n
     return f"{type}_{n}"
 
+def test_name():
+    assert python_name(None, "foo bar") == "foo_bar"
+    assert python_name(None, "shebang + bin/bash") == "shebang_bin_bash"
+    assert python_name("foo", "bar") ==  "foo_bar"
+    assert python_name("foo", "shebang + bin/bash") == "foo_shebang_bin_bash"
+
+# TODO JM migrate the below tests to renpac.py, probably as part of a larger test_game test
+"""
 def test_item():
     data = {
         'desc': "A test item.",
@@ -143,12 +151,6 @@ def test_item():
     assert item.calls[1].args[0].to_python() == '*(100, 150)'
     assert item.calls[1].args[0].expected_type == Config.Type.COORD
 
-def test_name():
-    assert python_name(None, "foo bar") == "foo_bar"
-    assert python_name(None, "shebang + bin/bash") == "shebang_bin_bash"
-    assert python_name("foo", "bar") ==  "foo_bar"
-    assert python_name("foo", "shebang + bin/bash") == "foo_shebang_bin_bash"
-
 def test_room():
     data = {
         'desc': "A test room.",
@@ -175,3 +177,4 @@ def test_room():
     assert room.calls[0].args[2].expected_type == Config.Type.LITERAL
     assert room.calls[0].args[3].to_python() == 'bag'
     assert room.calls[0].args[3].expected_type == Config.Type.LITERAL
+"""

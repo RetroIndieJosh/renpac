@@ -45,7 +45,8 @@ class Builder:
         self.generate_debug_file()
 
         game: renpac.Game = renpac.Game(self._game_config_path)
-        self.build_game(game)
+        if not self.build_game(game):
+            return
         self.copy_resources(game)
 
         end_time = datetime.now()
@@ -54,9 +55,9 @@ class Builder:
         log.critical(f"Build done at {datetime.now()} ({diff_time} seconds elapsed)")
 
     # TODO move to Game - but causes circular deps!
-    def build_game(self, game: renpac.Game) -> None:
+    def build_game(self, game: renpac.Game) -> bool:
         game.dump_to_log()
-        game.write_python(self._game_config_path)
+        return game.write_python(self._game_config_path)
         #Game.to_json()
 
         #game.parse_defaults()
