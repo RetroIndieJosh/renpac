@@ -69,10 +69,10 @@
         - do not import like `import renpac.base.StaticClass`
             - this requires `StaticClass.StaticClass` for every reference
     - when multiple classes form a cohesive collection, it is acceptable to use
-      a lowercase namespace module to group them: i.e. `scripting`
+      a lowercase namespace module to group them: i.e. `python`
         - in this case, follow the rules for importing lowercase modules
-            - i.e. `from renpac.base import scripting`
-            - then `scripting.Value`, `scripting.Object`, etc.
+            - i.e. `from renpac.base import python`
+            - then `python.Value`, `python.Object`, etc.
 - avoid lambdas when possible
     - they cannot be pickled (which Ren'py may need to do for saving game data)
     - the mypy type checker can be overly strict with them and require weird typing

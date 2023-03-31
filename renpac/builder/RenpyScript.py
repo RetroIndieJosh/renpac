@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 
 from renpac.base import Config
-from renpac.builder import scripting
+from renpac.builder import python
 
 from renpac.base.printv import *
 
@@ -22,7 +22,7 @@ class RenpyScript:
         self._source_path: Optional[str] = source_path
         self._indent_str: str = ' ' * indent
 
-        self._script_objects: List[scripting.ScriptObject] = []
+        self._script_objects: List[python.Object] = []
         self._python: List[str] = []
         self._renpy: List[str] = []
 
@@ -37,7 +37,7 @@ class RenpyScript:
         else:
             self.add_renpy(*header_lines)
 
-    def add_object(self, script_object: scripting.ScriptObject) -> None:
+    def add_object(self, script_object: python.Object) -> None:
         self.add_python(*script_object.to_python())
 
     def add_python(self, *args: str) -> None:
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     script.add_python("test python line")
     script.add_renpy("test renpy line")
 
-    foo = scripting.ScriptObject("foo", "Bar('foo')")
+    foo = python.Object("foo", "Bar('foo')")
     foo.add_value("num", "4", Config.Type.INT)
     foo.add_value("float", "45.872", Config.Type.FLOAT)
     foo.add_value("coord", "82 99", Config.Type.COORD)
@@ -102,30 +102,30 @@ if __name__ == "__main__":
     foo.add_value("lies2", "fAlSe", Config.Type.BOOL)
     foo.add_value("lies3", "0", Config.Type.BOOL)
 
-    foo.add_call(scripting.ScriptCall("print"))
+    foo.add_call(python.Call("print"))
 
-    set_pos = scripting.ScriptCall("set_value")
-    set_pos.add_arg(scripting.ScriptValue("394", Config.Type.INT))
+    set_pos = python.Call("set_value")
+    set_pos.add_arg(python.Value("394", Config.Type.INT))
     foo.add_call(set_pos)
 
-    x = scripting.ScriptValue("9.88", Config.Type.FLOAT)
-    y = scripting.ScriptValue("-18.2", Config.Type.FLOAT)
-    foo.add_call(scripting.ScriptCall("set_pos", [x, y]))
+    x = python.Value("9.88", Config.Type.FLOAT)
+    y = python.Value("-18.2", Config.Type.FLOAT)
+    foo.add_call(python.Call("set_pos", [x, y]))
 
-    item_names = scripting.ScriptCall("add_names")
-    item_names.add_arg(scripting.ScriptValue("chicken"))
-    item_names.add_arg(scripting.ScriptValue("steak"))
-    item_names.add_arg(scripting.ScriptValue("tuna"))
-    item_names.add_arg(scripting.ScriptValue("banana"))
-    item_names.add_arg(scripting.ScriptValue("broccoli"))
+    item_names = python.Call("add_names")
+    item_names.add_arg(python.Value("chicken"))
+    item_names.add_arg(python.Value("steak"))
+    item_names.add_arg(python.Value("tuna"))
+    item_names.add_arg(python.Value("banana"))
+    item_names.add_arg(python.Value("broccoli"))
     foo.add_call(item_names)
 
-    items = scripting.ScriptCall("add_items")
-    items.add_arg(scripting.ScriptValue("chicken", Config.Type.LITERAL))
-    items.add_arg(scripting.ScriptValue("steak", Config.Type.LITERAL))
-    items.add_arg(scripting.ScriptValue("tuna", Config.Type.LITERAL))
-    items.add_arg(scripting.ScriptValue("banana", Config.Type.LITERAL))
-    items.add_arg(scripting.ScriptValue("broccoli", Config.Type.LITERAL))
+    items = python.Call("add_items")
+    items.add_arg(python.Value("chicken", Config.Type.LITERAL))
+    items.add_arg(python.Value("steak", Config.Type.LITERAL))
+    items.add_arg(python.Value("tuna", Config.Type.LITERAL))
+    items.add_arg(python.Value("banana", Config.Type.LITERAL))
+    items.add_arg(python.Value("broccoli", Config.Type.LITERAL))
     foo.add_call(items)
 
     script.add_object(foo)

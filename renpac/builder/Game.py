@@ -4,10 +4,8 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from renpac.base import Config
-from renpac.builder import scripting
-from renpac.base import target
-
 from renpac.builder import python
+from renpac.base import target
 
 from renpac.builder.GameScript import GameScript
 from renpac.builder.VariableMap import VariableMap, map_varmaps
@@ -186,14 +184,14 @@ class Game:
     def has_room(self, room_name: str) -> bool:
         return room_name in self.get_rooms()
 
-    def parse_combo(self, combo_name: str, combo_data: BlockData) -> scripting.ScriptObject:
+    def parse_combo(self, combo_name: str, combo_data: BlockData) -> python.Object:
         combo_varmaps: List[VariableMap] = [
             VariableMap('message'),
             VariableMap('with', 'replace_with'),
         ]
 
         combo_name_python = python.python_name('combo', combo_name.replace('+', 'and'))
-        combo: scripting.ScriptObject = scripting.ScriptObject(combo_name_python, "Combination()")
+        combo: python.Object = python.Object(combo_name_python, "Combination()")
         map_varmaps(combo, combo_varmaps, combo_data)
 
         flags: int = target.TARGET_NONE
@@ -221,30 +219,30 @@ class Game:
 
         # ignore delete flag if it's the same as replace
         if combo.get_value('delete') == combo.get_value('replace'):
-            combo.values['delete'] = scripting.ScriptValue(str(target.TARGET_NONE), Config.Type.INT)
+            combo.values['delete'] = python.Value(str(target.TARGET_NONE), Config.Type.INT)
 
         return combo
 
-    def parse_exit(self, exit_name: str, exit_data: BlockData) -> scripting.ScriptObject:
+    def parse_exit(self, exit_name: str, exit_data: BlockData) -> python.Object:
         exit_varmaps: List[VariableMap] = [
             VariableMap("message"),
             VariableMap("location", required=True),
             VariableMap("target", required=True),
         ]
 
-        exit = scripting.ScriptObject(python.python_name("exit", exit_name), f"exit(\"{exit_name}\")")
+        exit = python.Object(python.python_name("exit", exit_name), f"exit(\"{exit_name}\")")
         map_varmaps(exit, exit_varmaps, exit_data)
 
         if 'pos' in exit_data:
-            set_pos: scripting.ScriptCall = scripting.ScriptCall("rect.set_pos")
-            set_pos.add_arg(scripting.ScriptValue(exit_data['pos'], Config.Type.COORD))
+            set_pos: python.Call = python.Call("rect.set_pos")
+            set_pos.add_arg(python.Value(exit_data['pos'], Config.Type.COORD))
             exit.add_call(set_pos)
         else:
             log.error(f"exit {exit.python_name} has no position defined")
 
         if 'size' in exit_data:
-            set_size: scripting.ScriptCall = scripting.ScriptCall("rect.set_size")
-            set_size.add_arg(scripting.ScriptValue(exit_data['size'], Config.Type.COORD))
+            set_size: python.Call = python.Call("rect.set_size")
+            set_size.add_arg(python.Value(exit_data['size'], Config.Type.COORD))
             exit.add_call(set_size)
 
         rooms = self.get_rooms()
@@ -255,19 +253,19 @@ class Game:
 
         return exit
 
-    def parse_item(self, item_name: str, item_data: BlockData) -> scripting.ScriptObject:
+    def parse_item(self, item_name: str, item_data: BlockData) -> python.Object:
         item_varmaps: List[VariableMap] = [
             VariableMap("desc"),
             VariableMap("printed", "printed_name"),
             VariableMap("fixed", expected_type=Config.Type.BOOL),
         ]
 
-        item = scripting.ScriptObject(python.python_name("item", item_name), f"item(\"{item_name}\")")
+        item = python.Object(python.python_name("item", item_name), f"item(\"{item_name}\")")
         map_varmaps(item, item_varmaps, item_data)
 
         if 'pos' in item_data:
-            set_pos: scripting.ScriptCall = scripting.ScriptCall("rect.set_pos")
-            set_pos.add_arg(scripting.ScriptValue(item_data['pos'], Config.Type.COORD))
+            set_pos: python.Call = python.Call("rect.set_pos")
+            set_pos.add_arg(python.Value(item_data['pos'], Config.Type.COORD))
             item.add_call(set_pos)
         else:
             in_room = None
@@ -279,26 +277,26 @@ class Game:
                 log.error(f"Item {item.python_name} has no position defined and is in room {in_room}")
 
         if 'size' in item_data:
-            set_size: scripting.ScriptCall = scripting.ScriptCall("rect.set_size")
-            set_size.add_arg(scripting.ScriptValue(item_data['size'], Config.Type.COORD))
+            set_size: python.Call = python.Call("rect.set_size")
+            set_size.add_arg(python.Value(item_data['size'], Config.Type.COORD))
             item.add_call(set_size)
 
         return item
 
-    def parse_room(self, room_name: str, room_data: BlockData) -> scripting.ScriptObject:
+    def parse_room(self, room_name: str, room_data: BlockData) -> python.Object:
         room_varmaps: List[VariableMap] = [
             VariableMap("desc"),
             VariableMap("first", "first_desc"),
             VariableMap("printed", "printed_name"),
         ]
 
-        room = scripting.ScriptObject(python.python_name("room", room_name), f"Room(\"{room_name}\")")
+        room = python.Object(python.python_name("room", room_name), f"Room(\"{room_name}\")")
         map_varmaps(room, room_varmaps, room_data)
 
         if 'items' in room_data:
-            call = scripting.ScriptCall("hotspot_add")
+            call = python.Call("hotspot_add")
             for item in room_data['items'].split(','):
-                call.add_arg(scripting.ScriptValue(item, Config.Type.LITERAL))
+                call.add_arg(python.Value(item, Config.Type.LITERAL))
             room.add_call(call)
 
         return room
