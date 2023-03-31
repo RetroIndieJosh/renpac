@@ -84,7 +84,7 @@ class Builder:
 
     def copy_engine_files(self) -> None:
         log.info(f"** copying engine")
-        files.copy_tree(str(self._engine_path), str(self._output_path))
+        files.copy_tree(self._engine_path, self._output_path)
 
     def copy_resources(self, game: renpac.Game) -> None:
         mapping = {
@@ -118,7 +118,7 @@ class Builder:
             resource_type = mapping[source_path]
             dest_path = Path(self._output_path, resource_type).resolve()
             log.info(f"copying resources ({resource_type}) from '{source_path}' to '{dest_path}'")
-            files.copy_tree(str(source_path), str(dest_path), check_resource)
+            files.copy_tree(source_path, dest_path, check_resource)
 
         for image in required_images:
             if not required_images[image]:
