@@ -4,7 +4,7 @@ import os
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, TypeAlias
 
 from renpac.base import Config
 from renpac.base import target
@@ -16,105 +16,89 @@ from renpac.builder import python
 from renpac.builder.GameScript import GameScript
 from renpac.builder.VariableMap import VariableMap, map_varmaps
 
-# types
-BlockData = Dict[str, str]
-SectionData = Dict[str, BlockData]
-GameData = Dict[str, SectionData]
-
 # globals
 log = logging.getLogger("Game")
 
-class MessageType(Enum):
+class IssueLevel(Enum):
     INFO = 0,
     WARNING = 1,
     ERROR = 2
 
-class BuildMessages(StaticClass):
-    _issues: List[Tuple[str, MessageType]] = []
+@dataclass()
+class BuildIssue:
+    message: str
+    line: int
+    level: IssueLevel
+
+    def is_error(self) -> bool:
+        return self.level == IssueLevel.ERROR
+
+    def is_warning(self) -> bool:
+        return self.level == IssueLevel.WARNING
+
+    def print(self) -> None:
+        color: str = ""
+        if self.level == IssueLevel.WARNING:
+            color = "\033[93m"
+        elif self.level == IssueLevel.ERROR:
+            color = "\033[91m"
+        elif self.level == IssueLevel.INFO:
+            color = "\033[96m"
+        print(f"{color}[{self.level.name}]", end='')
+        if self.line >= 0:
+            print(f" Line {self.line}", end='')
+        print(f": {self.message}")
+
+class BuildIssueManager(StaticClass):
+    _issues: List[BuildIssue] = []
 
     @staticmethod
-    def add_error(error: str):
-        BuildMessages._issues.append((error, MessageType.ERROR))
+    def add_error(error: str, line: int = -1):
+        BuildIssueManager.add_issue(error, line, IssueLevel.ERROR)
         log.error(error)
 
     @staticmethod
-    def add_issue(issue: str, level: MessageType):
-        BuildMessages._issues.append((issue, level))
+    def add_issue(message: str, line: int, level: IssueLevel):
+        issue: BuildIssue = BuildIssue(message, line, level)
+        BuildIssueManager._issues.append(issue)
 
     @staticmethod
-    def add_info(info: str):
-        BuildMessages._issues.append((info, MessageType.INFO))
+    def add_info(info: str, line: int = -1):
+        BuildIssueManager.add_issue(info, line, IssueLevel.INFO)
         log.warn(info)
 
     @staticmethod
-    def add_warning(warning: str):
-        BuildMessages._issues.append((warning, MessageType.WARNING))
+    def add_warning(warning: str, line: int = -1):
+        BuildIssueManager.add_issue(warning, line, IssueLevel.WARNING)
         log.warn(warning)
 
     @staticmethod
     def count_errors() -> int:
-        return len([issue for issue in BuildMessages._issues if issue[1] == MessageType.ERROR])
+        return sum(issue.is_error() for issue in BuildIssueManager._issues)
 
     @staticmethod
     def count_warnings() -> int:
-        return len([issue for issue in BuildMessages._issues if issue[1] == MessageType.WARNING])
+        return sum(issue.is_error() for issue in BuildIssueManager._issues)
 
     @staticmethod
     def has_error():
-        return BuildMessages.count_errors() > 0
+        return BuildIssueManager.count_errors() > 0
 
     @staticmethod
     def has_warning():
-        return BuildMessages.count_warnings() > 0
+        return BuildIssueManager.count_warnings() > 0
 
     @staticmethod
     def print() -> None:
         os.system("color")
         print("************ BUILD MESSAGES ************")
-        for issue in BuildMessages._issues:
-            color: str = ""
-            if issue[1] == MessageType.WARNING:
-                color = "\033[93m"
-            elif issue[1] == MessageType.ERROR:
-                color = "\033[91m"
-            elif issue[1] == MessageType.INFO:
-                color = "\033[96m"
-            print(f"{color}[{issue[1].name}] {issue[0]}")
+        for issue in BuildIssueManager._issues:
+            issue.print()
 
-        print("\033[0m")
-        error_count = BuildMessages.count_errors()
-        warning_count = BuildMessages.count_warnings()
-        print(f"{error_count} errors, {warning_count} warnings")
+        error_count = BuildIssueManager.count_errors()
+        warning_count = BuildIssueManager.count_warnings()
+        print(f"\033[0m{error_count} errors, {warning_count} warnings")
         print("************ END BUILD MESSAGES ************")
-
-class CodeBlock:
-    def __init__(self, header, lines) -> None:
-        self._header: str = header
-        self._lines: List[str] = lines
-
-        self._builtin: bool = ' ' not in self._header
-        self._name: Optional[str] = None if self.is_builtin() else self._header[self._header.index(' ')+1:] 
-        self._type: str = self._header.split(' ')[0]
-
-    def is_builtin(self) -> bool:
-        # builtin elements like game, inventory, etc. as oppopsed to named
-        # elements like room, item, etc.
-        return self._builtin
-
-    def add_line(self, line: str):
-        self._lines.append(line)
-
-    def header(self) -> str:
-        return self._header
-
-    def name(self) -> Optional[str]:
-        return self._name
-
-    def lines(self) -> List[str]:
-        return self._lines
-
-    def type(self) -> str:
-        return self._type
 
 class CodeLine:
     def __init__(self, number: int, text: str) -> None:
@@ -141,7 +125,45 @@ class CodeLine:
         self._text = self._text[:i]
 
     def text(self) -> str:
-        return self._text
+        return self._text.strip()
+
+class CodeBlock:
+    def __init__(self, header, lines, start_line) -> None:
+        self._header: str = header
+        self._start_line = start_line
+        self._lines: List[CodeLine] = lines
+
+        self._builtin: bool = ' ' not in self._header
+        self._name: Optional[str] = None if self.is_builtin() else self._header[self._header.index(' ')+1:] 
+        self._type: str = self._header.split(' ')[0]
+
+    def add_line(self, line: CodeLine):
+        self._lines.append(line)
+
+    def header(self) -> str:
+        return self._header
+
+    def is_builtin(self) -> bool:
+        # builtin elements like game, inventory, etc. as oppopsed to named
+        # elements like room, item, etc.
+        return self._builtin
+
+    def name(self) -> Optional[str]:
+        return self._name
+
+    def lines(self) -> List[CodeLine]:
+        return self._lines
+
+    def start_line(self) -> int:
+        return self._start_line
+
+    def type(self) -> str:
+        return self._type
+
+# type aliases
+BlockData: TypeAlias = Dict[str, CodeLine]
+SectionData: TypeAlias = Dict[str, BlockData]
+GameData: TypeAlias = Dict[str, SectionData]
 
 class Game:
     def __init__(self, source_path: Path) -> None:
@@ -156,7 +178,7 @@ class Game:
     def check_loaded(self, operation: str) -> bool:
         is_loaded = len(self._data) > 0
         if not is_loaded:
-            BuildMessages.add_error(f"Cannot {operation}, game is not loaded")
+            log.error(f"Cannot {operation}, game is not loaded")
         return is_loaded
 
     def defaults(self, game_data: GameData) -> BlockData:
@@ -180,16 +202,16 @@ class Game:
             if block_key in section:
                 block = section[block_key]
                 if value_key in block:
-                    return block[value_key]
-                fail = f"value '{value_key}'"
+                    return block[value_key].text().strip()
+                fail = f"value '{section_key}.{block_key}.{value_key}'"
             else:
-                fail = f"block '{block_key}'"
+                fail = f"block '{section_key}.{block_key}'"
         else:
             fail = f"section '{section_key}'"
         if required:
-            BuildMessages.add_error(f"Could not find required {fail} in game data")
+            BuildIssueManager.add_error(f"Could not find required {fail} in game data")
         else:
-            BuildMessages.add_error(f"Could not find optional {fail} in game data")
+            BuildIssueManager.add_warning(f"Could not find optional {fail} in game data")
         return ""
 
     def load_game(self) -> None:
@@ -261,7 +283,7 @@ class Game:
 
         combo_name_python = python.python_name('combo', combo_name.replace('+', 'and'))
         combo: python.Object = python.Object(combo_name_python, "Combination()")
-        map_varmaps(combo, combo_varmaps, combo_data)
+        map_varmaps(combo, combo_varmaps, {key: combo_data[key].text() for key in combo_data})
 
         flags: int = target.TARGET_NONE
         key: str
@@ -281,10 +303,12 @@ class Game:
         # error checking
 
         if combo.get_value('replace_with') is not None and combo.get_value('replace') == target.TARGET_NONE:
-            BuildMessages.add_warning(f"'with' defined in '{combo_name}' but 'replace' is set to 'none'")
+            line = combo_data['replace'].number()
+            BuildIssueManager.add_warning(f"'with' defined in '{combo_name}' but 'replace' is set to 'none'", line)
 
         if combo.get_value('replace_with') is None and combo.get_value('replace') != target.TARGET_NONE:
-            BuildMessages.add_warning(f"'replace' defined in '{combo_name}' but no 'with' set")
+            line = combo_data['replace'].number() if 'replace' in combo_data else -1
+            BuildIssueManager.add_warning(f"'replace' defined in '{combo_name}' but no 'with' set", line)
 
         # ignore delete flag if it's the same as replace
         if combo.get_value('delete') == combo.get_value('replace'):
@@ -300,25 +324,31 @@ class Game:
         ]
 
         exit = python.Object(python.python_name("exit", exit_name), f"exit(\"{exit_name}\")")
-        map_varmaps(exit, exit_varmaps, exit_data)
+        map_varmaps(exit, exit_varmaps, {key: exit_data[key].text() for key in exit_data})
 
         if 'pos' in exit_data:
             set_pos: python.Call = python.Call("rect.set_pos")
-            set_pos.add_arg(python.Value(exit_data['pos'], Config.Type.COORD))
+            set_pos.add_arg(python.Value(exit_data['pos'].text(), Config.Type.COORD))
             exit.add_call(set_pos)
         else:
-            BuildMessages.add_error(f"exit {exit.python_name} has no position defined")
+            BuildIssueManager.add_error(f"exit {exit.python_name} has no position defined", 
+                list(exit_data.values())[0].number())
 
         if 'size' in exit_data:
             set_size: python.Call = python.Call("rect.set_size")
-            set_size.add_arg(python.Value(exit_data['size'], Config.Type.COORD))
+            set_size.add_arg(python.Value(exit_data['size'].text(), Config.Type.COORD))
             exit.add_call(set_size)
 
+        # TODO add TYPE_ROOM to handle this
         rooms = self.get_rooms()
         if exit.values['location'] not in rooms:
-            BuildMessages.add_error(f"no room '{exit.values['location']}' requested in {exit_name}.location")
+            line = exit_data['location'].number()
+            log.info(f"location line: {line}")
+            BuildIssueManager.add_error(f"no room '{exit.values['location']}' requested in {exit_name}.location", line)
         if exit.values['target'] not in rooms:
-            BuildMessages.add_error(f"no room '{exit.values['location']}' requested in {exit_name}.target")
+            line = exit_data['target'].number()
+            log.info(f"target line: {line}")
+            BuildIssueManager.add_error(f"no room '{exit.values['location']}' requested in {exit_name}.target", line)
 
         return exit
 
@@ -330,11 +360,11 @@ class Game:
         ]
 
         item = python.Object(python.python_name("item", item_name), f"item(\"{item_name}\")")
-        map_varmaps(item, item_varmaps, item_data)
+        map_varmaps(item, item_varmaps, {key: item_data[key].text() for key in item_data})
 
         if 'pos' in item_data:
             set_pos: python.Call = python.Call("rect.set_pos")
-            set_pos.add_arg(python.Value(item_data['pos'], Config.Type.COORD))
+            set_pos.add_arg(python.Value(item_data['pos'].text(), Config.Type.COORD))
             item.add_call(set_pos)
         else:
             in_room = None
@@ -343,11 +373,12 @@ class Game:
                     in_room = room
                     break
             if in_room is not None:
-                BuildMessages.add_error(f"Item {item.python_name} has no position defined and is in room {in_room}")
+                line = list(item_data.values())[0].number()
+                BuildIssueManager.add_error(f"Item {item.python_name} has no position defined and is in room {in_room}", line)
 
         if 'size' in item_data:
             set_size: python.Call = python.Call("rect.set_size")
-            set_size.add_arg(python.Value(item_data['size'], Config.Type.COORD))
+            set_size.add_arg(python.Value(item_data['size'].text(), Config.Type.COORD))
             item.add_call(set_size)
 
         return item
@@ -360,11 +391,11 @@ class Game:
         ]
 
         room = python.Object(python.python_name("room", room_name), f"Room(\"{room_name}\")")
-        map_varmaps(room, room_varmaps, room_data)
+        map_varmaps(room, room_varmaps, {key: room_data[key].text() for key in room_data})
 
         if 'items' in room_data:
             call = python.Call("hotspot_add")
-            for item in room_data['items'].split(','):
+            for item in room_data['items'].text().split(','):
                 call.add_arg(python.Value(item, Config.Type.LITERAL))
             room.add_call(call)
 
@@ -389,7 +420,7 @@ class Game:
         else:
             raise Exception(f"ERROR: for combo, no hotspot target '{target_name}' defined in game configuration")
 
-        python_name = python.python_name('combo', combo_data['name'])
+        python_name = python.python_name('combo', combo_data['name'].text())
         return f"{item_name_python}.add_combination({target_name_python}, {python_name})"
 
     def write_json(self, game_file_path: Path) -> None:
@@ -417,8 +448,8 @@ class Game:
             start_room = python.python_name("room", self._start_room)
             script.add_return(start_room)
 
-        BuildMessages.print()
-        if BuildMessages.has_error():
+        BuildIssueManager.print()
+        if BuildIssueManager.has_error():
             return False
         script.write()
         return True
@@ -438,24 +469,24 @@ def get_lines(source_path: Path) -> List[CodeLine]:
 def get_blocks(lines: List[CodeLine]) -> List[CodeBlock]:
     current_block: Optional[CodeBlock] = None
     blocks: List[CodeBlock] = []
-    errors: List[str] = []
+    indent_errors: List[int] = []
     for line in lines:
         if current_block is not None:
             if line.is_indented():
-                current_block.add_line(line.text().lstrip())
+                current_block.add_line(line)
                 continue
             blocks.append(current_block)
             current_block = None
         if line.is_indented():
-            errors.append(f"[{line.number()}] Unexpected indentation")
+            indent_errors.append(line.number())
             continue
-        current_block = CodeBlock(line.text(), [])
+        current_block = CodeBlock(line.text(), [], line.number())
     log.info(f"{len(blocks)} blocks")
     for block in blocks:
         log.debug(f" -- {block.header()}")
-    for error in errors:
-        BuildMessages.add_error(error)
-    if len(errors) > 0:
+    for line_number in indent_errors:
+        BuildIssueManager.add_error("Unexpected indentation", line_number)
+    if len(indent_errors) > 0:
         raise Exception("Errors in game source. Cannot proceed.")
     return blocks
 
@@ -463,22 +494,23 @@ def parse_block(block: CodeBlock) -> BlockData:
     log.debug(f"parsing {block.type()} block '{block.name()}'")
     parsed_values: BlockData = {}
     if not block.is_builtin():
-        parsed_values['name'] = str(block.name())
+        parsed_values['name'] = CodeLine(block.start_line(), str(block.name()))
     multiline = None
     for line in block.lines():
-        if line.endswith('\\'):
+        line_text = line.text()
+        if line_text.endswith('\\'):
             if multiline is None:
-                multiline = line[:-1]
+                multiline = line_text[:-1]
             else:
-                multiline += line[:-1]
+                multiline += line_text[:-1]
             continue
         if multiline is not None:
-            line = multiline + line
+            line_text = multiline + line_text
             multiline = None
-        if line[0].isupper():
-            parsed_values['desc'] = line
+        if line_text[0].isupper():
+            parsed_values['desc'] = CodeLine(line.number(), line_text)
         else:
-            parsed_values[line.split(' ')[0]] = line[line.index(' ')+1:] 
+            parsed_values[line_text.split(' ')[0]] = CodeLine(line.number(), line_text[line_text.index(' ')+1:])
     for key, val in parsed_values.items():
         log.debug(f"|-- {key}: {val}")
     return parsed_values
@@ -487,10 +519,10 @@ def parse_block_builtin(blocks: List[CodeBlock], block_type: str) -> BlockData:
     log.info(f"** parsing builtin {block_type}")
     blocks_of_type: List[CodeBlock] = [block for block in blocks if block.type() == block_type]
     if len(blocks_of_type) == 0 or not blocks_of_type[0].is_builtin():
-        BuildMessages.add_error(f"'{block_type}' is not builtin, or no blocks of that type found")
+        BuildIssueManager.add_error(f"'{block_type}' is not builtin, or no blocks of that type found")
         return {}
     if len(blocks_of_type) > 1:
-        BuildMessages.add_error(f"Can only define '{block_type}' once, but it is defined {len(blocks_of_type)} times.")
+        BuildIssueManager.add_error(f"Can only define '{block_type}' once, but it is defined {len(blocks_of_type)} times")
         return {}
     return parse_block(blocks_of_type[0])
 
