@@ -11,7 +11,7 @@ from renpac.base import files
 from renpac.base.Config import Config, ConfigEntry, Type
 from renpac.base.Log import Log
 
-from renpac.builder import Game
+from renpac.builder import renpac
 
 from renpac.builder.renpygen import RenpyGen
 from renpac.builder.RenpyScript import RenpyScript
@@ -44,7 +44,7 @@ class Builder:
 
         self.generate_debug_file()
 
-        game: Game.Game = Game.Game(self._game_config_path)
+        game: renpac.Game = renpac.Game(self._game_config_path)
         self.build_game(game)
         self.copy_resources(game)
 
@@ -54,7 +54,7 @@ class Builder:
         log.critical(f"Build done at {datetime.now()} ({diff_time} seconds elapsed)")
 
     # TODO move to Game - but causes circular deps!
-    def build_game(self, game: Game.Game) -> None:
+    def build_game(self, game: renpac.Game) -> None:
         game.dump_to_log()
         game.write_python(self._game_config_path)
         #Game.to_json()
@@ -85,7 +85,7 @@ class Builder:
         log.info(f"** copying engine")
         files.copy_tree(str(self._engine_path), str(self._output_path))
 
-    def copy_resources(self, game: Game.Game) -> None:
+    def copy_resources(self, game: renpac.Game) -> None:
         mapping = {
             self._audio_path: "audio",
             self._images_path: "images",

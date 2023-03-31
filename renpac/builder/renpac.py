@@ -18,7 +18,7 @@ GameData = Dict[str, SectionData]
 # globals
 log = logging.getLogger("Game")
 
-class CodeBlock:
+class Block:
     def __init__(self, header, lines) -> None:
         self._header: str = header
         self._lines: List[str] = lines
@@ -47,7 +47,7 @@ class CodeBlock:
     def type(self) -> str:
         return self._type
 
-class CodeLine:
+class Line:
     def __init__(self, number: int, text: str) -> None:
         self._number: int = number
         self._text: str = text.rstrip()
@@ -76,8 +76,8 @@ class CodeLine:
 
 class Game:
     def __init__(self, source_path: Path) -> None:
-        lines: List[CodeLine] = get_lines(source_path)
-        blocks: List[CodeBlock] = get_blocks(lines)
+        lines: List[Line] = get_lines(source_path)
+        blocks: List[Block] = get_blocks(lines)
         self._data: GameData = parse_game(blocks)
 
         self.load_game()
@@ -350,21 +350,21 @@ class Game:
 
         script.write()
 
-def get_lines(source_path: Path) -> List[CodeLine]:
-    lines: List[CodeLine] = []
+def get_lines(source_path: Path) -> List[Line]:
+    lines: List[Line] = []
     line_number: int = 0
     for line_text in source_path.read_text().splitlines():
         line_number += 1
-        line = CodeLine(line_number, line_text)
+        line = Line(line_number, line_text)
         line.strip_comment()
         if not line.is_empty():
             lines.append(line)
     log.info(f"Game script loaded with {len(lines)} loc ({line_number} with blank/comments)")
     return lines
 
-def get_blocks(lines: List[CodeLine]) -> List[CodeBlock]:
-    current_block: Optional[CodeBlock] = None
-    blocks: List[CodeBlock] = []
+def get_blocks(lines: List[Line]) -> List[Block]:
+    current_block: Optional[Block] = None
+    blocks: List[Block] = []
     errors: List[str] = []
     for line in lines:
         if current_block is not None:
@@ -376,7 +376,7 @@ def get_blocks(lines: List[CodeLine]) -> List[CodeBlock]:
         if line.is_indented():
             errors.append(f"[{line.number()}] Unexpected indentation")
             continue
-        current_block = CodeBlock(line.text(), [])
+        current_block = Block(line.text(), [])
     log.info(f"{len(blocks)} blocks")
     for block in blocks:
         log.debug(f" -- {block.header()}")
@@ -386,7 +386,7 @@ def get_blocks(lines: List[CodeLine]) -> List[CodeBlock]:
         raise Exception("Errors in game source. Cannot proceed.")
     return blocks
 
-def parse_block(block: CodeBlock) -> BlockData:
+def parse_block(block: Block) -> BlockData:
     log.debug(f"parsing {block.type()} block '{block.name()}'")
     parsed_values: BlockData = {}
     if not block.is_builtin():
@@ -410,9 +410,9 @@ def parse_block(block: CodeBlock) -> BlockData:
         log.debug(f"|-- {key}: {val}")
     return parsed_values
 
-def parse_block_builtin(blocks: List[CodeBlock], block_type: str) -> BlockData:
+def parse_block_builtin(blocks: List[Block], block_type: str) -> BlockData:
     log.info(f"** parsing builtin {block_type}")
-    blocks_of_type: List[CodeBlock] = [block for block in blocks if block.type() == block_type]
+    blocks_of_type: List[Block] = [block for block in blocks if block.type() == block_type]
     if len(blocks_of_type) == 0 or not blocks_of_type[0].is_builtin():
         log.error(f"'{block_type}' is not builtin, or no blocks of that type found")
         return {}
@@ -421,7 +421,7 @@ def parse_block_builtin(blocks: List[CodeBlock], block_type: str) -> BlockData:
         return {}
     return parse_block(blocks_of_type[0])
 
-def parse_game(blocks: List[CodeBlock]) -> GameData:
+def parse_game(blocks: List[Block]) -> GameData:
     log.info("** parsing blocks")
     game_data: GameData = {'engine': {}}
     for block_type in ['game', 'inventory', 'exits', 'items']:
@@ -430,11 +430,11 @@ def parse_game(blocks: List[CodeBlock]) -> GameData:
         game_data[block_type] = parse_blocks_of_type(blocks, block_type)
     return game_data
 
-def parse_blocks_of_type(blocks: List[CodeBlock], block_type: str) -> SectionData:
+def parse_blocks_of_type(blocks: List[Block], block_type: str) -> SectionData:
     log.info(f"** parsing {block_type}s")
-    blocks_of_type: List[CodeBlock] = [block for block in blocks if block.type() == block_type]
+    blocks_of_type: List[Block] = [block for block in blocks if block.type() == block_type]
     values: SectionData = {}
-    block: CodeBlock
+    block: Block
     for block in blocks_of_type:
         values[str(block.name())] = parse_block(block)
     return values
