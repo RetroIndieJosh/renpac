@@ -119,18 +119,20 @@ class Game:
     def generate_script(self, game_source_path: Path, game_output_path: Path) -> Optional[GameScript]:
         script: GameScript = GameScript(game_output_path, 999, str(game_source_path))
 
+        # items needed for rooms and combos
         for item_name, item_data in self._data['item'].items():
             script.add_object(self.parse_item(item_name, item_data))
+
+        # rooms needed for exits
+        for room_name, room_data in self._data['room'].items():
+            script.add_object(self.parse_room(room_name, room_data))
 
         for exit_name, exit_data in self._data['exit'].items():
             script.add_object(self.parse_exit(exit_name, exit_data))
 
-        for room_name, room_data in self._data['room'].items():
-            script.add_object(self.parse_room(room_name, room_data))
-
         for combo_name, combo_data in self._data['combo'].items():
             script.add_object(self.parse_combo(combo_name, combo_data))
-            script.add_python(self.parse_item_add_combo(combo_name, combo_data))
+            script.add_python(self.parse_item_add_combo(combo_name))
 
         if self._start_room is not None:
             start_room = python.python_name("room", self._start_room)
@@ -224,7 +226,7 @@ class Game:
             VariableMap('with', 'replace_with'),
         ]
 
-        combo_name_python = python.python_name('combo', combo_name.replace('+', 'and'))
+        combo_name_python = python.python_name('combo', combo_name)
         combo: python.Object = python.Object(combo_name_python, "Combination()")
         map_varmaps(combo, combo_varmaps, {key: combo_data[key].text() for key in combo_data})
 
@@ -267,11 +269,9 @@ class Game:
     def parse_exit(self, exit_name: str, exit_data: BlockData) -> python.Object:
         exit_varmaps: List[VariableMap] = [
             VariableMap("message"),
-            VariableMap("location", expected_type=Config.Type.LITERAL, required=True),
-            VariableMap("target", expected_type=Config.Type.LITERAL, required=True),
         ]
 
-        exit: python.Object = python.Object(python.python_name("exit", exit_name), f"exit(\"{exit_name}\")")
+        exit: python.Object = python.Object(python.python_name("exit", exit_name), f"Exit(\"{exit_name}\")")
         map_varmaps(exit, exit_varmaps, {key: exit_data[key].text() for key in exit_data})
 
         if 'pos' in exit_data:
@@ -287,8 +287,13 @@ class Game:
             set_size.add_arg(python.Value(exit_data['size'].text(), Config.Type.COORD))
             exit.add_call(set_size)
 
-        self.validate_room(exit_name, exit_data, 'location')
-        self.validate_room(exit_name, exit_data, 'target')
+        rooms = self.get_rooms()
+        if 'location' in exit_data and exit_data['location'].text() in rooms:
+            python_room = python.python_name('room', exit_data['location'].text())
+            exit.add_value('location', python_room, Config.Type.LITERAL)
+        if 'target' in exit_data and exit_data['target'].text() in rooms:
+            python_room = python.python_name('room', exit_data['target'].text())
+            exit.add_value('target', python_room, Config.Type.LITERAL)
 
         return exit
 
@@ -299,7 +304,7 @@ class Game:
             VariableMap("fixed", expected_type=Config.Type.BOOL),
         ]
 
-        item = python.Object(python.python_name("item", item_name), f"item(\"{item_name}\")")
+        item = python.Object(python.python_name("item", item_name), f"Item(\"{item_name}\")")
         map_varmaps(item, item_varmaps, {key: item_data[key].text() for key in item_data})
 
         if 'pos' in item_data:
@@ -334,18 +339,18 @@ class Game:
         map_varmaps(room, room_varmaps, {key: room_data[key].text() for key in room_data})
 
         if 'items' in room_data:
-            call: python.Call = python.Call("hotspot_add")
             items: List[str] = self.get_items()
             for item in room_data['items'].text().split(','):
+                call: python.Call = python.Call("hotspot_add")
                 item = item.strip()
                 if item not in items:
                     issues.Manager.add_error(f"Missing item {item} requested for room {room_name}")
-                call.add_arg(python.Value(item, Config.Type.LITERAL))
-            room.add_call(call)
+                call.add_arg(python.Value(python.python_name('item', item), Config.Type.LITERAL))
+                room.add_call(call)
 
         return room
 
-    def parse_item_add_combo(self, combo_name: str, combo_data: BlockData) -> str:
+    def parse_item_add_combo(self, combo_name: str) -> str:
         parts = [n.strip() for n in combo_name.split('+')]
         if len(parts) != 2:
             raise Exception(f"ERROR: incorrect parts in combo '{combo_name}'; expected 2, got {len(parts)}")
@@ -364,7 +369,7 @@ class Game:
         else:
             raise Exception(f"ERROR: for combo, no hotspot target '{target_name}' defined in game configuration")
 
-        python_name = python.python_name('combo', combo_data['name'].text())
+        python_name = python.python_name('combo', combo_name)
         return f"{item_name_python}.add_combination({target_name_python}, {python_name})"
 
     def validate(self, element_type: str, name_list: List[str], owner_name: str, data: BlockData, key: str):

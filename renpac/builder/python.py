@@ -109,6 +109,7 @@ class Object:
 def python_name(type: Optional[str], n: str) -> str:
     n = n.strip()
     chars = re.escape(string.punctuation + string.whitespace)
+    n = n.replace('+', 'and')
     n = re.sub('['+chars+']', '_', n)
     while "__" in n:
         n = n.replace("__", "_")

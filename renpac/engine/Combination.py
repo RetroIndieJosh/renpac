@@ -1,8 +1,5 @@
 from typing import Any
 
-from dataclasses import dataclass
-
-@dataclass(frozen=True)
 class Combination:
     """! Specification for handling the combination of two items.
     """
