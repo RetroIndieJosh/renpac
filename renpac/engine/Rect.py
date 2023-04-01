@@ -15,8 +15,8 @@ class Rect:
         return Rect(*rect.get_xywh())
 
     def __init__(self, x: int = 0, y: int = 0, width: int = 0, height: int = 0, 
-                 on_pos_change: Optional[Callable[[int, int, int, int], bool]] = None,
-                 on_size_change: Optional[Callable[[int, int, int, int], bool]] = None) -> None:
+                on_pos_change: Optional[Callable[[int, int, int, int], bool]] = None,
+                on_size_change: Optional[Callable[[int, int, int, int], bool]] = None) -> None:
         """! Create a rectangle. In Ren'Py, (0, 0) is the top-left of the screen
         and increases going right and downwards.
 

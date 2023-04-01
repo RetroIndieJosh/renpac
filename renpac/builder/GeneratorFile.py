@@ -30,7 +30,7 @@ class GeneratorFile(RenpyScript):
         rpy_filename: str = f"{self._name}.gen.rpy" if self._module is None else f"{self._module}/{self._name}.gen.rpy"
         output_path: Path = output_root.joinpath(rpy_filename).absolute()
 
-        super().__init__(output_path, source_path=source_path)
+        super().__init__(output_path, source_path=str(source_path))
 
     def __repr__(self) -> str:
         return self._name if self._module is None else f"{self._module}.{self._name}" 

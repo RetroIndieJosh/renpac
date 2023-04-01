@@ -22,7 +22,6 @@ log = logging.getLogger("builder")
 
 ALLOWED_IMAGE_EXTENSIONS: List[str] = [".png", ".jpg", ".jpeg"]
 
-# TODO this doesn't need to be a class
 class Builder:
     def __init__(self, root: Path, config_relative_path="build.cfg") -> None:
         self._config_path: Path = Path(root, config_relative_path)
@@ -97,17 +96,15 @@ class Builder:
         resource_path: Path
         image_files: List[Path] = list(self._images_path.iterdir())
         for resource_path in files.filter_files(image_files, ALLOWED_IMAGE_EXTENSIONS):
-            if "gui" in resource_path.parents:
-                continue
             name: str = resource_path.stem
             if name in required_image_found:
                 required_image_found[name] = True
                 continue
-            issues.Manager.add_warning(f"unused image file {resource_path}")
+            issues.Manager.add_warning(f"[RES] unused image file {resource_path}")
 
         for image in required_image_found:
             if not required_image_found[image]:
-                issues.Manager.add_error(f"missing required image file '{image}' in '{self._images_path}'")
+                issues.Manager.add_error(f"[RES] missing required image file '{image}' in '{self._images_path}'")
 
         return issues.Manager.has_error() or issues.Manager.has_warning()
 

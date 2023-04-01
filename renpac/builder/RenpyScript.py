@@ -75,7 +75,24 @@ class RenpyScript:
                     "# and run the generator again.\n"])
             file.writelines(self._renpy)
             file.write(f"\ninit {self._priority} python:\n")
-            file.writelines([f"{self._indent_str}{line}" for line in self._python])
+
+            in_comment: bool = False
+            line: str
+            for line in self._python:
+                stripped = line.strip()
+                if len(stripped) == 0:
+                    continue
+                if stripped != '"""' and stripped.startswith('"""') and stripped.endswith('"""'):
+                    continue
+                if stripped.startswith('"""') and not in_comment:
+                    in_comment = True
+                    continue
+                if stripped.endswith('"""') and in_comment:
+                    in_comment = False
+                    continue
+                if stripped.startswith('#') or in_comment:
+                    continue
+                file.write(f"{self._indent_str}{line}")
 
 if __name__ == "__main__":
     path: Path = Path(__file__).parent.joinpath("test.gen.rpy")

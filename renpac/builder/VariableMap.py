@@ -17,5 +17,5 @@ class VariableMap:
 
 def map_varmaps(obj: python.Object, varmaps: List[VariableMap], data: Dict[str, str]):
     for varmap in [varmap for varmap in varmaps if varmap.renpac_key in data]:
-        python_key: str = varmap.renpac_key if varmap.python_key is None else varmap.renpac_key
+        python_key: str = varmap.renpac_key if varmap.python_key is None else varmap.python_key
         obj.add_value(python_key, data[varmap.renpac_key], varmap.expected_type)

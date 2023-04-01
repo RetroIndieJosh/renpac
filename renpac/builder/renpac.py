@@ -116,6 +116,28 @@ class Game:
         self._default_exit_size = int(self.get_value('engine', 'exits', 'size'))
         self._default_item_size = int(self.get_value('engine', 'items', 'size'))
 
+    def generate_script(self, game_source_path: Path, game_output_path: Path) -> Optional[GameScript]:
+        script: GameScript = GameScript(game_output_path, 999, str(game_source_path))
+
+        for item_name, item_data in self._data['item'].items():
+            script.add_object(self.parse_item(item_name, item_data))
+
+        for exit_name, exit_data in self._data['exit'].items():
+            script.add_object(self.parse_exit(exit_name, exit_data))
+
+        for room_name, room_data in self._data['room'].items():
+            script.add_object(self.parse_room(room_name, room_data))
+
+        for combo_name, combo_data in self._data['combo'].items():
+            script.add_object(self.parse_combo(combo_name, combo_data))
+            script.add_python(self.parse_item_add_combo(combo_name, combo_data))
+
+        if self._start_room is not None:
+            start_room = python.python_name("room", self._start_room)
+            script.add_return(start_room)
+
+        return None if issues.Manager.has_error() else script
+
     def get_value(self, section_key: str, block_key: str, value_key: str, required: bool = False) -> str:
         fail: str = ""
         if section_key in self._data:
@@ -206,20 +228,23 @@ class Game:
         combo: python.Object = python.Object(combo_name_python, "Combination()")
         map_varmaps(combo, combo_varmaps, {key: combo_data[key].text() for key in combo_data})
 
+        if 'with' in combo_data:
+            self.validate_item(combo_name, combo_data, 'with')
+
         flags: int = target.TARGET_NONE
         key: str
         for key in ['delete', 'replace']:
             if key in combo_data:
-                key_target = combo_data[key]
-                if key_target == 'none':
+                value = combo_data[key].text()
+                if value == 'none':
                     flags = target.TARGET_NONE
-                elif key_target == 'self':
+                elif value == 'self':
                     flags = target.TARGET_SELF
-                elif key_target == 'other':
+                elif value == 'other':
                     flags = target.TARGET_OTHER
-                elif key_target == 'both':
+                elif value == 'both':
                     flags = target.TARGET_SELF | target.TARGET_OTHER
-            combo.add_value(key, str(flags), value_type=Config.Type.INT)
+                combo.add_value(key, str(flags), value_type=Config.Type.INT)
 
         # error checking
 
@@ -246,7 +271,7 @@ class Game:
             VariableMap("target", expected_type=Config.Type.LITERAL, required=True),
         ]
 
-        exit = python.Object(python.python_name("exit", exit_name), f"exit(\"{exit_name}\")")
+        exit: python.Object = python.Object(python.python_name("exit", exit_name), f"exit(\"{exit_name}\")")
         map_varmaps(exit, exit_varmaps, {key: exit_data[key].text() for key in exit_data})
 
         if 'pos' in exit_data:
@@ -262,16 +287,8 @@ class Game:
             set_size.add_arg(python.Value(exit_data['size'].text(), Config.Type.COORD))
             exit.add_call(set_size)
 
-        # TODO add TYPE_ROOM to handle this
-        rooms = self.get_rooms()
-        if exit.values['location'].to_python() not in rooms:
-            line = exit_data['location'].number()
-            log.info(f"location line: {line}")
-            issues.Manager.add_error(f"no room '{exit.values['location']}' requested in {exit_name}.location", line)
-        if exit.values['target'].to_python() not in rooms:
-            line = exit_data['target'].number()
-            log.info(f"target line: {line}")
-            issues.Manager.add_error(f"no room '{exit.values['location']}' requested in {exit_name}.target", line)
+        self.validate_room(exit_name, exit_data, 'location')
+        self.validate_room(exit_name, exit_data, 'target')
 
         return exit
 
@@ -317,8 +334,12 @@ class Game:
         map_varmaps(room, room_varmaps, {key: room_data[key].text() for key in room_data})
 
         if 'items' in room_data:
-            call = python.Call("hotspot_add")
+            call: python.Call = python.Call("hotspot_add")
+            items: List[str] = self.get_items()
             for item in room_data['items'].text().split(','):
+                item = item.strip()
+                if item not in items:
+                    issues.Manager.add_error(f"Missing item {item} requested for room {room_name}")
                 call.add_arg(python.Value(item, Config.Type.LITERAL))
             room.add_call(call)
 
@@ -346,32 +367,29 @@ class Game:
         python_name = python.python_name('combo', combo_data['name'].text())
         return f"{item_name_python}.add_combination({target_name_python}, {python_name})"
 
+    def validate(self, element_type: str, name_list: List[str], owner_name: str, data: BlockData, key: str):
+        room_line: CodeLine = data[key]
+        room_name: str = room_line.text()
+        if room_name not in name_list:
+            issues.Manager.add_error(f"no {element_type} '{room_name}' for {owner_name}.{key}", 
+                room_line.number())
+
+    def validate_exit(self, owner_name: str, data: BlockData, exit_key: str):
+        exits: List[str] = self.get_exits()
+        self.validate("exit", exits, owner_name, data, exit_key)
+
+    def validate_item(self, owner_name: str, data: BlockData, item_key: str):
+        items: List[str] = self.get_items()
+        self.validate("item", items, owner_name, data, item_key)
+
+    def validate_room(self, owner_name: str, data: BlockData, room_key: str):
+        rooms: List[str] = self.get_rooms()
+        self.validate("room", rooms, owner_name, data, room_key)
+
     def write_json(self, game_file_path: Path) -> None:
         import json
         with Path(__file__).parent.joinpath("build", game_file_path).open("w") as file:
             json.dump(self._data, file, indent=4)
-
-    def generate_script(self, game_source_path: Path, game_output_path: Path) -> Optional[GameScript]:
-        script: GameScript = GameScript(game_output_path, 999, str(game_source_path))
-
-        for item_name, item_data in self._data['item'].items():
-            script.add_object(self.parse_item(item_name, item_data))
-
-        for exit_name, exit_data in self._data['exit'].items():
-            script.add_object(self.parse_exit(exit_name, exit_data))
-
-        for room_name, room_data in self._data['room'].items():
-            script.add_object(self.parse_room(room_name, room_data))
-
-        for combo_name, combo_data in self._data['combo'].items():
-            script.add_object(self.parse_combo(combo_name, combo_data))
-            script.add_python(self.parse_item_add_combo(combo_name, combo_data))
-
-        if self._start_room is not None:
-            start_room = python.python_name("room", self._start_room)
-            script.add_return(start_room)
-
-        return None if issues.Manager.has_error() else script
 
 def get_lines(source_path: Path) -> List[CodeLine]:
     lines: List[CodeLine] = []
