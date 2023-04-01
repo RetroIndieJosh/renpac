@@ -23,6 +23,7 @@ class RenpyScript:
         self._indent_str: str = ' ' * indent
 
         self._script_objects: List[python.Object] = []
+        self._python_init: List[str] = []
         self._python: List[str] = []
         self._renpy: List[str] = []
 
@@ -38,7 +39,11 @@ class RenpyScript:
             self.add_renpy(*header_lines)
 
     def add_object(self, script_object: python.Object) -> None:
+        self.add_init(script_object.get_init())
         self.add_python(*script_object.to_python())
+
+    def add_init(self, *args: str) -> None:
+        self._python_init += [f"{line}\n" for line in list(args)]
 
     def add_python(self, *args: str) -> None:
         self._python += [f"{line}\n" for line in list(args)]
@@ -78,6 +83,8 @@ class RenpyScript:
 
             in_comment: bool = False
             line: str
+            for line in self._python_init:
+                file.write(f"{self._indent_str}{line}")
             for line in self._python:
                 stripped = line.strip()
                 if len(stripped) == 0:

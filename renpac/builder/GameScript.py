@@ -26,8 +26,9 @@ class GameScript(RenpyScript):
         self._return_value = return_value
 
     def write(self) -> None:
-        self._python = ["def load_game():\n"]  \
-            + [f"{self._indent_str}{line}" for line in self._python]
+        self._python_init = ["def load_game():\n"]  \
+            + [f"{self._indent_str}{line}" for line in self._python_init]
+        self._python = [f"{self._indent_str}{line}" for line in self._python]
         if len(self._return_value) > 0:
             self._python += [f"{self._indent_str}return {self._return_value}"]
         super().write()

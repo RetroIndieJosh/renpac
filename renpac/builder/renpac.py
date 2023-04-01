@@ -113,26 +113,35 @@ class Game:
     # TODO None checks
     # TODO parse as coord so width can != height 
     def load_defaults(self) -> None:
-        self._default_exit_size = int(self.get_value('engine', 'exits', 'size'))
-        self._default_item_size = int(self.get_value('engine', 'items', 'size'))
+        self._default_exit_size: python.Value = python.Value(self.get_value('engine', 'exits', 'size'), Config.Type.COORD)
+        self._default_item_size: python.Value = python.Value(self.get_value('engine', 'items', 'size'), Config.Type.COORD)
 
     def generate_script(self, game_source_path: Path, game_output_path: Path) -> Optional[GameScript]:
         script: GameScript = GameScript(game_output_path, 999, str(game_source_path))
 
-        # items needed for rooms and combos
-        for item_name, item_data in self._data['item'].items():
-            script.add_object(self.parse_item(item_name, item_data))
+        self._objects: Dict[str, Dict[str, python.Object]] = {}
 
-        # rooms needed for exits
-        for room_name, room_data in self._data['room'].items():
-            script.add_object(self.parse_room(room_name, room_data))
+        # create objects
+        for type in ['room', 'item', 'combo', 'exit']:
+            self._objects[type] = {}
+            for name in self._data[type]:
+                if type == 'combo':
+                    python_name = python.python_name('combo', name)
+                    self._objects[type][name] = python.Object(python_name, f"Combination()")
+                else:
+                    python_name = python.python_name(type, name)
+                    self._objects[type][name] = python.Object(python_name, f"{type.title()}(\"{name}\")")
 
-        for exit_name, exit_data in self._data['exit'].items():
-            script.add_object(self.parse_exit(exit_name, exit_data))
-
-        for combo_name, combo_data in self._data['combo'].items():
-            script.add_object(self.parse_combo(combo_name, combo_data))
-            script.add_python(self.parse_item_add_combo(combo_name))
+        # set values for objects
+        for type, elements_of_type in self._objects.items():
+            for name, element_object in elements_of_type.items():
+                data = self._data[type][name]
+                match type:
+                    case 'room': self.parse_room(name, data)
+                    case 'item': self.parse_item(name, data)
+                    case 'combo': self.parse_combo(name, data)
+                    case 'exit': self.parse_exit(name, data)
+                script.add_object(element_object)
 
         if self._start_room is not None:
             start_room = python.python_name("room", self._start_room)
@@ -196,17 +205,36 @@ class Game:
                 self._script.add_line(f"Inventory.add({item_python})")
         """
 
+    def get_combo(self, key: str) -> Optional[python.Object]:
+        return self._objects['combo'][key] if key in self._objects['combo'] else None
+
+    def get_exit(self, key: str) -> Optional[python.Object]:
+        return self._objects['exit'][key] if key in self._objects['exit'] else None
+
     def get_exits(self) -> List[str]:
-        return [exit for exit in self._data['exit']]
+        return [exit for exit in self._objects['exit']]
+
+    def get_hotspot(self, key: str) -> Optional[python.Object]:
+        exit = self.get_exit(key)
+        if exit is None:
+            item = self.get_item(key)
+            return None if item is None else item
+        return exit
 
     def get_hotspots(self) -> List[str]:
         return self.get_exits() + self.get_hotspots()
 
+    def get_item(self, key: str) -> Optional[python.Object]:
+        return self._objects['item'][key] if key in self._objects['item'] else None
+
     def get_items(self) -> List[str]:
-        return [item for item in self._data['item']]
+        return [item for item in self._objects['item']]
+
+    def get_room(self, key: str) -> Optional[python.Object]:
+        return self._objects['room'][key] if key in self._objects['room'] else None
 
     def get_rooms(self) -> List[str]:
-        return [room for room in self._data['room']]
+        return [room for room in self._objects['room']]
 
     def has_exit(self, exit_name: str) -> bool:
         return exit_name in self.get_exits()
@@ -220,18 +248,23 @@ class Game:
     def has_room(self, room_name: str) -> bool:
         return room_name in self.get_rooms()
 
-    def parse_combo(self, combo_name: str, combo_data: BlockData) -> python.Object:
+    def parse_combo(self, combo_name: str, combo_data: BlockData) -> None:
         combo_varmaps: List[VariableMap] = [
             VariableMap('message'),
             VariableMap('with', 'replace_with'),
         ]
 
-        combo_name_python = python.python_name('combo', combo_name)
-        combo: python.Object = python.Object(combo_name_python, "Combination()")
+        combo = self.get_combo(combo_name)
+        if combo is None:
+            raise Exception(f"Combo {combo_name} undefined, cannot parse")
         map_varmaps(combo, combo_varmaps, {key: combo_data[key].text() for key in combo_data})
 
         if 'with' in combo_data:
-            self.validate_item(combo_name, combo_data, 'with')
+            items: List[str] = self.get_items()
+            with_name = combo_data['with'].text()
+            if with_name not in items:
+                issues.Manager.add_error(f"no item '{with_name}' for {combo.python_name}.with", 
+                    combo_data['with'].number())
 
         flags: int = target.TARGET_NONE
         key: str
@@ -255,23 +288,23 @@ class Game:
             replace_with: Optional[str] = combo.get_value('replace_with') 
             if replace_with is not None and replace == target.TARGET_NONE:
                 line = combo_data['replace'].number()
-                issues.Manager.add_warning(f"'with' defined in '{combo_name}' but 'replace' is set to 'none'", line)
+                issues.Manager.add_warning(f"'with' defined in '{combo}' but 'replace' is set to 'none'", line)
             if replace_with is None and replace != target.TARGET_NONE:
                 line = combo_data['replace'].number() if 'replace' in combo_data else -1
-                issues.Manager.add_warning(f"'replace' defined in '{combo_name}' but no 'with' set", line)
+                issues.Manager.add_warning(f"'replace' defined in '{combo}' but no 'with' set", line)
 
         # ignore delete flag if it's the same as replace
         if combo.get_value('delete') == replace:
             combo.values['delete'] = python.Value(str(target.TARGET_NONE), Config.Type.INT)
 
-        return combo
-
-    def parse_exit(self, exit_name: str, exit_data: BlockData) -> python.Object:
+    def parse_exit(self, exit_name: str, exit_data: BlockData) -> None:
         exit_varmaps: List[VariableMap] = [
             VariableMap("message"),
         ]
 
-        exit: python.Object = python.Object(python.python_name("exit", exit_name), f"Exit(\"{exit_name}\")")
+        exit = self.get_exit(exit_name)
+        if exit is None:
+            raise Exception(f"exit {exit} undefined, cannot parse")
         map_varmaps(exit, exit_varmaps, {key: exit_data[key].text() for key in exit_data})
 
         if 'pos' in exit_data:
@@ -282,29 +315,27 @@ class Game:
             issues.Manager.add_error(f"exit {exit.python_name} has no position defined", 
                 list(exit_data.values())[0].number())
 
-        if 'size' in exit_data:
-            set_size: python.Call = python.Call("rect.set_size")
-            set_size.add_arg(python.Value(exit_data['size'].text(), Config.Type.COORD))
-            exit.add_call(set_size)
+        set_size: python.Call = python.Call("rect.set_size")
+        size: python.Value = python.Value(exit_data['size'].text(), Config.Type.COORD) \
+            if 'size' in exit_data else self._default_exit_size
+        set_size.add_arg(size)
+        exit.add_call(set_size)
 
         rooms = self.get_rooms()
-        if 'location' in exit_data and exit_data['location'].text() in rooms:
-            python_room = python.python_name('room', exit_data['location'].text())
-            exit.add_value('location', python_room, Config.Type.LITERAL)
         if 'target' in exit_data and exit_data['target'].text() in rooms:
             python_room = python.python_name('room', exit_data['target'].text())
             exit.add_value('target', python_room, Config.Type.LITERAL)
 
-        return exit
-
-    def parse_item(self, item_name: str, item_data: BlockData) -> python.Object:
+    def parse_item(self, item_name: str, item_data: BlockData) -> None:
         item_varmaps: List[VariableMap] = [
             VariableMap("desc"),
             VariableMap("printed", "printed_name"),
             VariableMap("fixed", expected_type=Config.Type.BOOL),
         ]
 
-        item = python.Object(python.python_name("item", item_name), f"Item(\"{item_name}\")")
+        item = self.get_item(item_name)
+        if item is None:
+            raise Exception(f"item {item} undefined, cannot parse")
         map_varmaps(item, item_varmaps, {key: item_data[key].text() for key in item_data})
 
         if 'pos' in item_data:
@@ -314,41 +345,50 @@ class Game:
         else:
             in_room = None
             for room in self.get_rooms():
-                if item_name in self.get_value('room', room, 'items'):
+                if '_'.join(item.python_name.split('_')[:-1]) in self.get_value('room', room, 'items'):
                     in_room = room
                     break
             if in_room is not None:
                 line = list(item_data.values())[0].number()
                 issues.Manager.add_error(f"Item {item.python_name} has no position defined and is in room {in_room}", line)
 
-        if 'size' in item_data:
-            set_size: python.Call = python.Call("rect.set_size")
-            set_size.add_arg(python.Value(item_data['size'].text(), Config.Type.COORD))
-            item.add_call(set_size)
+        set_size: python.Call = python.Call("rect.set_size")
+        size: python.Value = python.Value(item_data['size'].text(), Config.Type.COORD) \
+            if 'size' in item_data else self._default_item_size
+        set_size.add_arg(size)
+        item.add_call(set_size)
 
-        return item
-
-    def parse_room(self, room_name: str, room_data: BlockData) -> python.Object:
+    def parse_room(self, room_name: str, room_data: BlockData) -> None:
         room_varmaps: List[VariableMap] = [
             VariableMap("desc"),
             VariableMap("first", "first_desc"),
             VariableMap("printed", "printed_name"),
         ]
 
-        room = python.Object(python.python_name("room", room_name), f"Room(\"{room_name}\")")
+        room = self.get_room(room_name)
+        if room is None:
+            raise Exception(f"room {room} undefined, cannot parse")
         map_varmaps(room, room_varmaps, {key: room_data[key].text() for key in room_data})
+
+        if 'exits' in room_data:
+            exits: List[str] = self.get_exits()
+            for exit in room_data['exits'].text().split(','):
+                exit_call: python.Call = python.Call("hotspot_add")
+                exit = exit.strip()
+                if exit not in exits:
+                    issues.Manager.add_error(f"Missing exit {exit} requested for room {room.python_name}")
+                exit_call.add_arg(python.Value(python.python_name('exit', exit), Config.Type.LITERAL))
+                room.add_call(exit_call)
 
         if 'items' in room_data:
             items: List[str] = self.get_items()
             for item in room_data['items'].text().split(','):
-                call: python.Call = python.Call("hotspot_add")
+                item_call: python.Call = python.Call("hotspot_add")
                 item = item.strip()
                 if item not in items:
-                    issues.Manager.add_error(f"Missing item {item} requested for room {room_name}")
-                call.add_arg(python.Value(python.python_name('item', item), Config.Type.LITERAL))
-                room.add_call(call)
-
-        return room
+                    issues.Manager.add_error(f"Missing item {item} requested for room {room.python_name}")
+                item_call.add_arg(python.Value(python.python_name('item', item), Config.Type.LITERAL))
+                room.add_call(item_call)
 
     def parse_item_add_combo(self, combo_name: str) -> str:
         parts = [n.strip() for n in combo_name.split('+')]
