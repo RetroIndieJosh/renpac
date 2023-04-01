@@ -10,7 +10,7 @@ class Rect:
 
         @param rect The rectangle to copy.
 
-        @return A new rectangle with its x, y, width, and height matching the given rectangle.
+        @returns A new rectangle with its x, y, width, and height matching the given rectangle.
         """
         return Rect(*rect.get_xywh())
 
@@ -59,7 +59,7 @@ class Rect:
         @param x The x coordinate of the rectangle's top-left corner.
         @param y The y coordinate of the rectangle's top-left corner.
 
-        @return True if the coordinate is in the rectangle, False otherwise.
+        @returns True if the coordinate is in the rectangle, False otherwise.
         """
         left, top, right, bottom = self.get_ltrb()
         return x >= left and x <= right and y >= top and y <= bottom
@@ -71,15 +71,15 @@ class Rect:
         """! Center this rectangle in the given width and height starting with
         the top left at (0, 0)
 
-        @param width The containing width
-        @param height The containing height
+        @param container_width The containing width
+        @param container_height The containing height
         """
         self.set_center(floor(container_width * 0.5), floor(container_height * 0.5))
     
     def center_vert(self, container_height) -> None:
         """! Center this rectangle vertically with the given height starting at y = 0
 
-        @param height The containing height
+        @param container_height The containing height
         """
         center_x, _ = self.get_center()
         self.set_center(center_x, floor(container_height * 0.5))
@@ -87,7 +87,7 @@ class Rect:
     def center_hori(self, container_width) -> None:
         """! Center this rectangle horizontally with the given width starting at x = 0
 
-        @param width The containing width
+        @param container_width The containing width
         """
         _, center_y = self.get_center()
         self.set_center(floor(container_width * 0.5), center_y)
@@ -96,11 +96,11 @@ class Rect:
         """! Get the center coordinate in the rectangle. In case of a
         non-integer center, the values are floored.
 
-        @return A tuple with the values (x, y) of the center position, floored.
+        @returns A tuple with the values (x, y) of the center position, floored.
         """
         return self._x + floor(self._width * 0.5), self._y + floor(self._height * 0.5)
 
-    def set_center(self, x, y) -> None:
+    def set_center(self, x: int, y: int) -> None:
         """! Position the rectangle such that the center is at the given
         coordinate. If the resulting rectangle position is a non-integer, the
         rectangle is shifted up and left to the nearest integer (values are
@@ -114,7 +114,7 @@ class Rect:
     def get_ltrb(self) -> Tuple[int, int, int, int]:
         """! Get the left, top, right, and bottom for the rectangle.
 
-        @return A tuple with values (left, top, right, bottom).
+        @returns A tuple with values (left, top, right, bottom).
         """
         return self._x, self._y, self._x + self._width, self._y + self._height
 
@@ -133,7 +133,7 @@ class Rect:
     def get_size(self) -> Tuple[int, int]:
         """! Get the size of the rectangle.
 
-        @return A tuple with values (width, height).
+        @returns A tuple with values (width, height).
         """
         return self._width, self._height
 
@@ -152,7 +152,7 @@ class Rect:
     def get_pos(self) -> Tuple[int, int]:
         """! Get the position (top-left coordinate) of the rectangle.
 
-        @return A tuple with values (x, y).
+        @returns A tuple with values (x, y).
         """
         return self._x, self._y
 
@@ -171,7 +171,7 @@ class Rect:
     def get_xywh(self) -> Tuple[int, int, int, int]:
         """! Get the position and size of the rectangle.
 
-        @return A tuple with values (x, y, width, height).
+        @returns A tuple with values (x, y, width, height).
         """
         return self._x, self._y, self._width, self._height
 

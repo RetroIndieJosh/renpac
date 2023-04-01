@@ -1,4 +1,3 @@
-# TODO put all print statements back to log.debug once tests work
 import filecmp
 import logging
 import shutil
@@ -6,7 +5,6 @@ import shutil
 from pathlib import Path
 from typing import Callable, List, Optional
 
-from renpac.base.printv import printv
 from renpac.base.utility import indent
 
 log = logging.getLogger("files")
@@ -25,16 +23,16 @@ def clear_dir(dir_path: Path, extensions: Optional[List[str]] = None,
             extension filter will be used, and no directories will be removed.
     """
     if not dir_path.exists():
-        print(f"skip clearing dir '{dir_path}' - does not exist")
+        log.debug(f"skip clearing dir '{dir_path}' - does not exist")
         return
-    print(f"delete all {extensions} in {dir_path}")
+    log.debug(f"delete all {extensions} in {dir_path}")
     for file_path in dir_path.iterdir():
         if recursive and file_path.is_dir():
             clear_dir(file_path, extensions)
             continue
         if extensions is None or is_type(file_path, extensions):
             path = dir_path.joinpath(file_path)
-            print(f"DELETE '{path}'")
+            log.debug(f"DELETE '{path}'")
             file_path.unlink()
 
 # TODO change to Path (not str)
@@ -56,9 +54,9 @@ def copy_tree(source_root_dir: Path, dest_root_dir: Path,
     @return The total number of files (excluding directories) copied
     """
     source_dir: Path = source_root_dir.joinpath(relative_dir).resolve()
-    print(f"source_dir = {source_dir}")
+    log.debug(f"source_dir = {source_dir}")
     for line in indent(f"COPY DIR\n{source_dir}\n => {dest_root_dir}", depth, True).splitlines():
-        print(line)
+        log.debug(line)
     dest_dir: Path = dest_root_dir.joinpath(relative_dir)
     if source_dir in dest_dir.parents:
         raise Exception("Cannot copy a directory tree inside itself as it will cause infinite recursion")
@@ -80,13 +78,13 @@ def copy_tree(source_root_dir: Path, dest_root_dir: Path,
             if not check_func(dest_file):
                 continue
         # skip copy if the destination file matches exactly
-        if dest_file.exists() and source_path.stat().st_size == dest_file.stat().st_size \
-                and filecmp.cmp(source_path, dest_file, False):
+        if (dest_file.exists() and source_path.stat().st_size == dest_file.stat().st_size 
+                and filecmp.cmp(source_path, dest_file, False)):
             for line in indent(f"SKIP IDENTICAL\n\t{source_path}\n == {dest_file}", depth, True).splitlines():
-                print(line)
+                log.debug(line)
             continue
         for line in indent(f"COPY\n{source_path}\n => {dest_file}", depth, True).splitlines():
-            print(line)
+            log.debug(line)
         shutil.copy2(source_path, dest_file)
         file_count += 1
     return file_count
