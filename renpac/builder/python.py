@@ -18,7 +18,8 @@ from renpac.base import Config
 
 log = logging.getLogger("python")
 
-@dataclass(frozen = True)
+
+@dataclass(frozen=True)
 class Value:
     value: str
     expected_type: Config.Type = Config.Type.STRING
@@ -59,12 +60,14 @@ class Value:
         return ""
 
     def type_error(self) -> None:
-        log.error(f"Value '{self.value}' invalid for type '{self.expected_type.name}'")
+        log.error(
+            f"Value '{self.value}' invalid for type '{self.expected_type.name}'")
 
-@dataclass(frozen = True)
+
+@dataclass(frozen=True)
 class Call:
     func: str
-    args: List[Value] = field(default_factory = list)
+    args: List[Value] = field(default_factory=list)
 
     def arg_list(self) -> str:
         return ', '.join([arg.to_python() for arg in self.args])
@@ -72,12 +75,16 @@ class Call:
     def add_arg(self, arg: Value):
         self.args.append(arg)
 
-@dataclass(frozen = True)
+    def to_python(self) -> str:
+        return f"{self.func}({self.arg_list()})"
+
+
+@dataclass(frozen=True)
 class Object:
     python_name: str
-    init: str
-    calls: List[Call] = field(default_factory = list)
-    values: Dict[str, Value] = field(default_factory = dict)
+    init: Optional[str]
+    calls: List[Call] = field(default_factory=list)
+    values: Dict[str, Value] = field(default_factory=dict)
 
     def __repr__(self) -> str:
         return '\n'.join(self.to_python())
@@ -90,23 +97,29 @@ class Object:
 
     def add_value(self, key: str, value: str, value_type: Config.Type = Config.Type.STRING) -> None:
         if key in self.values:
-            log.error(f"Tried to add key {key} to {self.python_name} ScriptObject but it is already defined")
+            log.error(
+                f"Tried to add key {key} to {self.python_name} ScriptObject but it is already defined")
         self.values[key] = Value(value, value_type)
 
-    def get_init(self) -> str:
+    def get_init(self) -> Optional[str]:
+        if self.init is None:
+            return None
         return f"{self.python_name} = {self.init}"
-    
+
     def get_value(self, key: str) -> Optional[str]:
         return self.values[key].value if key in self.values else None
 
     def to_python(self) -> List[str]:
-        sorted_calls = sorted(self.calls, key = lambda call: call.func)
-        calls = [f"{self.python_name}.{call.func}({call.arg_list()})" for call in sorted_calls]
+        sorted_calls = sorted(self.calls, key=lambda call: call.func)
+        calls = [
+            f"{self.python_name}.{call.func}({call.arg_list()})" for call in sorted_calls]
 
         sorted_values = dict(sorted(self.values.items())).items()
-        values = [f"{self.python_name}.{key} = {value.to_python()}" for key, value in sorted_values]
+        values = [f"{self.python_name}.{key} = {value.to_python()}" for key,
+                  value in sorted_values]
 
         return calls + values
+
 
 def python_name(type: Optional[str], n: str) -> str:
     n = n.strip()
@@ -119,11 +132,13 @@ def python_name(type: Optional[str], n: str) -> str:
         return n
     return f"{type}_{n}"
 
+
 def test_name():
     assert python_name(None, "foo bar") == "foo_bar"
     assert python_name(None, "shebang + bin/bash") == "shebang_bin_bash"
-    assert python_name("foo", "bar") ==  "foo_bar"
+    assert python_name("foo", "bar") == "foo_bar"
     assert python_name("foo", "shebang + bin/bash") == "foo_shebang_bin_bash"
+
 
 # TODO JM migrate the below tests to renpac.py, probably as part of a larger test_game test
 """

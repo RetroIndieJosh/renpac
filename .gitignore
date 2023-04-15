@@ -5,6 +5,7 @@
 **/doc/
 **/saves/
 **/.pytest_cache
+**/.mypy_cache
 
 # file types
 **/*.bak
